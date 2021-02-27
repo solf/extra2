@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+
+<!-- NOTE: this only affects manual running of tests, POM.XML is used to configure Maven (look for <parallel>methods</parallel>) -->
+<suite name="ExtraSuite" verbose="1" parallel="methods" thread-count="4">
+  <test name="Everything">
+    <packages>
+      <package name="site.sonata.extra2.*" />
+   </packages>
+ </test>
+</suite>
