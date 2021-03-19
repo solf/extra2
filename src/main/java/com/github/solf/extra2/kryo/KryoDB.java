@@ -35,7 +35,6 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializer;
-import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializerWithSameNameFieldSupport;
 import com.github.solf.extra2.objectgraph.ObjectGraphCompoundNodeVisitor;
 import com.github.solf.extra2.objectgraph.ObjectGraphConfig;
 import com.github.solf.extra2.objectgraph.ObjectGraphUtil;
@@ -52,11 +51,11 @@ import com.github.solf.extra2.util.ReflectionUtil;
  * to an inner class like this:
 	public static class TestKryoData
 	{
-		public String aaa = "aaa";
-//		public String bbb = "bbb";
-		public String ccc = "ccc";
-//		public String ddd = bbb;
-		public String ddd = "ddd";
+		public String aaaa = "aaaa";
+//		public String bbbb = "bbbb";
+		public String cccc = "cccc";
+//		public String dddd = bbbb;
+		public String dddd = "dddd";
 		
 		private static class ObsoleteKryoFields
 		{

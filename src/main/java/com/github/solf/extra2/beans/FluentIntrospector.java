@@ -29,8 +29,6 @@ import lombok.experimental.Delegate;
  * This is done by wrapping {@link BeanInfo} from {@link Introspector} and
  * overriding property set methods where appropriate. The result is then
  * cached in the weak map.
- * 
- * FIXME scm reference in pom.xml
  *
  * @author Sergey Olefir
  */

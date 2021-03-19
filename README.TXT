@@ -1,3 +1,9 @@
+This is a WORK-IN-PROGRESS to make a proper open-source project out of the
+collection of the various support code that I've written over the years.
+
+
+
+
 ATTENTION: this project uses Lombok: https://projectlombok.org/
 To use it in IDE you need to install Lombok for your IDE (developed using
 version 1.18.10).

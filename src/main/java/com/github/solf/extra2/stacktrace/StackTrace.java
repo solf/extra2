@@ -42,7 +42,6 @@ public class StackTrace
 	/**
 	 * Checks whether stack trace invocation printing is requested on JVM level
 	 * via -Dcom.github.solf.extra2.debug.showInvocationTraces=true
-	 * FIXME for proper package name
 	 */
 	public static boolean isShowInvocationTrace()
 	{

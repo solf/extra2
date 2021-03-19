@@ -10,8 +10,9 @@
 	<url>http://maven.apache.org</url>
 	
 	<scm>
+		<connection>scm:git:https://github.com/solf/extra2.git</connection>
 	</scm>
-
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -91,7 +92,7 @@
 		<dependency>
 			<groupId>com.esotericsoftware.kryo</groupId>
 			<artifactId>kryo</artifactId>
-			<version>2.24.0-solf-4</version>
+			<version>2.24.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>

@@ -31,7 +31,6 @@ public class ReverseDNS
     /**
      * System property name that can be used to override {@link #getOwnHostName()}
      * value -- if set, then this name will be used instead of auto-detection.
-	 * FIXME for proper package name
      */
     public static final String OWN_HOST_NAME_OVERRIDE = "com.github.solf.extra2.ownHostName";
     
