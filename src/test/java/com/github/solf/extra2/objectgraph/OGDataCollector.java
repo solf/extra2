@@ -23,7 +23,7 @@ import com.github.solf.extra2.objectgraph.ObjectGraphVisitor;
 	public final ArrayList<@Nonnull OGRelation> data = new ArrayList<>();
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.objectgraph.ObjectGraphVisitor#visit(java.lang.Object, java.lang.Class, java.lang.String, site.sonata.extra2.objectgraph.ObjectGraphRelationType, site.sonata.extra2.objectgraph.ObjectGraphCollectionStep[], java.lang.Object)
+	 * @see com.github.solf.extra2.objectgraph.ObjectGraphVisitor#visit(java.lang.Object, java.lang.Class, java.lang.String, com.github.solf.extra2.objectgraph.ObjectGraphRelationType, com.github.solf.extra2.objectgraph.ObjectGraphCollectionStep[], java.lang.Object)
 	 */
 	@Override
 	public void visit(ObjectGraphRelation relation)

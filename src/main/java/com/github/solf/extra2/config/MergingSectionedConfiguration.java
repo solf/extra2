@@ -54,7 +54,7 @@ public class MergingSectionedConfiguration implements SectionedConfiguration
 	}
 	
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.config.SectionedConfiguration#getGlobalSection()
+	 * @see com.github.solf.extra2.config.SectionedConfiguration#getGlobalSection()
 	 */
 	@Override
 	public FlatConfiguration getGlobalSection()
@@ -65,7 +65,7 @@ public class MergingSectionedConfiguration implements SectionedConfiguration
 
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.config.SectionedConfiguration#getSection(java.lang.String)
+	 * @see com.github.solf.extra2.config.SectionedConfiguration#getSection(java.lang.String)
 	 */
 	@Override
 	public FlatConfiguration getSection(String sectionKey)

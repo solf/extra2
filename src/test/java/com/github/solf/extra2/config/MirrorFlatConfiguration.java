@@ -37,7 +37,7 @@ public class MirrorFlatConfiguration extends RBFlatConfiguration
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.config.RBFlatConfiguration#getString(java.lang.String)
+	 * @see com.github.solf.extra2.config.RBFlatConfiguration#getString(java.lang.String)
 	 */
 	@Override
 	public String getString(String key)

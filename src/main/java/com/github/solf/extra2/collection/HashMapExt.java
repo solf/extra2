@@ -71,7 +71,7 @@ public class HashMapExt<K, V> extends HashMap<K, V> implements MapExt<K, V>
 	}
 	
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.collection.ExtendedMap#getEntry(java.lang.Object)
+	 * @see com.github.solf.extra2.collection.ExtendedMap#getEntry(java.lang.Object)
 	 */
 	@Override
 	@Nullable
@@ -82,7 +82,7 @@ public class HashMapExt<K, V> extends HashMap<K, V> implements MapExt<K, V>
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.collection.MapExt#get(java.lang.Object, java.util.function.Supplier)
+	 * @see com.github.solf.extra2.collection.MapExt#get(java.lang.Object, java.util.function.Supplier)
 	 */
 	@Override
 	public V get(K key, @Nonnull Supplier<@Nonnull V> factory)
@@ -98,7 +98,7 @@ public class HashMapExt<K, V> extends HashMap<K, V> implements MapExt<K, V>
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.collection.MapExt#setFactory(java.util.function.Function)
+	 * @see com.github.solf.extra2.collection.MapExt#setFactory(java.util.function.Function)
 	 */
 	@Override
 	public MapExt<K, V> setFactory(Function<K, @Nonnull V> factory)
@@ -109,7 +109,7 @@ public class HashMapExt<K, V> extends HashMap<K, V> implements MapExt<K, V>
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.collection.MapExt#getOrCreate(java.lang.Object)
+	 * @see com.github.solf.extra2.collection.MapExt#getOrCreate(java.lang.Object)
 	 */
 	@Override
 	public V getOrCreate(K key)

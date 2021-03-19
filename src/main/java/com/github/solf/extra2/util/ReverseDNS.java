@@ -33,7 +33,7 @@ public class ReverseDNS
      * value -- if set, then this name will be used instead of auto-detection.
 	 * FIXME for proper package name
      */
-    public static final String OWN_HOST_NAME_OVERRIDE = "site.sonata.extra2.ownHostName";
+    public static final String OWN_HOST_NAME_OVERRIDE = "com.github.solf.extra2.ownHostName";
     
 	/**
 	 * Own ip address (if null, then it is not known, throw {@value #exceptionOwnIp}

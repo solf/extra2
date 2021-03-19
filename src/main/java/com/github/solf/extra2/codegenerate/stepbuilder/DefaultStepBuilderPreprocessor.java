@@ -70,7 +70,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processInterfaceBuildMethod(site.sonata.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.ClassOrInterfaceDeclaration, com.github.javaparser.ast.body.MethodDeclaration)
+	 * @see com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processInterfaceBuildMethod(com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.ClassOrInterfaceDeclaration, com.github.javaparser.ast.body.MethodDeclaration)
 	 */
 	@Override
 	public void processInterfaceBuildMethod(StepBuilderContext context, 
@@ -81,7 +81,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processInterfaceSetter(site.sonata.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.ClassOrInterfaceDeclaration, com.github.javaparser.ast.body.MethodDeclaration, com.github.javaparser.ast.body.Parameter)
+	 * @see com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processInterfaceSetter(com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.ClassOrInterfaceDeclaration, com.github.javaparser.ast.body.MethodDeclaration, com.github.javaparser.ast.body.Parameter)
 	 */
 	@Override
 	public void processInterfaceSetter(StepBuilderContext context,
@@ -92,7 +92,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderField(site.sonata.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.FieldDeclaration)
+	 * @see com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderField(com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.FieldDeclaration)
 	 */
 	@Override
 	public void processBuilderField(StepBuilderContext context, FieldDeclaration field)
@@ -101,7 +101,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderSetter(site.sonata.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.MethodDeclaration, com.github.javaparser.ast.body.Parameter)
+	 * @see com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderSetter(com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.MethodDeclaration, com.github.javaparser.ast.body.Parameter)
 	 */
 	@Override
 	public void processBuilderSetter(StepBuilderContext context,
@@ -112,7 +112,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderBuildMethod(site.sonata.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.MethodDeclaration)
+	 * @see com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderBuildMethod(com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.MethodDeclaration)
 	 */
 	@Override
 	public void processBuilderBuildMethod(StepBuilderContext context, MethodDeclaration buildMethod)
@@ -121,7 +121,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderEntryPoint(site.sonata.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.MethodDeclaration, com.github.javaparser.ast.body.Parameter)
+	 * @see com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderEntryPoint(com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.MethodDeclaration, com.github.javaparser.ast.body.Parameter)
 	 */
 	@Override
 	public void processBuilderEntryPoint(StepBuilderContext context, MethodDeclaration entryPointMethodDeclaration,
@@ -131,7 +131,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderClass(site.sonata.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.ClassOrInterfaceDeclaration)
+	 * @see com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor#processBuilderClass(com.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext, com.github.javaparser.ast.body.ClassOrInterfaceDeclaration)
 	 */
 	@Override
 	public void processBuilderClass(StepBuilderContext context, ClassOrInterfaceDeclaration generatedBuilderClass)

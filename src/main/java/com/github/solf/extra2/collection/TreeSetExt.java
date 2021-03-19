@@ -55,7 +55,7 @@ public class TreeSetExt<E> extends TreeSet<E> implements NavigableSetExt<E>
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.collection.ExtendedSet#get(java.lang.Object)
+	 * @see com.github.solf.extra2.collection.ExtendedSet#get(java.lang.Object)
 	 */
 	@Override
 	public @Nullable E get(E item)

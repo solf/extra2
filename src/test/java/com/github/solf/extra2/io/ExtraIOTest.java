@@ -25,7 +25,7 @@ import com.github.solf.extra2.io.CompressedBlockInputStream;
 import com.github.solf.extra2.io.CompressedBlockOutputStream;
 
 /**
- * Tests for site.sonata.extra2.io
+ * Tests for com.github.solf.extra2.io
  *
  * @author Sergey Olefir
  */

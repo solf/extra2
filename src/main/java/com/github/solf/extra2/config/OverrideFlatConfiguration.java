@@ -93,7 +93,7 @@ public class OverrideFlatConfiguration implements FlatConfiguration
 	
 	
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.config.FlatConfiguration#getString(java.lang.String)
+	 * @see com.github.solf.extra2.config.FlatConfiguration#getString(java.lang.String)
 	 */
 	@Override
 	public String getString(String key)
@@ -109,7 +109,7 @@ public class OverrideFlatConfiguration implements FlatConfiguration
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.config.FlatConfiguration#getAllKeys()
+	 * @see com.github.solf.extra2.config.FlatConfiguration#getAllKeys()
 	 */
 	@Override
 	public Iterable<String> getAllKeys()

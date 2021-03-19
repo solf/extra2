@@ -36,7 +36,7 @@ public class WAFutureTask<T extends Callable<V>, V> extends FutureTask<V> implem
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.concurrent.WAFuture#getTask()
+	 * @see com.github.solf.extra2.concurrent.WAFuture#getTask()
 	 */
 	@Override
 	public T getTask()

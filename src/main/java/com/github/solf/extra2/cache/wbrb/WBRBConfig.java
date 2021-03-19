@@ -57,7 +57,7 @@ public class WBRBConfig extends BaseDelegatingOptions
 	@Getter
 	private final long returnQueueCacheTimeMin = getRawOptions().getTimeIntervalPositive("returnQueueCacheTimeMin");
 	
-	/** Whether cache can merge writes -- specifically if some background write has failed AND there are new updates to the cache value, can cache produce a single write data that merges these values in {@link WriteBehindResyncInBackgroundCache#splitForWrite(Object, Object, site.sonata.extra2.nullable.NullableOptional)}; if not, then previously failed write can only be re-attempted by itself (thus delaying when further in-memory updates will be written out) */
+	/** Whether cache can merge writes -- specifically if some background write has failed AND there are new updates to the cache value, can cache produce a single write data that merges these values in {@link WriteBehindResyncInBackgroundCache#splitForWrite(Object, Object, com.github.solf.extra2.nullable.NullableOptional)}; if not, then previously failed write can only be re-attempted by itself (thus delaying when further in-memory updates will be written out) */
 	@Getter
 	private final boolean canMergeWrites = getRawOptions().getBoolean("canMergeWrites");
 	

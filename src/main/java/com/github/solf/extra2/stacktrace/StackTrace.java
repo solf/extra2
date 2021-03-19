@@ -41,12 +41,12 @@ public class StackTrace
 	
 	/**
 	 * Checks whether stack trace invocation printing is requested on JVM level
-	 * via -Dsite.sonata.extra2.debug.showInvocationTraces=true
+	 * via -Dcom.github.solf.extra2.debug.showInvocationTraces=true
 	 * FIXME for proper package name
 	 */
 	public static boolean isShowInvocationTrace()
 	{
-		return "true".equals(System.getProperty("site.sonata.extra2.debug.showInvocationTraces"));
+		return "true".equals(System.getProperty("com.github.solf.extra2.debug.showInvocationTraces"));
 	}
 	
 	/**
@@ -122,7 +122,7 @@ public class StackTrace
 	/**
 	 * Gets condensed (one-line) stack trace for the exception.
 	 * Format is something like:
-	 * site.sonata.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; site.sonata.tests.SomeTest.test(SomeTest.java:22)
+	 * com.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; com.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
 	 * (i.e. it only lists line numbers while they are in the same class).
 	 * 
 	 * @param e exception to prepare stack trace for, if null, it'll create new
@@ -148,7 +148,7 @@ public class StackTrace
 	/**
 	 * Gets condensed (one-line) stack trace for the exception.
 	 * Format is something like:
-	 * site.sonata.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; site.sonata.tests.SomeTest.test(SomeTest.java:22)
+	 * com.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; com.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
 	 * (i.e. it only lists line numbers while they are in the same class).
 	 * 
 	 * @param e exception to prepare stack trace for, if null, it'll create new

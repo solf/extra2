@@ -51,7 +51,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.config.FlatConfiguration#getString(java.lang.String)
+	 * @see com.github.solf.extra2.config.FlatConfiguration#getString(java.lang.String)
 	 */
 	@Override
 	public String getString(String key)
@@ -71,7 +71,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.config.FlatConfiguration#getAllKeys()
+	 * @see com.github.solf.extra2.config.FlatConfiguration#getAllKeys()
 	 */
 	@Override
 	public Iterable<String> getAllKeys()

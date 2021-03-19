@@ -288,7 +288,7 @@ public class OGTest
 			} catch (ObjectGraphUnhandledTypeException e)
 			{
 				// This exception is expected.
-				assert e.toString().contains("Instance of class [site.sonata.extra2.objectgraph.OGTestObject], field [object2] defined in [site.sonata.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [site.sonata.extra2.objectgraph2.OGTestObject2] that parses as unknown 'SYSTEM' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[2]], child object is [OGTestObject2:object2]") : e.toString();
+				assert e.toString().contains("Instance of class [com.github.solf.extra2.objectgraph.OGTestObject], field [object2] defined in [com.github.solf.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [com.github.solf.extra2.objectgraph2.OGTestObject2] that parses as unknown 'SYSTEM' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[2]], child object is [OGTestObject2:object2]") : e.toString();
 			}
 			
 			// Test unknown system class handling set to 'compound'
@@ -328,7 +328,7 @@ public class OGTest
 			} catch (ObjectGraphUnhandledTypeException e)
 			{
 				// This exception is expected.
-				assert e.toString().contains("Instance of class [site.sonata.extra2.objectgraph.OGTestObject], field [object2] defined in [site.sonata.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [site.sonata.extra2.objectgraph2.OGTestObject2] that parses as unknown 'SYSTEM' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[2]], child object is [OGTestObject2:object2]") : e.toString();
+				assert e.toString().contains("Instance of class [com.github.solf.extra2.objectgraph.OGTestObject], field [object2] defined in [com.github.solf.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [com.github.solf.extra2.objectgraph2.OGTestObject2] that parses as unknown 'SYSTEM' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[2]], child object is [OGTestObject2:object2]") : e.toString();
 			}
 			
 			// Set user class prefixes and test it with default 'compound' option
@@ -362,7 +362,7 @@ public class OGTest
 			} catch (ObjectGraphUnhandledTypeException e)
 			{
 				// This exception is expected.
-				assert e.toString().contains("Instance of class [site.sonata.extra2.objectgraph.OGTestObject], field [object2] defined in [site.sonata.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [site.sonata.extra2.objectgraph2.OGTestObject2] that parses as unknown 'USER' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[2]], child object is [OGTestObject2:object2]") : e.toString();
+				assert e.toString().contains("Instance of class [com.github.solf.extra2.objectgraph.OGTestObject], field [object2] defined in [com.github.solf.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [com.github.solf.extra2.objectgraph2.OGTestObject2] that parses as unknown 'USER' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[2]], child object is [OGTestObject2:object2]") : e.toString();
 			}
 		}
 		
@@ -382,7 +382,7 @@ public class OGTest
 			} catch (ObjectGraphUnhandledTypeException e)
 			{
 				// This exception is expected.
-				assert e.toString().contains("Instance of class [site.sonata.extra2.objectgraph.OGTestObject], field [map] defined in [site.sonata.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [java.util.HashMap] that parses as unknown 'SYSTEM' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[0]], child object is [{") : e.toString();
+				assert e.toString().contains("Instance of class [com.github.solf.extra2.objectgraph.OGTestObject], field [map] defined in [com.github.solf.extra2.objectgraph.OGTestObject], relation type [FIELD] has child of type [java.util.HashMap] that parses as unknown 'SYSTEM' class and these are not handled as per configuration. Relation path is: null, parent object is: [OGTestObject[0]], child object is [{") : e.toString();
 				assert e.toString().contains("1=OGTestObject[1]") : e.toString();
 				assert e.toString().contains("2=OGTestObject[2]") : e.toString();
 			}
@@ -574,7 +574,7 @@ public class OGTest
 //	@Test
 //	public void test2()
 //	{
-//		site.sonata.extra2.objectgraph.other.Child child = new site.sonata.extra2.objectgraph.other.Child();
+//		com.github.solf.extra2.objectgraph.other.Child child = new com.github.solf.extra2.objectgraph.other.Child();
 //		System.out.println(child.getCPub());
 //		System.out.println(child.getCPro());
 //		System.out.println(child.getCPac());

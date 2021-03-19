@@ -33,7 +33,7 @@ public class WARunnableFutureTask<T extends Runnable, V> extends FutureTask<V> i
 	}
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.concurrent.WARunnableFuture#getRunnable()
+	 * @see com.github.solf.extra2.concurrent.WARunnableFuture#getRunnable()
 	 */
 	@Override
 	public T getRunnable()

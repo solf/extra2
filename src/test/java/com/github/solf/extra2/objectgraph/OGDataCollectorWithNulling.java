@@ -19,7 +19,7 @@ public class OGDataCollectorWithNulling extends OGDataCollector
 {
 
 	/* (non-Javadoc)
-	 * @see site.sonata.extra2.objectgraph.OGDataCollector#visit(site.sonata.extra2.objectgraph.ObjectGraphRelation)
+	 * @see com.github.solf.extra2.objectgraph.OGDataCollector#visit(com.github.solf.extra2.objectgraph.ObjectGraphRelation)
 	 */
 	@Override
 	public void visit(ObjectGraphRelation relation)
