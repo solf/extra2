@@ -28,7 +28,8 @@ import com.github.solf.extra2.config.Configuration;
 import com.github.solf.extra2.config.FlatConfiguration;
 
 /**
- * Base class for supporting options functionality, usage example FIXME aaa
+ * Base class for supporting options functionality, usage example can be found
+ * in example source folder: {@link ExampleDbOptions}
  * <p>
  * Suggested usage instructions:
  * - make a subclass specific to your project / options
