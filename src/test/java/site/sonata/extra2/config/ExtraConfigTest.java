@@ -392,6 +392,7 @@ public class ExtraConfigTest
 		BaseOptions options = new BaseOptions(Configuration.fromPropertiesFile("config/time.properties"));
 		
 		assert options.getTimeInterval("millisecond") == 1;
+		assert options.getTimeInterval("zerosec") == 0;
 		assert options.getTimeInterval("second5") == 5l * 1000; 
 		assert options.getTimeInterval("minutes63") == 63l * 60 * 1000; 
 		assert options.getTimeInterval("hours124") == 124l * 60 * 60 * 1000; 
@@ -621,6 +622,62 @@ public class ExtraConfigTest
 		// Test defaults
 		assert options.getTimeInterval("35d", "1s") == 35l * 1000 * 60 * 60 * 24;
 		assert options.getTimeInterval(MirrorFlatConfiguration.NULL_PREFIX, "1s") == 1 * 1000;
+	}
+	
+	/**
+	 * Tests various timeIntervalPositive methods.
+	 */
+	@Test
+	public void testTimeIntervalsPositive()
+	{
+		BaseOptions options = new BaseOptions(Configuration.fromPropertiesFile("config/time.properties"));
+		
+		assert options.getTimeIntervalPositive("millisecond") == 1;
+		assert options.getTimeIntervalPositive("second5", -3) == 5l * 1000; 
+		assert options.getTimeIntervalPositive("minutes63", "7s") == 63l * 60 * 1000; 
+		assert options.getTimeIntervalPositiveOrNull("hours124") == 124l * 60 * 60 * 1000; 
+		assert options.getTimeIntervalPositive("days1111") == 1111l * 24 * 60 * 60 * 1000;
+
+		assert options.getTimeIntervalPositive("notexists-second5", -3) == -3; 
+		assert options.getTimeIntervalPositive("notexists-minutes63", "7s") == 7 * 1000; 
+		assert options.getTimeIntervalPositiveOrNull("notexists-hours124") == null; 
+		
+		try
+		{
+			options.getTimeIntervalPositive("zerosec");
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			// Ok
+		}
+		
+		try
+		{
+			options.getTimeIntervalPositive("zerosec", -3);
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			// Ok
+		}
+		
+		try
+		{
+			options.getTimeIntervalPositive("zerosec", "28m");
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			// Ok
+		}
+		
+		try
+		{
+			options.getTimeIntervalPositiveOrNull("zerosec");
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			// Ok
+		}
+
 	}
 	
 	/**
@@ -2278,4 +2335,69 @@ public class ExtraConfigTest
 			}
 		}
 	}	
+	
+	/**
+	 * Tests non-negative values for ints and longs.
+	 */
+	@Test
+	public void testNonNegative()
+	{
+		BaseOptions options = new BaseOptions(new MirrorFlatConfiguration("config/empty"));
+		
+		assert options.getIntNonNegative("0") == 0;
+		assert options.getIntNonNegative("1") == 1;
+		
+		try
+		{
+			options.getIntNonNegative("-1");
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			assert e.getMessage().contains("value must be a positive integer or zero") : e.getMessage();
+		}
+		try
+		{
+			options.getIntNonNegative("-2");
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			assert e.getMessage().contains("value must be a positive integer or zero") : e.getMessage();
+		}
+		
+		assert options.getLongNonNegative("0") == 0;
+		assert options.getLongNonNegative("1") == 1;
+		
+		try
+		{
+			options.getLongNonNegative("-1");
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			assert e.getMessage().contains("value must be a positive long or zero") : e.getMessage();
+		}
+		try
+		{
+			options.getLongNonNegative("-2");
+			assert false;
+		} catch (IllegalStateException e)
+		{
+			assert e.getMessage().contains("value must be a positive long or zero") : e.getMessage();
+		}
+		
+		long bigLong = ((long)Integer.MAX_VALUE) + 1000000;
+		
+		assert options.getLongNonNegative("" + bigLong) == bigLong; // test that this is actually long, not int
+		assert options.getLongNonNegative("" + bigLong, 123) == bigLong; // test that this is actually long, not int
+		
+		try
+		{
+			options.getLongNonNegative(MirrorFlatConfiguration.NULL_PREFIX);
+			assert false;
+		} catch (MissingResourceException e)
+		{
+			// expected
+		}
+		
+		assert options.getLongNonNegative(MirrorFlatConfiguration.NULL_PREFIX, bigLong) == bigLong;
+	}
 }

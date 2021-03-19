@@ -40,6 +40,7 @@ import com.esotericsoftware.kryo.serializers.CompatibleFieldSerializerWithSameNa
 import site.sonata.extra2.objectgraph.ObjectGraphCompoundNodeVisitor;
 import site.sonata.extra2.objectgraph.ObjectGraphConfig;
 import site.sonata.extra2.objectgraph.ObjectGraphUtil;
+import site.sonata.extra2.util.ReflectionUtil;
 
 /**
  * 'Database' based on Kryo serialization mechanism.
@@ -631,7 +632,7 @@ public class KryoDB<T>
 			try
 			{
 				Method method = clazz.getDeclaredMethod(methodName, args);
-				if (!method.isAccessible())
+				if (!ReflectionUtil.isAccessible(method))
 					method.setAccessible(true);
 					
 				result.add(method);

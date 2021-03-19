@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +42,25 @@ public class WAExecutor
 	private static final ExecutorService defaultExecutor = new WAThreadPoolExecutor("WAExecutor", true);
 
 	/**
-     * NOTE: uses daemon thread pool. Wait for completion if completion is essential.
+     * Executes the given tasks, returning a list of Futures holding
+     * their status and results when all complete.
+     * {@link Future#isDone} is {@code true} for each
+     * element of the returned list.
+     * Note that a <em>completed</em> task could have
+     * terminated either normally or by throwing an exception.
+     * The results of this method are undefined if the given
+     * collection is modified while this operation is in progress.
+     *
+     * @param tasks the collection of tasks
+     * @param <T> the type of the values returned from the tasks
+     * @return a list of Futures representing the tasks, in the same
+     *         sequential order as produced by the iterator for the
+     *         given task list, each of which has completed
+     * @throws InterruptedException if interrupted while waiting, in
+     *         which case unfinished tasks are cancelled
+     * @throws NullPointerException if tasks or any of its elements are {@code null}
+     * @throws RejectedExecutionException if any task cannot be
+     *         scheduled for execution
      * 
 	 * @see {@link ExecutorService#invokeAll(Collection)}
 	 */
@@ -63,7 +82,32 @@ public class WAExecutor
     }
 
     /**
-     * NOTE: uses daemon thread pool. Wait for completion if completion is essential.
+     * Executes the given tasks, returning a list of Futures holding
+     * their status and results
+     * when all complete or the timeout expires, whichever happens first.
+     * {@link Future#isDone} is {@code true} for each
+     * element of the returned list.
+     * Upon return, tasks that have not completed are cancelled.
+     * Note that a <em>completed</em> task could have
+     * terminated either normally or by throwing an exception.
+     * The results of this method are undefined if the given
+     * collection is modified while this operation is in progress.
+     *
+     * @param tasks the collection of tasks
+     * @param timeout the maximum time to wait
+     * @param unit the time unit of the timeout argument
+     * @param <T> the type of the values returned from the tasks
+     * @return a list of Futures representing the tasks, in the same
+     *         sequential order as produced by the iterator for the
+     *         given task list. If the operation did not time out,
+     *         each task will have completed. If it did time out, some
+     *         of these tasks will not have completed.
+     * @throws InterruptedException if interrupted while waiting, in
+     *         which case unfinished tasks are cancelled
+     * @throws NullPointerException if tasks, any of its elements, or
+     *         unit are {@code null}
+     * @throws RejectedExecutionException if any task cannot be scheduled
+     *         for execution
      * 
      * @see ExecutorService#invokeAll(Collection, long, TimeUnit)
      */

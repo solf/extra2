@@ -8,7 +8,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 /**
  * This is wrapper class to rethrow {@link InterruptedException} as unchecked.
  * <p>
- * There's always should be a 'cause' and it should be of {@link InterruptedException}
+ * There should always be a 'cause' and it should be of {@link InterruptedException}
  * type.
  *
  * @author Sergey Olefir

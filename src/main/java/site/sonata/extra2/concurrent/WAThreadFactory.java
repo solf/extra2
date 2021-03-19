@@ -6,6 +6,8 @@ package site.sonata.extra2.concurrent;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nullable;
+
 /**
  * Thread factory for creating threads for executors.
  * 
@@ -68,12 +70,35 @@ public class WAThreadFactory implements ThreadFactory
 	 */
 	public WAThreadFactory(String groupName, boolean daemon, int priority) throws IllegalArgumentException
 	{
+		this(groupName, daemon, priority, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * Threads names are generated based on specified group name:
+	 * pool-[groupName]-thread-XX
+	 * 
+	 * @param groupName group name to be used for threads and also prefix for every thread name
+	 * @param daemon whether threads should be daemon
+	 * @param priority what priority threads should have, e.g. {@link Thread#NORM_PRIORITY}
+	 * @param parentThreadGroup if not null, then this thread group is used as
+	 * 		a parent for this factory's thread group (factory always creates
+	 * 		new threads in its own {@link ThreadGroup})
+	 */
+	public WAThreadFactory(String groupName, boolean daemon, int priority, 
+		@Nullable ThreadGroup parentThreadGroup) 
+			throws IllegalArgumentException
+	{
 		if ((groupName == null) || (groupName.trim().isEmpty()))
 			throw new IllegalArgumentException("Group name must be specified and non-empty.");
 		if ((priority < Thread.MIN_PRIORITY) || (priority > Thread.MAX_PRIORITY))
 			throw new IllegalArgumentException("Priority must be within allowed range " + Thread.MIN_PRIORITY + "-" + Thread.MAX_PRIORITY + ", got: " + priority);
 		
-		threadGroup = new ThreadGroup(groupName);
+		if (parentThreadGroup != null)
+			threadGroup = new ThreadGroup(parentThreadGroup, groupName);
+		else
+			threadGroup = new ThreadGroup(groupName);
 		threadNamePrefix = "pool-" + groupName + "-thread-";
 		threadDaemonFlag = daemon;
 		threadPriority = priority;

@@ -694,6 +694,25 @@ public class BaseOptions
 	}
 	
 	/**
+	 * Gets option as long; returns provided 'default' value if not found.
+	 * 
+	 * NOTE: this method does not allow for empty option value in configuration --
+	 * these are treated the same as missing options.
+	 * 
+	 * @throws NumberFormatException if option doesn't convert to long
+	 */
+	public long getLong(String option, long defaultValue) throws NumberFormatException
+	{
+		try
+		{
+			return getLong(option);
+		} catch (MissingResourceException e)
+		{
+			return defaultValue;
+		}
+	}
+	
+	/**
 	 * Gets option as a positive long; fails if not found or not a positive long.
 	 * 
 	 * @throws MissingResourceException if option value not found.
@@ -707,6 +726,78 @@ public class BaseOptions
 			throw new IllegalStateException("Property [" + option + "] value must be a positive long, got: " + value);
 		
 		return value;
+	}
+	
+	/**
+	 * Gets option as a positive long; fails if not a positive long;
+	 * returns provided 'default' value if not found.
+	 * 
+	 * NOTE: this method does not allow for empty option value in configuration --
+	 * these are treated the same as missing options.
+	 * 
+	 * NOTE2: defaultValue argument is not checked -- it is returned as is (i.e.
+	 * method can return non-positive values via this).
+	 * 
+	 * @throws NumberFormatException if option doesn't convert to long
+	 * @throws IllegalStateException if option value is not a positive long
+	 */
+	public long getLongPositive(String option, long defaultValue) throws NumberFormatException, IllegalStateException
+	{
+		try
+		{
+			long value = getLong(option);
+			if (value < 1)
+				throw new IllegalStateException("Property [" + option + "] value must be a positive long, got: " + value);
+			
+			return value;
+		} catch (MissingResourceException e)
+		{
+			return defaultValue;
+		}
+	}
+	
+	/**
+	 * Gets option as a positive long or zero; fails if not found or not a positive long or zero.
+	 * 
+	 * @throws MissingResourceException if option value not found.
+	 * @throws NumberFormatException if option doesn't convert to long
+	 * @throws IllegalStateException if option value is not a positive long
+	 */
+	public long getLongNonNegative(String option) throws MissingResourceException, NumberFormatException, IllegalStateException
+	{
+		long value = getLong(option);
+		if (value < 0)
+			throw new IllegalStateException("Property [" + option + "] value must be a positive long or zero, got: " + value);
+		
+		return value;
+	}
+	
+	/**
+	 * Gets option as a positive long or zero; fails if not a positive long or zero;
+	 * returns provided 'default' value if not found.
+	 * 
+	 * NOTE: this method does not allow for empty option value in configuration --
+	 * these are treated the same as missing options.
+	 * 
+	 * NOTE2: defaultValue argument is not checked -- it is returned as is (i.e.
+	 * method can return negative values via this).
+	 * 
+	 * @throws NumberFormatException if option doesn't convert to long
+	 * @throws IllegalStateException if option value is not a positive long
+	 */
+	public long getLongNonNegative(String option, long defaultValue) throws NumberFormatException, IllegalStateException
+	{
+		try
+		{
+			long value = getLong(option);
+			if (value < 0)
+				throw new IllegalStateException("Property [" + option + "] value must be a positive long or zero, got: " + value);
+			
+			return value;
+		} catch (MissingResourceException e)
+		{
+			return defaultValue;
+		}
 	}
 	
 	/**
@@ -910,7 +1001,7 @@ public class BaseOptions
 			throw new IllegalArgumentException("Failed to parse option [" + option +"] value as time interval: " + e, e);
 		}
 	}
-
+	
 	/**
 	 * Gets time interval in milliseconds.
 	 * This method is smart enough to interpret various measurements, specifically:
@@ -950,7 +1041,7 @@ public class BaseOptions
 	 * Returns default value if option is not specified in configuration.
 	 * 
 	 * NOTE: option value cannot be negative, but it can be zero; default
-	 * 		value can be anything
+	 * 		value must be non-negative parse-able time
 	 * 
 	 * @throws IllegalArgumentException if option value doesn't parse
 	 */
@@ -996,6 +1087,127 @@ public class BaseOptions
 		try
 		{
 			return getTimeInterval(option);
+		} catch (MissingResourceException e)
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Gets time interval in milliseconds.
+	 * This method is smart enough to interpret various measurements, specifically:
+	 * 35ms
+	 * 35s
+	 * 35m
+	 * 35h
+	 * 35d
+	 * <p>
+	 * NOTE: unlike {@link #getTimeInterval(String)} the value must be positive
+	 * (cannot be zero)
+	 * 
+	 * @throws MissingResourceException if option value not found.
+	 * @throws IllegalArgumentException if option value doesn't parse
+	 * @throws IllegalStateException if option value parses as zero
+	 * 
+	 */
+	public long getTimeIntervalPositive(String option) throws MissingResourceException, IllegalArgumentException, IllegalStateException
+	{
+		long value = getTimeInterval(option);
+		
+		if (value < 1)
+			throw new IllegalStateException("Property [" + option + "] time value must be positive, got: " + value);
+		
+		return value;
+	}
+	
+	/**
+	 * Gets time interval in milliseconds.
+	 * This method is smart enough to interpret various measurements, specifically:
+	 * 35ms
+	 * 35s
+	 * 35m
+	 * 35h
+	 * 35d
+	 *
+	 * Returns default value if option is not specified in configuration.
+	 * 
+	 * NOTE: option value cannot be negative or zero; default
+	 * 		value can be anything
+	 * 
+	 * @throws IllegalArgumentException if option value doesn't parse
+	 * @throws IllegalStateException if option value parses as zero
+	 */
+	public long getTimeIntervalPositive(String option, long defaultValue) throws IllegalArgumentException, IllegalStateException
+	{
+		try
+		{
+			return getTimeIntervalPositive(option);
+		} catch (MissingResourceException e)
+		{
+			return defaultValue;
+		}
+	}
+
+	/**
+	 * Gets time interval in milliseconds.
+	 * This method is smart enough to interpret various measurements, specifically:
+	 * 35ms
+	 * 35s
+	 * 35m
+	 * 35h
+	 * 35d
+	 *
+	 * Returns default value if option is not specified in configuration.
+	 * 
+	 * NOTE: option value cannot be negative or zero; default
+	 * 		value must be non-negative parse-able time
+	 * 
+	 * @throws IllegalArgumentException if option value doesn't parse
+	 * @throws IllegalStateException if option value parses as zero
+	 */
+	public long getTimeIntervalPositive(String option, String strDefaultValue) throws IllegalArgumentException, IllegalStateException
+	{
+		long defaultValue;
+		try
+		{
+			defaultValue = parseTimeInterval(strDefaultValue);
+		} catch (IllegalArgumentException e)
+		{
+			throw new IllegalArgumentException("Failed to parse option [" + option +"] DEFAULT value as time interval: " + e, e);
+		}
+		
+		try
+		{
+			return getTimeIntervalPositive(option);
+		} catch (MissingResourceException e)
+		{
+			return defaultValue;
+		}
+	}
+	
+
+	/**
+	 * Gets time interval in milliseconds.
+	 * This method is smart enough to interpret various measurements, specifically:
+	 * 35ms
+	 * 35s
+	 * 35m
+	 * 35h
+	 * 35d
+	 * 
+	 * Returns null if option is not specified.
+	 * 
+	 * NOTE: value cannot be negative or zero
+	 * 
+	 * @throws IllegalArgumentException if option value doesn't parse
+	 * @throws IllegalStateException if option value parses as zero
+	 */
+	@Nullable
+	public Long getTimeIntervalPositiveOrNull(String option) throws IllegalArgumentException, IllegalStateException
+	{
+		try
+		{
+			return getTimeIntervalPositive(option);
 		} catch (MissingResourceException e)
 		{
 			return null;

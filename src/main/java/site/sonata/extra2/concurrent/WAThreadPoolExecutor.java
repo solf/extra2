@@ -18,6 +18,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import site.sonata.extra2.concurrent.exception.WAInterruptedException;
@@ -109,10 +110,31 @@ public class WAThreadPoolExecutor extends ThreadPoolExecutor implements WAExecut
 	 */
 	public WAThreadPoolExecutor(String groupName, boolean daemon, int priority)
 	{
+		this(groupName, daemon, priority, null);
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * Number of threads is unbounded -- as many as created as there are concurrent
+	 * tasks to execute.
+	 * 
+	 * Idle threads timeout & shut down after 1 minute. 
+	 * 
+	 * @param groupName group name to be used for threads and also prefix for every thread name
+	 * @param daemon whether threads should be daemon
+	 * @param priority what priority threads should have, e.g. {@link Thread#NORM_PRIORITY}
+	 * @param parentThreadGroup if not null, then this thread group is used as
+	 * 		a parent for this executor's thread group (executor always creates
+	 * 		new threads in its own {@link ThreadGroup})
+	 */
+	public WAThreadPoolExecutor(String groupName, boolean daemon, int priority,
+		@Nullable ThreadGroup parentThreadGroup)
+	{
 		super(0, Integer.MAX_VALUE,
             60L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>(),
-            new WAThreadFactory(groupName, daemon, priority));
+            new WAThreadFactory(groupName, daemon, priority, parentThreadGroup));
 	}
 	
 	/**
@@ -130,7 +152,7 @@ public class WAThreadPoolExecutor extends ThreadPoolExecutor implements WAExecut
 	{
 		this(maxThreads, groupName, daemon, Thread.NORM_PRIORITY);
 	}
-	
+
 	/**
 	 * Constructor with limit on how many threads can be used simultaneously.
 	 * 
@@ -144,10 +166,30 @@ public class WAThreadPoolExecutor extends ThreadPoolExecutor implements WAExecut
 	 */
 	public WAThreadPoolExecutor(int maxThreads, String groupName, boolean daemon, int priority)
 	{
+		this(maxThreads, groupName, daemon, priority, null);
+	}
+	
+	/**
+	 * Constructor with limit on how many threads can be used simultaneously.
+	 * 
+	 * Idle threads timeout & shut down after 1 minute. 
+	 * 
+	 * @param maxThreads maximum number of threads that can be used concurrently by this executor
+	 * 		(starts out empty and adds up to maximum number of threads over time)
+	 * @param groupName group name to be used for threads and also prefix for every thread name
+	 * @param daemon whether threads should be daemon
+	 * @param priority what priority threads should have, e.g. {@link Thread#NORM_PRIORITY}
+	 * @param parentThreadGroup if not null, then this thread group is used as
+	 * 		a parent for this executor's thread group (executor always creates
+	 * 		new threads in its own {@link ThreadGroup})
+	 */
+	public WAThreadPoolExecutor(int maxThreads, String groupName, boolean daemon, int priority,
+		@Nullable ThreadGroup parentThreadGroup)
+	{
 		super(0, maxThreads,
             60L, TimeUnit.SECONDS,
             new WAExecutorQueue<Runnable>(),
-			new WAThreadFactory(groupName, daemon, priority));
+			new WAThreadFactory(groupName, daemon, priority, parentThreadGroup));
 		setRejectedExecutionHandler(new WARejectionHandler((WAExecutorQueue<Runnable>)getQueue()));
 	}
 	

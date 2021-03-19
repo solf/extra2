@@ -24,6 +24,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import site.sonata.extra2.collection.IdentityHashSet;
 import site.sonata.extra2.objectgraph.ObjectGraphUnhandledTypeException.VisiteeClassClassification;
+import site.sonata.extra2.util.ReflectionUtil;
 
 /**
  * Utility methods for working with (navigating) in-memory object graphs.
@@ -215,7 +216,7 @@ public class ObjectGraphUtil
 						if (!ctx.cfg.isIncludeTransientFields() && (Modifier.isTransient(field.getModifiers())))
 							continue; // Skip transient fields if required.
 						
-						if (!field.isAccessible())
+						if (!ReflectionUtil.isAccessible(field))
 							field.setAccessible(true);
 						final String fieldName = nn(field.getName());
 						final Object value;

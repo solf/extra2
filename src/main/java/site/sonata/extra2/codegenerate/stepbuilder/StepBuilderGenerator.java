@@ -124,17 +124,78 @@ public class StepBuilderGenerator
 	 * 
 	 */
 	private final boolean generateLongBuildMethodNames;
+	
+	/**
+	 * It seems sometimes combination of complex code & Lombok & Eclipse may
+	 * result in unexpected null-warnings in the new CCC(...) code -- which also
+	 * may be different depending on whether running full project build or just
+	 * the builder file; set this to true to suppress all warnings on the final
+	 * build() method to help with this.
+	 */
+	private final boolean suppressAllWarningsOnBuildMethod;
+	
+	/**
+	 * Optional additional marker annotation to be added to the final buildXXX() method --
+	 * e.g. 'javax.annotation.Nonnull' to mark as non-null return for classes
+	 * that don't declare {@link ParametersAreNonnullByDefault}
+	 */
+	@Nullable
+	private final String finalBuildMethodAdditionalMarkerAnnotation;
 
 	/**
 	 * Constructor.
 	 * <p>
-	 * Generates unused import, uses {@link SuppressWarningsMode#UNUSED} mode,
-	 * default {@link JavaParser} and {@link DefaultStepBuilderPreprocessor}
+	 * Generates unused import, long builder method names, doesn't suppress
+	 * warnings on the final build method, doesn't add annotation on final build method, uses 
+	 * {@link SuppressWarningsMode#UNUSED} mode, default {@link JavaParser} 
+	 * and {@link DefaultStepBuilderPreprocessor}
 	 */
 	public StepBuilderGenerator(String srcDir, String destDir)
 		throws IllegalArgumentException
 	{
-		this(srcDir, destDir, true, true, SuppressWarningsMode.UNUSED, null, null);
+		this(srcDir, destDir, true, true, false, null, SuppressWarningsMode.UNUSED, null, null);
+	}
+
+	/**
+	 * Constructor.
+	 * <p>
+	 * Generates unused import, long builder method names, doesn't add annotation on final build method, uses 
+	 * {@link SuppressWarningsMode#UNUSED} mode, default {@link JavaParser} 
+	 * and {@link DefaultStepBuilderPreprocessor}
+	 */
+	public StepBuilderGenerator(String srcDir, String destDir, boolean suppressAllWarningsOnBuildMethod)
+		throws IllegalArgumentException
+	{
+		this(srcDir, destDir, true, true, suppressAllWarningsOnBuildMethod, null, SuppressWarningsMode.UNUSED, null, null);
+	}
+
+	/**
+	 * Constructor.
+	 * <p>
+	 * Generates unused import, long builder method names, uses 
+	 * {@link SuppressWarningsMode#UNUSED} mode, default {@link JavaParser} 
+	 * and {@link DefaultStepBuilderPreprocessor}
+	 */
+	public StepBuilderGenerator(String srcDir, String destDir, boolean suppressAllWarningsOnBuildMethod, 
+		@Nullable String finalBuildMethodAdditionalMarkerAnnotation)
+		throws IllegalArgumentException
+	{
+		this(srcDir, destDir, true, true, suppressAllWarningsOnBuildMethod, finalBuildMethodAdditionalMarkerAnnotation, SuppressWarningsMode.UNUSED, null, null);
+	}
+
+	/**
+	 * Constructor.
+	 * <p>
+	 * Generates unused import, long builder method names, doesn't suppress
+	 * warnings on the final build method, uses 
+	 * {@link SuppressWarningsMode#UNUSED} mode, default {@link JavaParser} 
+	 * and {@link DefaultStepBuilderPreprocessor}
+	 */
+	public StepBuilderGenerator(String srcDir, String destDir, 
+		@Nullable String finalBuildMethodAdditionalMarkerAnnotation)
+		throws IllegalArgumentException
+	{
+		this(srcDir, destDir, true, true, false, finalBuildMethodAdditionalMarkerAnnotation, SuppressWarningsMode.UNUSED, null, null);
 	}
 	
 	/**
@@ -144,18 +205,35 @@ public class StepBuilderGenerator
 	 * 		called 'build()', otherwise it is called 'buildTargetClassName()';
 	 * 		this mainly has to do with Eclipse's problem where it takes forever
 	 * 		to calculate callers hierarchy for a build() method (for whatever reason)
+	 * @param it seems sometimes combination of complex code & Lombok & Eclipse
+	 * 		may result in unexpected null-warnings in the new CCC(...) code --
+	 * 		which also may be different depending on whether running full project
+	 * 		build or just the builder file; set this to true to suppress all
+	 * 		warnings on the final build() method to help with this
 	 * @param instanceJavaParser may be null, in which case default-configuration {@link JavaParser} is used
 	 * @param preprocessor may be null, in which case {@link DefaultStepBuilderPreprocessor}
 	 * 		instance is used
 	 */
 	public StepBuilderGenerator(String srcDir, String destDir, 
 		boolean generateUnusedImport, boolean generateLongBuildMethodNames,
+		boolean suppressAllWarningsOnBuildMethod,
+		@Nullable String finalBuildMethodAdditionalMarkerAnnotation,
 		SuppressWarningsMode builderClassWarningsSuppressMode, 
 		@Nullable JavaParser instanceJavaParser, @Nullable StepBuilderPreprocessor preprocessor)
 		throws IllegalArgumentException
 	{
 		this.generateUnusedImport = generateUnusedImport;
 		this.generateLongBuildMethodNames = generateLongBuildMethodNames;
+		this.suppressAllWarningsOnBuildMethod = suppressAllWarningsOnBuildMethod;
+		{
+			String tmp = finalBuildMethodAdditionalMarkerAnnotation;
+			if (tmp != null)
+			{
+				if (tmp.startsWith("@") && tmp.length() > 1) // we don't need leading @
+					tmp = tmp.substring(1);
+			}
+			this.finalBuildMethodAdditionalMarkerAnnotation = tmp;
+		}
 		
 		if (instanceJavaParser != null)
 			this.instanceJavaParser = instanceJavaParser;
@@ -391,6 +469,8 @@ public class StepBuilderGenerator
 					finalReturnType, 
 					NodeList.nodeList()
 				).removeBody(); // removeBody() removes empty method body which is required for interface to be correct
+				if (finalBuildMethodAdditionalMarkerAnnotation != null)
+					method.addAnnotation(new MarkerAnnotationExpr(finalBuildMethodAdditionalMarkerAnnotation));
 				iface.addMember(method); 
 				
 				preprocessor.processInterfaceBuildMethod(context, iface, method);
@@ -525,6 +605,16 @@ public class StepBuilderGenerator
 					); 
 					
 					methodDeclaration.addAnnotation(new MarkerAnnotationExpr("Override"));
+					if (finalBuildMethodAdditionalMarkerAnnotation != null)
+						methodDeclaration.addAnnotation(new MarkerAnnotationExpr(finalBuildMethodAdditionalMarkerAnnotation));
+					
+					if (suppressAllWarningsOnBuildMethod)
+					{
+						SingleMemberAnnotationExpr anno = new SingleMemberAnnotationExpr();
+						anno.setName("SuppressWarnings");
+						anno.setMemberValue(new StringLiteralExpr("all"));
+						methodDeclaration.addAnnotation(anno);
+					}
 					
 					StringBuilder sb = new StringBuilder(256);
 					sb.append("{ return ");
@@ -803,12 +893,16 @@ public class StepBuilderGenerator
     		
 			for (FieldDeclaration field : clazz.findAll(FieldDeclaration.class))
 			{
-				for (VariableDeclarator var : field.getVariables())
+				// skip static fields
+				if (!field.getModifiers().contains(Modifier.staticModifier()))
 				{
-					Parameter parameter = new Parameter(field.getElementType(), var.getName());
-					parameter.setAnnotations(field.getAnnotations());
-					
-					parameters.add(parameter);
+					for (VariableDeclarator var : field.getVariables())
+					{
+						Parameter parameter = new Parameter(var.getType(), var.getName());
+						parameter.setAnnotations(field.getAnnotations());
+						
+						parameters.add(parameter);
+					}
 				}
 			}
 			

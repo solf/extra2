@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Base64;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -155,7 +156,7 @@ public class WebUtil
 			if (basicAuthLogin != null)
 			{
 				String userpass = basicAuthLogin + ":" + (basicAuthPassword == null ? "" : basicAuthPassword);
-				String basicAuth = "Basic " + javax.xml.bind.DatatypeConverter.printBase64Binary(userpass.getBytes());
+				String basicAuth = "Basic " + Base64.getEncoder().encodeToString(userpass.getBytes());
 
 				conn.setRequestProperty ("Authorization", basicAuth);
 			}

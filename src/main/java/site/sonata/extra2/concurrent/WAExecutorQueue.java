@@ -228,7 +228,8 @@ public class WAExecutorQueue<E> extends LinkedBlockingQueue<E>
 	 * @see java.util.concurrent.LinkedBlockingQueue#take()
 	 */
 	@Override
-	public @Nonnull E take()
+	@Nonnull
+	public E take()
 		throws InterruptedException
 	{
 		return nnChecked(retrieveElementWithWait(0, null));

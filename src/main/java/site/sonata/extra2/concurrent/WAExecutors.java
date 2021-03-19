@@ -52,6 +52,7 @@ public class WAExecutors
 			super(corePoolSize, maximumPoolSize, keepAliveTime, unit, threadFactory);
 		}
 
+		@SuppressWarnings("all") // should really be @SuppressWarnings("deprecation") but 'all' doesn't produce warnings in both 8 and 11 java
 		@Override
 		protected void finalize() {
             super.shutdown();

@@ -386,7 +386,7 @@ public class ExtraSimpleObjectPoolTest
 		ArrayList<Integer> remaining = new ArrayList<>(list);		
 		
 		for (int v : values)
-			assert remaining.remove(new Integer(v)) : "Missing [" + v + "] in " + list + " vs " + Arrays.toString(values);
+			assert remaining.remove(Integer.valueOf(v)) : "Missing [" + v + "] in " + list + " vs " + Arrays.toString(values);
 
 		assert remaining.size() == 0 : "Extra items [" + remaining + "] in " + list + " vs " + Arrays.toString(values);
 	}
