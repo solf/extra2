@@ -49,6 +49,9 @@ dynamically increase & decrease active threads count as required (within bounds)
 it also has incoming queue and will not reject tasks even if all threads are
 currently busy.
 
+WAExecutors thread pools factory that requires (and makes it easy) to specify
+whether threads are daemon and a common naming prefix for the pool threads.
+
 Latch is a simple control latch -- when it is closed, threads can wait until it
 is open via various 'await' methods; when it is open all waiting threads are
 released & new threads will proceed immediately as well (await returns 
@@ -101,6 +104,55 @@ that can read directly from ByteArrayOutputStream.
 
 - com.github.solf.extra2.jdbc
 Simplified way to work with jdbc/SQL.
+
+
+- com.github.solf.extra2.kryo
+A simple way for a Java application to persist state between sessions via Kryo
+(de)serialization. This is useful for many apps and doesn't require any database
+support.
+
+However this was developed and used using in-house modified Kryo version (that is
+not publicly available) because at the time Kryo didn't support field removal.
+The current dependency is set to the matching non-modified Kryo version, but some
+functionality may not work due to this.
+
+
+- com.github.solf.extra2.lambda
+Utility stuff that comes in handy when actively working with lambdas, e.g.
+various object wrappers (so that the lambda-code can modify something outside its
+own body), TriFunction, LambdaUtil with various predicates useful for e.g. streams
+filtering, and various *Lazy implementations that can be used to lazily initialize
+something in different circumstances.
+
+
+- com.github.solf.extra2.log
+Some SLF4J helpers.
+
+
+- com.github.solf.extra2.log4j
+LOG4J extensions, sound-producing appender, filters that can work on exception
+text, etc.
+
+
+- com.github.solf.extra2.nullable
+NullableOptional which is a version of Optional that can hold null value and
+exception information; NonNullOptional which is the same except value must
+be non-null.
+
+
+- com.github.solf.extra2.objectgraph
+ObjectGraphUtil that is useful for walking object graphs -- can be used e.g. after
+deserialization in order to adjust post-serialization state on all objects in the
+graph.
+
+
+- com.github.solf.extra2.options
+Described above together with com.github.solf.extra2.config
+
+
+- com.github.solf.extra2.pool
+SimpleObjectPool -- simple objects pool with configurable min and max values with
+optional automatic objects expiration if they are not used.
 
 
 
