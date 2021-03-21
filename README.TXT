@@ -224,9 +224,77 @@ particularly when null-analysis gets confused in complex cases.
 WebUtil - utilities for easily reading web page contents.
 
 
+
 WriteBehindResyncInBackgroundCache
 
-TODO
+This is a very flexible implementation of write-behind (aka write-back) cache 
+(i.e. cache that writes updates to the underlying storage with some delay in 
+order to be able to aggregate multiple updates) that also performs background 
+resync (cache re-reads underlying storage in background and updates in-memory
+cache state with any updates that might've been made by 3rd parties). The 
+background resync does not interfere with cache access and updates by clients.
+
+For this functionality to have practical value the following two conditions
+are important:
+
+1. Writes to the underlying storage should not (in most cases) overwrite the
+entire state (ideally they should only overwrite the parts that have been
+changed); if the entire state is overwritten, then the background resync will 
+not likely to be useful as it will just re-read the same data as was written;
+HOWEVER there's a partial workaround for this via WBRBReadBeforeWriteCache
+which will be discussed later.
+
+2. There needs to be a way to reconcile two distinct cache object states -- 
+e.g. between in-cache-memory state and the state that was just read from the
+underlying storage during the resync. This can be done in whatever manner is
+more suitable for a particular case, however the default assumption is that the
+updates to cache items are encapsulated into individual 'update events' and those
+'update events' can be applied to any existing cache item state (such as to
+the current in-memory cache item state and later on to the cache item state
+read from the underlying storage during the resync in order to 'upgrade' it to
+the most up-to-date state). These 'update events' are collected and used 
+internally by WriteBehindResyncInBackgroundCache as needed; most implementations
+do not need to care about how those are handled.
+
+NOTE: all operations in the cache are performed using read/write locks -- read
+operations may execute concurrently whereas write(update) operation is exclusive
+(no other operations may take place while write(update) is executing), therefore
+actual cache implementation code does not need to worry about concurrency 
+issues.
+
+The internal cache functionality is quite complex, however using the cache is
+not -- see ExampleSignalCache for an example of cache implementation (to write
+a new cache implementation you simply extend WriteBehindResyncInBackgroundCache,
+provide required type parameters, and implement required abstract methods);
+see ExampleSignalCacheUsage for a basic example of how to use the cache.
+
+The cache also comes with built-in logging & monitoring support that is pretty
+simple to use -- use getStatus(..) method for monitoring and override 
+spiUnknownLockGetLogger(..) method to control logging.
+
+
+WBRBReadBeforeWriteCache
+
+As mentiond before, WriteBehindResyncInBackgroundCache is quite flexible and
+WBRBReadBeforeWriteCache is a great example of taking advantage of this 
+flexibility.
+
+WBRBReadBeforeWriteCache modifies cache behavior so that all 'cache update'
+events are stored in-memory until the actual underlying storage write -- and 
+the 'write' operation instead does the following:
+- reads current underlying storage data
+- applies all the collected 'cache update' events to it
+- writes resulting value to the underlying storage and updates cached state
+with this new data (resync)
+
+This means that if read-update-write operation is quick compared to how often
+items are written to the storage (i.e. caching duration), then there's a high
+likelyhood that multiple concurrently running caches will not overwrite each
+others' data even if they are updating the 'same' thing.
+
+The drawback is that all the 'cache update' events have to be stored in memory
+until read-update-write operation occurs (i.e. for the 'caching duration' time).
+
 
 
 ATTENTION: this project uses Lombok: https://projectlombok.org/
