@@ -111,10 +111,17 @@ A simple way for a Java application to persist state between sessions via Kryo
 (de)serialization. This is useful for many apps and doesn't require any database
 support.
 
-However this was developed and used using in-house modified Kryo version (that is
-not publicly available) because at the time Kryo didn't support field removal.
-The current dependency is set to the matching non-modified Kryo version, but some
-functionality may not work due to this.
+Implementation support data model changes in so far as underlying Kryo supports
+those -- the implementation used here only supports fields addition; in-house
+a modified version of Kryo (which is not publicly available) was used that did
+support field removal.
+
+The code should be updated to a newer version of Kryo that does support field
+removal.
+
+There's support for KryoUpgradeListener and KryoPostUpgradeListener that allows
+data model to make internal changes after the old version data is loaded (this
+uses objectgraph discussed later).
 
 
 - com.github.solf.extra2.lambda
@@ -155,6 +162,66 @@ SimpleObjectPool -- simple objects pool with configurable min and max values wit
 optional automatic objects expiration if they are not used.
 
 
+- com.github.solf.extra2.stacktrace
+Support for producing condensed (one-line) stack traces & obtaining information
+about current Java file name / line number.
+
+
+- com.github.solf.extra2.storage
+A sort-of file system implementation that supports tree structure of 'items'
+where each item can have both 'contents' (i.e. bytes comprising the item) AND
+any number of named metadata entries (where each entry value may be a single 
+line, a list of lines, or a free-form String).
+
+Was used, for example, in tooling that processed and stored huge amount of data --
+and so for individual data pieces an additional metadata was stored to make
+some statistical information easy and fast to access.
+
+
+- com.github.solf.extra2.testutil
+AssertExtra contains various useful asserts, such as assertContains*, 
+assertBetween*, assertGreater* etc; those throw exceptions rather than Errors
+(such as AssertError) for greater compatibility (e.g. JUnit)
+
+TestUtil contains various convenience methods such as executing code 
+asynchronously, executing code with time limit, and accessing inaccessible
+fields and method via reflection.
+
+MockSocketService provides a way to test code using the sockets (for this to
+work the code being tested must create sockets via some kind of factory that
+can be intercepted). See TestExampleSocketsUsingService for an example of how
+to use TestUtil and MockSocketService.
+
+
+- com.github.solf.extra2.thread
+A couple of useful primitives for handling thread-related issues.
+
+ExitableThread is an abstract thread that can be externally commanded to exit.
+
+InterruptHandlingExitableThread is an extension of ExitableThread that also
+provides for a handler to handle unexpected InterruptedException
+
+
+- com.github.solf.extra2.util
+A collection of various utilities, some of which are described below.
+
+ASCIIUtil - utilities for working with ASCII-style strings, in particular
+ability to encode/decode strings to the safe format (filename-safe and similar),
+that is still human-readable e.g.:
+123 Cache Status: {running}
+->
+a123_Cache_Status___running__e_521_321__85___a
+
+NullUtil - various typecasting methods particularly useful when mixing null-safe 
+(null-annotated) code and null-unsafe code.
+
+SplitUtil - merge and split together various strings, useful e.g. when need to
+pass multiple 'things' as a single string.
+
+TypeUtil - some typecasting/coercing methods that are sometimes necessary
+particularly when null-analysis gets confused in complex cases.
+
+WebUtil - utilities for easily reading web page contents.
 
 
 WriteBehindResyncInBackgroundCache
