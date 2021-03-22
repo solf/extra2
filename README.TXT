@@ -55,7 +55,7 @@ whether threads are daemon and a common naming prefix for the pool threads.
 Latch is a simple control latch -- when it is closed, threads can wait until it
 is open via various 'await' methods; when it is open all waiting threads are
 released & new threads will proceed immediately as well (await returns 
-immediately); the latch may re-closed & re-opened as desired.
+immediately); the latch may be re-closed & re-opened as desired.
 
 RunnableWithException and Interruptable* interfaces provide useful signatures 
 for writing concurrency-related code.
