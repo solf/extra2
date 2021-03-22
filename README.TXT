@@ -268,9 +268,10 @@ a new cache implementation you simply extend WriteBehindResyncInBackgroundCache,
 provide required type parameters, and implement required abstract methods);
 see ExampleSignalCacheUsage for a basic example of how to use the cache.
 
-The cache also comes with built-in logging & monitoring support that is pretty
-simple to use -- use getStatus(..) method for monitoring and override 
-spiUnknownLockGetLogger(..) method to control logging.
+The cache also comes with built-in logging (including automatic throttling) & 
+monitoring support that is pretty simple to use -- use getStatus(..) method 
+for monitoring and override  spiUnknownLockGetLogger(..) method to control 
+logging.
 
 
 WBRBReadBeforeWriteCache

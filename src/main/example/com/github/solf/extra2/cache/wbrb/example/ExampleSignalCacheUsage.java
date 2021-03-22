@@ -9,7 +9,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.github.solf.extra2.cache.wbrb.WBRBConfig;
 import com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache;
-import com.github.solf.extra2.config.Configuration;
+import com.github.solf.extra2.config.OverrideFlatConfiguration;
 
 /**
  * Example of {@link WriteBehindResyncInBackgroundCache} usage via {@link ExampleSignalCache}
@@ -25,11 +25,16 @@ import com.github.solf.extra2.config.Configuration;
 	 */
 	public static void main(String[] args)
 	{
+		// Use test config for some valid configuration
+		OverrideFlatConfiguration config = new OverrideFlatConfiguration("wbrb/wbrb-default.properties");
+		config.override("cacheName", "ExampleSignalCache"); // test config doesn't specify this, so have to set it
+		
 		ExampleSignalCache hiCache = new ExampleSignalCache(
-			new WBRBConfig(Configuration.fromPropertiesFile("example-cache.properties")), 
+			new WBRBConfig(config), 
 			true /*hiCache*/, 
 			new ConcurrentHashMap<Long, ExSignalStorage>() /*underlyingStorage*/
 		);
+		hiCache.start();
 		
 		Long key = 123L;
 		
@@ -43,6 +48,12 @@ import com.github.solf.extra2.config.Configuration;
 		/*some processing*/
 		
 		hiCache.writeIfCachedOrException(key, 456);
+		
+		/*some processing*/
+		System.out.println(hiCache.readForOrException(key, 1000L));
+		
+		if (!hiCache.shutdownFor(1000))
+			throw new IllegalStateException("Failed to shutdown");
 	}
 
 }

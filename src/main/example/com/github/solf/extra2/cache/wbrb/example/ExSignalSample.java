@@ -7,6 +7,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Example signal sample returned from example cache -- contains a pair of
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
  */
 @ParametersAreNonnullByDefault
 @RequiredArgsConstructor
+@ToString
 /*package*/ class ExSignalSample
 {
 	/**
