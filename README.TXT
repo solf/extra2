@@ -1,6 +1,15 @@
 This is a WORK-IN-PROGRESS to make a proper open-source project out of the
 collection of the various support code that I've written over the years.
 
+-------------------
+
+This project is developed using Eclipse's null-analysis using included 
+annotations in javax.annotation package and external annotations as available
+here: https://github.com/solf/ext-eclipse-annotations
+
+-------------------
+
+
 Here's a brief overview of what's inside on a per-package basis
 
 
