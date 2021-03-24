@@ -236,6 +236,10 @@ WebUtil - utilities for easily reading web page contents.
 
 WriteBehindResyncInBackgroundCache
 
+NOTE: this code is 'complete' in the sense that it appears to work and is being
+used; however there are still many things 'to do', not the least of which is
+adding missing Javadocs & improving tests coverage.
+
 This is a very flexible implementation of write-behind (aka write-back) cache 
 (i.e. cache that writes updates to the underlying storage with some delay in 
 order to be able to aggregate multiple updates) that also performs background 
