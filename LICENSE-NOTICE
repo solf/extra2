@@ -1,0 +1,35 @@
+License information for: https://github.com/solf/extra2
+
+The majority of the code is Copyright 2021 Sergey Olefir and is distributed
+under the terms of Apache License Version 2.0 as available here: 
+http://www.apache.org/licenses/LICENSE-2.0 (also included in this package in
+the LICENSE file).
+
+Some of the included code, such as ConcurrentWeakIdentityHashMap.java, is a
+modified version of the source code originally produced by others and distributed
+under the terms of Apache License Version 2.0. In such files original authorship
+and copyright notices are retained where possible.
+
+----------------------------------------------------------------------------
+
+Some of the included code, such as RevivableInputStream.java, is a modified
+version of the code distributed under Eclipse Public License 1.0 as available
+here: https://www.eclipse.org/legal/epl-v10.html (also included in this package
+in the LICENSE-EPL-1.0.html file).
+
+Any such files are clearly marked by the included Eclipse Public License 1.0
+licensing notices and their source code is available under Eclipse Public 
+License 1.0 (instead of Apache License Version 2.0).
+
+The modified Eclipse Public License 1.0-licensed source code is available at 
+https://github.com/solf/extra2
+
+If you modify an EPL'ed component (source file under Eclipse Public License 1.0) 
+and distribute it in the source code form as part of your program, you’re 
+required to disclose the modified code under the EPL. If you distribute such a 
+program in its object code form, you’re required to state that the source code 
+can be made available to the recipient upon request. You’re also required to 
+share the method for requesting the source code.
+
+If you redistribute a program with an EPL component, you are obligated to 
+include the full license text and the copyrights.
