@@ -267,6 +267,21 @@ public class FileEditor
 	}
 	
 	/**
+	 * Removes the line that was just read from the file (which only has meaning
+	 * if {@link #spoolUnmodifiedLines} is true (which it is by default)).
+	 * 
+	 * @throws IllegalStateException if line wasn't yet read, or if line was 
+	 * 		already removed or modified 
+	 */
+	public void removeReadLine() throws IllegalStateException
+	{
+		if (lineForSpooling == null)
+			throw new IllegalStateException("Unable to remove read line, either nothing was read or it was already removed or modified.");
+		
+		lineForSpooling = null;
+	}
+	
+	/**
 	 * Reverts any changes.
 	 * Closes all streams.
 	 * No method invocations will work after this.
@@ -398,10 +413,10 @@ public class FileEditor
 	 * Starts to search at the current position (rather than at beginning).
 	 * Exactly similar to {@link String#replaceAll(String, String)} except
 	 * works on file.
-	 * 
+	 *<p> 
 	 * Does not commit or revert editor.
-	 * Position is set after the matching line (if match found) or at the end
-	 * (if match is not found). 
+	 * <p>
+	 * Position is set at the end of file.
 	 * 
 	 * @throws IllegalStateException if match not found or other kinds of IOErrors occur
 	 */

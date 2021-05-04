@@ -15,6 +15,7 @@
  */
 package com.github.solf.extra2.cache.wbrb;
 
+import static com.github.solf.extra2.testutil.AssertExtra.assertBetweenExclusive;
 import static com.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
 import static com.github.solf.extra2.testutil.AssertExtra.assertContains;
 import static com.github.solf.extra2.testutil.AssertExtra.assertContainsIgnoreCase;
@@ -64,6 +65,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.slf4j.Logger;
@@ -92,7 +94,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Tests for {@link WriteBehindResyncInBackgroundCache}
- * FIXME needs tests for write failures; maybe use key patterns to distinguish which writes should fully fail
+ * FIX-ME needs tests for write failures; maybe use key patterns to distinguish which writes should fully fail
  *
  * @author Sergey Olefir
  */
@@ -333,7 +335,7 @@ public class TestWBRB
 		assertEquals(status.getMsgFatalCount(), 0);
 		assertEquals(status.getMsgTotalWarnOrHigherCount(), 0);
 		assertEquals(status.getMsgTotalErrorOrHigherCount(), 0);
-}
+	}
 
 	/**
 	 * Asserts that storage map has specific content.
@@ -1226,8 +1228,8 @@ public class TestWBRB
 		pool.shutdownNow();
 		
 		// Check some monitoring statuses.
-		// FIXME add tests for stuff that is zero here
-		final long lowBound = 90; // had case where it was 99
+		// FIX-ME add tests for stuff that is zero here
+		final long lowBound = 85; // had case where it was 88
 		final long veryLowBound = 10;
 		WBRBStatus status = cache.getStatus(0);
 		assertEquals(status.getCurrentCacheSize(), 0);
@@ -3395,5 +3397,291 @@ public class TestWBRB
 				assertEquals(msg.getValue0(), WBRBCacheMessage.SHUTDOWN_COMPLETED);
 			}
 		}
+	}
+	
+	
+	/**
+	 * Tests cache retention. 
+	 */
+	@Test
+	public void testCacheRetention() throws InterruptedException
+	{
+		final String baseTestName = "testCacheRetention";
+		int testIndex = 1;
+		
+		// Control debug logging/event tracing to file.
+		final boolean debugLogging;
+		{
+			boolean f = false;
+//			f = true; {} // uncomment this to enable debug logging; empty block produces warning in order to not forget to re-comment
+			debugLogging = f;
+		}
+		
+		{
+			// First test untouchedItemCacheExpirationDelay=0s -- items are not retained after return queue if they're not accessed between write & return
+			FlatConfiguration baseConfig = Configuration.fromPropertiesFile("wbrb/wbrb-default.properties");
+			
+			OverrideFlatConfiguration config = new OverrideFlatConfiguration(baseConfig);
+			config.override("mainQueueCacheTime", "250ms"); // short main queue so they go to write ASAP
+			config.override("returnQueueCacheTimeMin", "100ms"); // short main queue so they go to write ASAP
+			config.override("eventNotificationEnabled", "" + debugLogging); // set to true to enable event logging for debugging
+			
+			final String testName = baseTestName + (testIndex++);
+			
+			TestWBRBReadBeforeWriteCache cache = new TestWBRBReadBeforeWriteCache(
+				testName, 
+				config, false,
+				5, 5);
+			if (debugLogging)
+			{
+				cache.setDebugLogger(testFileLog);
+			}
+			cache.start();
+			
+			final String key = "a-key";
+			final String key2 = "a-key2";
+			
+			assertEquals("", cache.readForOrException(key, 150));
+			assertEquals("", cache.readForOrException(key2, 150));
+			
+			cache.writeIfCached(key, 'u');
+	
+			{
+				assertStorageMapContentsExactlyEquals(cache.getStorageDataMap(), key, "", key2, "");
+				
+				WBRBStatus status = cache.getStatus(0);
+				
+				assertEquals(status.getCurrentCacheSize(), 2);
+				assertBetweenInclusive(status.getMainQueueSize(), 1L, 2L); // one could be 'stolen' by main queue processor
+			}
+			
+			Thread.sleep(500); // enough time for data to spool down
+			
+			
+			{
+				assertStorageMapContentsExactlyEquals(cache.getStorageDataMap(), key, "u", key2, "");
+				
+				WBRBStatus status = cache.getStatus(0);
+				
+				assertEquals(status.getCurrentCacheSize(), 0);
+				assertEquals(status.getMainQueueSize(), 0);
+			}
+			
+			
+			assertTrue(cache.shutdownFor(3000), "Cache failed to shutdown in time, still has items: " + cache.inflightMap.size());
+			
+			{
+				WBRBStatus status = cache.getStatus(0);
+				
+				assertEquals(status.getReturnQueueItemNotRetainedDueToMainQueueSizeCount(), 0);
+				assertEquals(status.getReturnQueueNegativeTimeSinceLastAccessErrorCount(), 0);
+				
+				assertEquals(status.getFullCycleCountThreshold1(), 2);
+				assertEquals(status.getFullCycleCountThreshold2(), 0);
+				assertEquals(status.getFullCycleCountThreshold3(), 0);
+				assertEquals(status.getFullCycleCountThreshold4(), 0);
+				assertEquals(status.getFullCycleCountThreshold5(), 0);
+				assertEquals(status.getFullCycleCountAboveAllThresholds(), 0);
+				
+				assertEquals(status.getTimeSinceAccessThreshold1(), 2);
+				assertEquals(status.getTimeSinceAccessThreshold2(), 0);
+				assertEquals(status.getTimeSinceAccessThreshold3(), 0);
+				assertEquals(status.getTimeSinceAccessThreshold4(), 0);
+				assertEquals(status.getTimeSinceAccessThreshold5(), 0);
+				assertEquals(status.getTimeSinceAccessThresholdAboveAllThresholds(), 0);
+			}
+		}
+		
+		
+		{
+			// Test untouchedItemCacheExpirationDelay behavior, item should be retained if 'recently' accessed
+			for (int a = 0; a < 2; a++) // two passes at this with different behavior
+			{
+				FlatConfiguration baseConfig = Configuration.fromPropertiesFile("wbrb/wbrb-default.properties");
+				
+				OverrideFlatConfiguration config = new OverrideFlatConfiguration(baseConfig);
+				config.override("mainQueueCacheTime", "100ms"); // short main queue so they go to write ASAP
+				config.override("returnQueueCacheTimeMin", "50ms"); // short main queue so they go to write ASAP
+				config.override("untouchedItemCacheExpirationDelay", "700ms"); // retain items until they're untouched this long 
+				config.override("monitoringFullCacheCyclesThresholds", "1,2,3,4,7"); // thresholds for monitoring  
+				config.override("monitoringTimeSinceAccessThresholds", "0ms,200ms,400ms,500ms,700ms"); // thresholds for monitoring 
+				config.override("eventNotificationEnabled", "" + debugLogging); // set to true to enable event logging for debugging
+				
+				final String testName = baseTestName + (testIndex++);
+				
+				TestWBRBReadBeforeWriteCache cache = new TestWBRBReadBeforeWriteCache(
+					testName, 
+					config, false,
+					5, 5);
+				if (debugLogging)
+				{
+					cache.setDebugLogger(testFileLog);
+				}
+				cache.start();
+				
+				final String key = "a-key";
+				final String key2 = "a-key2";
+				
+				assertEquals("", cache.readForOrException(key, 150));
+				assertEquals("", cache.readForOrException(key2, 150));
+				
+				cache.writeIfCached(key, 'u');
+		
+				{
+					assertStorageMapContentsExactlyEquals(cache.getStorageDataMap(), key, "", key2, "");
+					
+					WBRBStatus status = cache.getStatus(0);
+					
+					assertEquals(status.getCurrentCacheSize(), 2);
+					assertBetweenInclusive(status.getMainQueueSize(), 1L, 2L); // one could be 'stolen' by main queue processor
+				}
+				
+				Thread.sleep(350); // half the expiration time
+				
+				
+				final String keyValue;
+				
+				if (a == 0)
+				{
+					assertEquals("u", cache.readForOrException(key, 150)); // touch this item
+					keyValue = "u";
+				}
+				else
+				{
+					cache.writeIfCached(key, 'v');
+					keyValue = "uv";
+				}
+				
+				Thread.sleep(550); // enough time for key2 data to expire from cache
+				
+				{
+					assertStorageMapContentsExactlyEquals(cache.getStorageDataMap(), key, keyValue, key2, "");
+					
+					WBRBStatus status = cache.getStatus(0);
+					
+					assertEquals(status.getCurrentCacheSize(), 1);
+					assertBetweenInclusive(status.getMainQueueSize(), 0L, 1L); // one could be 'stolen' by main queue processor
+				}
+	
+				Thread.sleep(450); // enough time for key data to expire from cache as well
+	
+				{
+					assertStorageMapContentsExactlyEquals(cache.getStorageDataMap(), key, keyValue, key2, "");
+					
+					WBRBStatus status = cache.getStatus(0);
+					
+					assertEquals(status.getCurrentCacheSize(), 0);
+					assertEquals(status.getMainQueueSize(), 0);
+				}
+				
+				
+				assertTrue(cache.shutdownFor(3000), "Cache failed to shutdown in time, still has items: " + cache.inflightMap.size());
+				
+				{
+					WBRBStatus status = cache.getStatus(0);
+					
+					assertEquals(status.getReturnQueueItemNotRetainedDueToMainQueueSizeCount(), 0);
+					assertEquals(status.getReturnQueueNegativeTimeSinceLastAccessErrorCount(), 0);
+					
+					assertEquals(status.getFullCycleCountThreshold1(), 2);
+					assertEquals(status.getFullCycleCountThreshold2(), 2);
+					assertEquals(status.getFullCycleCountThreshold3(), 2);
+					assertEquals(status.getFullCycleCountThreshold4(), 2);
+					
+					long t5 = status.getFullCycleCountThreshold5();
+					assertGreater(t5, 2L);
+					assertBetweenExclusive(status.getFullCycleCountAboveAllThresholds(), 0L, t5);
+					
+					assertEquals(status.getTimeSinceAccessThreshold1(), 0);
+					long min = NumberUtils.min(new long[] {status.getTimeSinceAccessThreshold2(), status.getTimeSinceAccessThreshold3(), status.getTimeSinceAccessThreshold4(), status.getTimeSinceAccessThreshold5()});
+					long max = NumberUtils.max(new long[] {status.getTimeSinceAccessThreshold2(), status.getTimeSinceAccessThreshold3(), status.getTimeSinceAccessThreshold4(), status.getTimeSinceAccessThreshold5()});
+					assertBetweenExclusive(min, 0L, 7L, status.toString());
+					assertBetweenExclusive(max, 1L, 7L, status.toString());
+					assertGreater(max, min, status.toString());
+					assertBetweenExclusive(status.getTimeSinceAccessThresholdAboveAllThresholds(), 0L, max, status.toString());
+				}
+			}
+		}
+		
+		
+		{
+			// Test untouchedItemCacheExpirationDelay behavior for when main queue is overflowing
+			FlatConfiguration baseConfig = Configuration.fromPropertiesFile("wbrb/wbrb-default.properties");
+			
+			OverrideFlatConfiguration config = new OverrideFlatConfiguration(baseConfig);
+			config.override("mainQueueMaxTargetSize", "10"); // very SMALL main queue for testing overflow
+			config.override("mainQueueCacheTime", "100ms"); // short main queue so they go to write ASAP
+			config.override("returnQueueCacheTimeMin", "10ms"); // short main queue so they go to write ASAP
+			config.override("untouchedItemCacheExpirationDelay", "5s"); // retain items until they're untouched this long 
+			config.override("eventNotificationEnabled", "" + debugLogging); // set to true to enable event logging for debugging
+			
+			final String testName = baseTestName + (testIndex++);
+			
+			TestWBRBReadBeforeWriteCache cache = new TestWBRBReadBeforeWriteCache(
+				testName, 
+				config, false,
+				0, 0);
+			
+			cache.setMainQueueDelay(40); // delay main queue processing in order to be able to test
+			
+			if (debugLogging)
+			{
+				cache.setDebugLogger(testFileLog);
+			}
+			cache.start();
+			
+			final String keyPrefix = "key";
+			
+			for (int i = 0; i < 20; i++)
+			{
+				String key = keyPrefix + i;
+				cache.readForOrException(key, 150);
+				cache.writeIfCachedOrException(key, 'u');
+			}
+			
+			Thread.sleep(25);
+			
+			assertFails(() -> cache.readForOrException("wont fit", 150), "exceeded capacity");
+			{
+				WBRBStatus status = cache.getStatus(0);
+				assertEquals(status.getCurrentCacheSize(), 20);
+			}
+			
+			Thread.sleep(1200); // Should be enough time to rotate through all the main & return queues. 
+
+			{
+				WBRBStatus status = cache.getStatus(0);
+				assertBetweenInclusive(status.getCurrentCacheSize(), 10L, 11L); // 9-10 first items shouldn't fit back
+			}
+			
+			for (int i = 0; i < 9; i++) // first 9 (or 10) items should be discared.
+				assertTrue(cache.readIfCached(keyPrefix + i).isEmpty(), keyPrefix + i);
+			for (int i = 10; i < 20; i++) // last 10 items should be still in cache
+				assertTrue(cache.readIfCached(keyPrefix + i).isPresent(), keyPrefix + i);
+			
+			assertTrue(cache.shutdownFor(3000), "Cache failed to shutdown in time, still has items: " + cache.inflightMap.size());
+			
+			{
+				WBRBStatus status = cache.getStatus(0);
+				
+				assertBetweenInclusive(status.getReturnQueueItemNotRetainedDueToMainQueueSizeCount(), 9L, 10L);
+				assertEquals(status.getReturnQueueNegativeTimeSinceLastAccessErrorCount(), 0);
+				
+				assertEquals(status.getFullCycleCountThreshold1(), 20);
+				assertBetweenInclusive(status.getFullCycleCountThreshold2(), 10L, 11L);
+				assertBetweenInclusive(status.getFullCycleCountThreshold3(), 10L, 11L); // post-hoc check decision
+				assertEquals(status.getFullCycleCountThreshold4(), 0);
+				assertEquals(status.getFullCycleCountThreshold5(), 0);
+				assertEquals(status.getFullCycleCountAboveAllThresholds(), 0);
+				
+				assertBetweenInclusive(status.getTimeSinceAccessThreshold1(), 40L, 42L);
+				assertEquals(status.getTimeSinceAccessThreshold2(), 0);
+				assertEquals(status.getTimeSinceAccessThreshold3(), 0);
+				assertEquals(status.getTimeSinceAccessThreshold4(), 0);
+				assertEquals(status.getTimeSinceAccessThreshold5(), 0);
+				assertEquals(status.getTimeSinceAccessThresholdAboveAllThresholds(), 0);
+			}
+		}
+		
 	}
 }

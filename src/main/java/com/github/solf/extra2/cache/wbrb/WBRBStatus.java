@@ -383,6 +383,24 @@ public class WBRBStatus
 	@Getter
 	private final long returnQueueRequeueToReturnQueueCount;
 	
+	/**
+	 * In return queue processing we calculate time since last access in
+	 * order to determine what to do with the cache item; this counts how
+	 * many times that resulted in the negative value (this should not
+	 * normally happen, but could possibly happen if time is adjusted or
+	 * some such).
+	 */
+	@Getter
+	private final long returnQueueNegativeTimeSinceLastAccessErrorCount;
+	
+	/**
+	 * In return queue processing there's decision as to whether to keep an
+	 * element in the cache; this monitors cases when item is ineligible to
+	 * be retained due to main queue size already being at the limit.
+	 */
+	@Getter
+	private final long returnQueueItemNotRetainedDueToMainQueueSizeCount;
+	
 	
 	
 	/**
@@ -455,6 +473,12 @@ public class WBRBStatus
 	 */
 	@Getter
 	private final long cacheReadTimeouts;
+	
+	/**
+	 * How many times cache reads were interrupted (externally).
+	 */
+	@Getter
+	private final long cacheReadInterrupts;
 	
 	/**
 	 * How many errors during cache read occurred.
@@ -630,4 +654,91 @@ public class WBRBStatus
 	@Getter
 	private final @Nullable String lastFatalLoggedMsgText;
 	
+	
+	
+	/**
+	 * How many items were at or below threshold 1 for 
+	 * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
+	 */
+	@Getter
+	private final long fullCycleCountThreshold1;
+	
+	/**
+	 * How many items were at or below threshold 2 for 
+	 * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
+	 */
+	@Getter
+	private final long fullCycleCountThreshold2;
+	
+	/**
+	 * How many items were at or below threshold 3 for 
+	 * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
+	 */
+	@Getter
+	private final long fullCycleCountThreshold3;
+	
+	/**
+	 * How many items were at or below threshold 4 for 
+	 * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
+	 */
+	@Getter
+	private final long fullCycleCountThreshold4;
+	
+	/**
+	 * How many items were at or below threshold 5 for 
+	 * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
+	 */
+	@Getter
+	private final long fullCycleCountThreshold5;
+	
+	/**
+	 * How many items were above all thresholds for 
+	 * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
+	 */
+	@Getter
+	private final long fullCycleCountAboveAllThresholds;
+	
+	
+	
+	/**
+	 * How many items were at or below threshold 1 for 
+	 * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+	 */
+	@Getter
+	private final long timeSinceAccessThreshold1;
+	
+	/**
+	 * How many items were at or below threshold 2 for 
+	 * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+	 */
+	@Getter
+	private final long timeSinceAccessThreshold2;
+	
+	/**
+	 * How many items were at or below threshold 3 for 
+	 * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+	 */
+	@Getter
+	private final long timeSinceAccessThreshold3;
+	
+	/**
+	 * How many items were at or below threshold 4 for 
+	 * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+	 */
+	@Getter
+	private final long timeSinceAccessThreshold4;
+	
+	/**
+	 * How many items were at or below threshold 5 for 
+	 * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+	 */
+	@Getter
+	private final long timeSinceAccessThreshold5;
+	
+	/**
+	 * How many items were above all thresholds for 
+	 * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+	 */
+	@Getter
+	private final long timeSinceAccessThresholdAboveAllThresholds;
 }

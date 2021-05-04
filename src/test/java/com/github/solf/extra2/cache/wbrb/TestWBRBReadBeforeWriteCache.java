@@ -30,6 +30,7 @@ import com.github.solf.extra2.config.OverrideFlatConfiguration;
 import com.github.solf.extra2.util.TypeUtil;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A version of cache that collects all updates in order to do read-applyUpdates-write
@@ -49,6 +50,12 @@ public class TestWBRBReadBeforeWriteCache extends
 	 * Write delay
 	 */
 	protected final long writeDelayMs;
+	
+	/**
+	 * Optional delay when processing items in the main queue
+	 */
+	@Getter @Setter
+	protected volatile long mainQueueDelay = 0;
 	
 	/**
 	 * Keep data here.
@@ -228,6 +235,32 @@ public class TestWBRBReadBeforeWriteCache extends
 			super.spiNoLockWriteToStorage(key, writeEntry);
 		}
 	}
+
+	@Override
+	protected WriteBehindResyncInBackgroundCache<String, String, StringBuilder, StringBuilder, RBWWriteData<String, Character>, Character, Character>.WBRBMainQueueProcessingDecision spiWriteLockMakeMainQueueProcessingDecision(
+		String key,
+		WBRBCacheEntry cacheEntry,
+		WBRBCachePayload payload)
+		throws InterruptedException
+	{
+		WBRBMainQueueProcessingDecision result = super.spiWriteLockMakeMainQueueProcessingDecision(key, cacheEntry,
+			payload);
+
+		long delay = mainQueueDelay;
+		if (delay > 0)
+		{
+			try
+			{
+				Thread.sleep(delay);
+			} catch( InterruptedException e )
+			{
+				throw new RuntimeException(e);
+			}
+		}
+		
+		return result;
+	}
+	
 	
 	
 }

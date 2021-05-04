@@ -25,7 +25,7 @@ import com.github.solf.extra2.config.FlatConfiguration;
 import lombok.Getter;
 
 /**
- * Provides a superclass to initialze reference options value ({@link #getRawOptions()}}
+ * Provides a superclass to initialize reference options value ({@link #getRawOptions()}}
  * before fields are initialized, e.g. see {@link WBRBConfig}
  *
  * @author Sergey Olefir

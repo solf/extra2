@@ -607,12 +607,13 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	@Override
 	protected WBRBReturnQueueItemProcessingDecision spiWriteLockMakeReturnQueueProcessingDecision(
 		@Nonnull K key,
+		boolean itemHadAccessSinceMainQueue, long itemUntouchedMs, 
 		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCacheEntry cacheEntry,
 		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCachePayload payload)
 		throws InterruptedException
 	{
-		WBRBReturnQueueItemProcessingDecision decision = super.spiWriteLockMakeReturnQueueProcessingDecision(key, cacheEntry,
-			payload);
+		WBRBReturnQueueItemProcessingDecision decision = super.spiWriteLockMakeReturnQueueProcessingDecision(
+			key, itemHadAccessSinceMainQueue, itemUntouchedMs, cacheEntry, payload);
 		
 		switch (decision.getAction())
 		{

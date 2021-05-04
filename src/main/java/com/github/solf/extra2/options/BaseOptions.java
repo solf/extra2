@@ -39,6 +39,8 @@ import org.joda.time.DateTime;
 import com.github.solf.extra2.config.Configuration;
 import com.github.solf.extra2.config.FlatConfiguration;
 
+import lombok.Getter;
+
 /**
  * Base class for supporting options functionality, usage example can be found
  * in example source folder: {@link ExampleDbOptions}
@@ -62,6 +64,7 @@ public class BaseOptions
 	/**
 	 * Options set used by this instance.
 	 */
+	@Getter
 	protected final FlatConfiguration configuration;
 	
 	/**
@@ -831,7 +834,7 @@ public class BaseOptions
 	public List<Long> getLongList(String option, @Nonnull OptionConstraint... constraints)
 		throws MissingResourceException, NumberFormatException, IllegalStateException
 	{
-		return internalGetLongList(option, null, constraints);
+		return internalGetLongList(false, option, null, constraints);
 	}
 	
 	/**
@@ -856,7 +859,7 @@ public class BaseOptions
 		if (nullable(defaultValue) == null)
 			throw new IllegalArgumentException("Default value must be non-null in option: " + option);
 		
-		return internalGetLongList(option, defaultValue, constraints);
+		return internalGetLongList(false, option, defaultValue, constraints);
 	}
 	
 	/**
@@ -903,13 +906,14 @@ public class BaseOptions
 	}
 	
 	/**
-	 * Gets options as a list of longs; fails if not found or value cannot be parsed
-	 * as a comma-separated list of longs.
+	 * Gets options as a list of longs (or time intervals); fails if not found or 
+	 * value cannot be parsed as a comma-separated list of longs (or time intervals).
 	 * <p>
 	 * Returned list is unmodifiable.
 	 * <p>
 	 * ATTENTION: by default, resulting list is allowed to be empty
 	 * 
+	 * @param isTimeInterval whether the actual values are time intervals (false -- longs)
 	 * @param defaultValue if not null, this is used in case option is not found
 	 * @param constraints additional constraints that you might want to add
 	 * 		on allowed values
@@ -917,7 +921,7 @@ public class BaseOptions
 	 * @throws MissingResourceException if option value not found.
 	 * @throws NumberFormatException if any value doesn't convert to long
 	 */
-	protected List<Long> internalGetLongList(String option, @Nullable String defaultValue, @Nonnull OptionConstraint... constraints) 
+	protected List<Long> internalGetLongList(boolean isTimeInterval, String option, @Nullable String defaultValue, @Nonnull OptionConstraint... constraints) 
 		throws MissingResourceException, NumberFormatException
 	{
 		@Nonnull List<@Nonnull String> strValues = internalGetStringList(option, defaultValue, true, constraints);
@@ -927,8 +931,14 @@ public class BaseOptions
 		{
 			try
 			{
-				result.add(Long.parseLong(v));
-			} catch (NumberFormatException e)
+				long value;
+				if (isTimeInterval)
+					value = parseTimeInterval(v);
+				else
+					value = Long.parseLong(v); 
+				
+				result.add(value);
+			} catch (IllegalArgumentException e) // NumberFormatException is a subclass of IllegalArgumentException 
 			{
 				throw new NumberFormatException("Problem with option [" + option + "]: failed to parse [" + v + "] as long in: " + strValues + "; message: " + e);
 			}
@@ -1490,4 +1500,52 @@ public class BaseOptions
 		
 		return result;
 	}
+	
+	
+	/**
+	 * Gets options as a list of time intervals; fails if not found or value cannot be parsed
+	 * as a comma-separated list of time intervals.
+	 * <p>
+	 * Returned list is unmodifiable.
+	 * <p>
+	 * ATTENTION: by default, resulting list is allowed to be empty
+	 * 
+	 * @param constraints additional constraints that you might want to add
+	 * 		on allowed values
+	 * 
+	 * @throws MissingResourceException if option value not found.
+	 * @throws NumberFormatException if any value doesn't convert to time interval
+	 * @throws IllegalStateException if incompatible constraints are used
+	 */
+	public List<Long> getTimeIntervalList(String option, @Nonnull OptionConstraint... constraints)
+		throws MissingResourceException, NumberFormatException, IllegalStateException
+	{
+		return internalGetLongList(true, option, null, constraints);
+	}
+	
+	/**
+	 * Gets options as a list of time intervals; fails if not found or value cannot be parsed
+	 * as a comma-separated list of time intervals.
+	 * <p>
+	 * Returned list is unmodifiable.
+	 * <p>
+	 * ATTENTION: by default, resulting list is allowed to be empty
+	 * 
+	 * @param constraints additional constraints that you might want to add
+	 * 		on allowed values
+	 * 
+	 * @throws MissingResourceException if option value not found.
+	 * @throws NumberFormatException if any value doesn't convert to time interval
+	 * @throws IllegalArgumentException if default value is null
+	 * @throws IllegalStateException if incompatible constraints are used
+	 */
+	public List<Long> getTimeIntervalList(String option, String defaultValue, @Nonnull OptionConstraint... constraints)
+		throws MissingResourceException, NumberFormatException, IllegalArgumentException, IllegalStateException
+	{
+		if (nullable(defaultValue) == null)
+			throw new IllegalArgumentException("Default value must be non-null in option: " + option);
+		
+		return internalGetLongList(true, option, defaultValue, constraints);
+	}
+	
 }

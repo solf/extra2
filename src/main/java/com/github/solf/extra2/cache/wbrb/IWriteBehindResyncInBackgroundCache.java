@@ -138,7 +138,11 @@ public interface IWriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W, UEx
 	
 	
 	/**
-	 * Reads cache element if it is already cached
+	 * Reads cache element if it is already cached.
+	 * <p>
+	 * This will NOT schedule element for reading from the underlying storage.
+	 * <p>
+	 * It WILL update 'last read' timestamp ('touch') the entry if it is present.
 	 * 
 	 * @return {@link NullableOptional} -- empty if element is not yet loaded,
 	 * 		with value if value was read; if it is empty, may contain exception
@@ -157,6 +161,10 @@ public interface IWriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W, UEx
 	/**
 	 * Reads cache element if it is already cached or throws
 	 * an {@link CacheElementNotYetLoadedException} if it is not present / not yet loaded.
+	 * <p>
+	 * This will NOT schedule element for reading from the underlying storage.
+	 * <p>
+	 * It WILL update 'last read' timestamp ('touch') the entry if it is present.
 	 * 
 	 * @return cache value
 	 * 

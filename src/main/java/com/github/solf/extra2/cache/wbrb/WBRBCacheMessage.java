@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Possible cache messages.
- * TODO check if they are all used?
+ * TO-DO check if they are all used?
  *
  * @author Sergey Olefir
  */
@@ -183,6 +183,21 @@ public enum WBRBCacheMessage
 	 * Arguments: key
 	 */
 	UNEXPECTED_CACHE_REMOVAL_IN_RETURN_QUEUE_PROCESSING(ERROR),
+	
+
+	/**
+	 * Notification that main queue size exceeds target size when adding new
+	 * element to the cache (item is still added, it's a warning).
+	 * <p>
+	 * Arguments: key, main queue size
+	 */
+	CACHE_ADD_MAIN_QUEUE_SIZE_WARNING(EXTERNAL_WARN),
+	/**
+	 * Cache element addition failed due to cache size exceeding the hard limit 
+	 * <p>
+	 * Arguments: key, cache size
+	 */
+	CACHE_ADD_FAIL_CACHE_SIZE_LIMIT_EXCEEDED(EXTERNAL_DATA_LOSS),
 	
 	
 	/**
@@ -378,7 +393,6 @@ public enum WBRBCacheMessage
 	 * Arguments: exception, key
 	 */
 	APPLY_UPDATE_FAIL(EXTERNAL_DATA_LOSS),
-	
 
 	/**
 	 * Main queue processing non-standard outcome
@@ -388,11 +402,27 @@ public enum WBRBCacheMessage
 	MAIN_QUEUE_NON_STANDARD_OUTCOME(EXTERNAL_WARN),
 
 	/**
-	 * Main queue processing non-standard outcome
+	 * Return queue processing non-standard outcome
 	 * <p>
 	 * Arguments: key, outcome ( {@link WBRBReturnQueueItemProcessingDecision} )
 	 */
 	RETURN_QUEUE_NON_STANDARD_OUTCOME(EXTERNAL_WARN),
+	
+	/**
+	 * Return queue processing encounted situation where it 'wanted' (not 'needed')
+	 * to retain the item, but couldn't due to main queue size.
+	 * <p>
+	 * Arguments: key, main queue size
+	 */
+	RETURN_QUEUE_ITEM_NOT_RETAINED_DUE_TO_MAIN_QUEUE_SIZE(WARN),
+	
+	/**
+	 * Return queue processing calculated negative time since the item was last
+	 * touched, this is only envisioned to possibly happen in case of time shift.
+	 * <p>
+	 * Arguments: key, negative time
+	 */
+	RETURN_QUEUE_NEGATIVE_TIME_SINCE_TOUCHED(EXTERNAL_ERROR),
 	
 	
 	/**

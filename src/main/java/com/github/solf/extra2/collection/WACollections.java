@@ -18,19 +18,25 @@ package com.github.solf.extra2.collection;
 import static com.github.solf.extra2.util.NullUtil.nn;
 import static com.github.solf.extra2.util.NullUtil.nonNull;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -143,7 +149,7 @@ public class WACollections
 	 * Implementation of Iterable over Enumeration.
 	 * http://www.javaspecialists.eu/archive/Issue107.html 
 	 */
-	public static class IterableEnumeration<T> implements Iterable<T>
+	public static class IterableEnumeration<T> implements ForIterable<T>
 	{
 		/**
 		 * Underlying enumeration.
@@ -161,6 +167,7 @@ public class WACollections
 		/**
 		 * Create & return adapter.
 		 */
+		@SuppressWarnings("deprecation")
 		@Override
 		public Iterator<T> iterator()
 		{
@@ -364,12 +371,12 @@ public class WACollections
 			return result;
 		}
 	}
-
+	
 	/**
 	 * Convenient way to treat {@link Enumeration} as {@link Iterable}
 	 * Note that it only allows a single use.
 	 */
-	public static <T> Iterable<T> toIterable(Enumeration<T> en)
+	public static <T> ForIterable<T> toIterable(Enumeration<T> en)
 	{
 		return new IterableEnumeration<T>(en);
 	}
@@ -398,13 +405,37 @@ public class WACollections
 	}
 	
 	/**
+	 * Convenient way to treat {@link Iterator} as {@link ForIterable}.
+	 * Note that it only allows a single use.
+	 * 
+	 * https://github.com/google/guava/issues/796
+	 */
+	public static <T> ForIterable<T> toForIterable(Iterator<T> it)
+	{
+		return new ForIterable<T>()
+		{
+			private AtomicBoolean exhausted = new AtomicBoolean(false);
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public Iterator<T> iterator()
+			{
+				if( exhausted.getAndSet(true) )
+					throw new IllegalStateException(
+						"Underlying iterator has been already consumed once!");
+				return it;
+			}
+		};
+	}
+	
+	/**
 	 * Convenient way to treat {@link ResultSet} as {@link Iterable}.
 	 * <p>
 	 * Note that it only allows a single use.
 	 */
-	public static Iterable<ResultSet> toIterable(ResultSet rs)
+	public static ForIterable<ResultSet> toIterable(ResultSet rs)
 	{
-		return toIterable(new ResultSetIterator(rs));
+		return toForIterable(new ResultSetIterator(rs));
 	}
 	
 	/**
@@ -415,9 +446,25 @@ public class WACollections
 	 * Note that it only allows a single use.
 	 */
 	@ParametersAreNonnullByDefault({})
-	public static <T> @Nonnull Iterable<@Nonnull T> toIterable(@Nonnull Supplier<@Nullable T> supplier)
+	public static <T> @Nonnull ForIterable<@Nonnull T> toIterable(@Nonnull Supplier<@Nullable T> supplier)
 	{
-		return toIterable(new SupplierIterator<T>(supplier));
+		return toForIterable(new SupplierIterator<T>(supplier));
+	}
+	
+
+	/**
+	 * An {@link ForIterable} over all elements in a map which contains collections as 
+	 * elements (e.g. HashMap<String, List<Integer>> -> will provide an {@link ForIterable}
+	 * over all Integer-s contained in this map).
+	 * <p>
+	 * This fully supports nulls, e.g. in the example above entries with null
+	 * List<Integer> will be skipped and any null Integers inside List<Integer>
+	 * will be returned as nulls.
+	 */
+	@ParametersAreNonnullByDefault({})
+	public static <T, C extends Collection<T>> @Nonnull ForIterable<T> toIterableValuesFromMapWithCollectionElements(@Nonnull Map<?, C> map)
+	{
+		return ForIterableOfIterable.of(map.values());
 	}
 
 	/**
@@ -523,5 +570,230 @@ public class WACollections
 		{
 			throw new IllegalStateException("Failed to invoke TreeMap.getEntry method: " + e, e);
 		}
+	}
+	
+	/**
+	 * Empty read-only set implementation.
+	 */
+	@ParametersAreNonnullByDefault({})
+	private static class EmptyReadOnlySet implements ReadOnlySet<Object>, Serializable
+	{
+		@SuppressWarnings("deprecation")
+		@Override
+		@Nonnull
+		public Iterator<Object> iterator()
+		{
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		public @Nullable Object get(Object item)
+		{
+			return null;
+		}
+
+		@Override
+		public boolean has(Object o)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isEmpty()
+		{
+			return true;
+		}
+
+		@Override
+		public int size()
+		{
+			return 0;
+		}
+
+		@Nonnull
+		@Override
+		public Set<Object> toUnmodifiableJavaSet()
+		{
+			return Collections.emptySet();
+		}
+	}
+	
+	/**
+	 * Empty read-only set instance.
+	 */
+	private static final EmptyReadOnlySet EMPTY_READ_ONLY_SET = new EmptyReadOnlySet();
+	
+	/**
+	 * Returns empty read-only set.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> ReadOnlySet<T> emptyReadOnlySet()
+	{
+		return (ReadOnlySet<T>)EMPTY_READ_ONLY_SET;
+	}
+	
+	/**
+	 * Empty read-only map implementation.
+	 */
+	@ParametersAreNonnullByDefault({})
+	private static class EmptyReadOnlyMap implements ReadOnlyMap<Object, Object>, Serializable
+	{
+
+		@Override
+		@Deprecated
+		public @Nonnull Iterator<@Nonnull ReadOnlyEntry<Object, Object>> iterator()
+		{
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		public Object getOrFallback(Object key, Object defaultValue)
+		{
+			return defaultValue;
+		}
+
+		@Override
+		public @Nonnull ForIterable<Object> vals()
+		{
+			return emptyForIterable();
+		}
+
+		@Override
+		public @Nonnull ForIterable<Object> keys()
+		{
+			return emptyForIterable();
+		}
+
+		@Override
+		public @Nonnull ForIterable<@Nonnull ReadOnlyEntry<Object, Object>> entries()
+		{
+			return emptyForIterable();
+		}
+
+		@Override
+		public @Nullable ReadOnlyEntry<Object, Object> getEntry(Object key)
+		{
+			return null;
+		}
+
+		@Override
+		public @Nullable Object getKey(Object key)
+		{
+			return null;
+		}
+
+		@Override
+		public @Nullable Object getValue(Object key)
+		{
+			return null;
+		}
+
+		@Override
+		public boolean hasKey(Object key)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isEmpty()
+		{
+			return true;
+		}
+
+		@Override
+		public int size()
+		{
+			return 0;
+		}
+
+		@Override
+		public @Nonnull Map<Object, Object> toUnmodifiableJavaMap()
+		{
+			return Collections.emptyMap();
+		}
+	}
+
+	/**
+	 * Empty read-only map instance.
+	 */
+	private static final EmptyReadOnlyMap EMPTY_READ_ONLY_MAP = new EmptyReadOnlyMap();
+	
+	/**
+	 * Returns empty read-only map.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <K, V> ReadOnlyMap<K, V> emptyReadOnlyMap()
+	{
+		return (ReadOnlyMap<K, V>)EMPTY_READ_ONLY_MAP;
+	}
+	
+	
+	/**
+	 * Empty {@link ForIterable} implementation.
+	 */
+	@ParametersAreNonnullByDefault({})
+	private static class EmptyForIterable implements ForIterable<Object>, Serializable
+	{
+		@Override
+		@Deprecated
+		public @Nonnull Iterator<Object> iterator()
+		{
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		public @Nonnull Enumeration<Object> enumeration()
+		{
+			return Collections.emptyEnumeration();
+		}
+	}
+	
+
+	/**
+	 * Empty read-only map instance.
+	 */
+	private static final EmptyForIterable EMPTY_FOR_ITERABLE = new EmptyForIterable();
+	
+	/**
+	 * Returns empty {@link ForIterable}.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> ForIterable<T> emptyForIterable()
+	{
+		return (ForIterable<T>)EMPTY_FOR_ITERABLE;
+	}
+	
+	/**
+	 * A way to convert iterator from one type to another -- provided function must
+	 * convert iterator elements from the source iterator format to the desired
+	 * format.
+	 */
+	@ParametersAreNonnullByDefault({})
+	@Nonnull
+	public static <From, To> Iterator<To> remapIterator(final @Nonnull Iterator<From> source, 
+		final @Nonnull Function<From, To> remapFunction)
+	{
+		return new Iterator<To>()
+		{
+
+			@Override
+			public boolean hasNext()
+			{
+				return source.hasNext();
+			}
+
+			@Override
+			public To next()
+			{
+				return remapFunction.apply(source.next());
+			}
+
+			@Override
+			public void remove()
+			{
+				source.remove();
+			}
+			
+		};
 	}
 }

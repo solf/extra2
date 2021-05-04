@@ -41,6 +41,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,36 +82,36 @@ import lombok.SneakyThrows;
 import lombok.ToString;
 
 /**
- * FIXME -- probably need to add percentile monitoring for the read & write times somehow
- * FIXME -- notes on monitoring performance impact? All these volatiles/atomics can't be great
- * FIXME -- comments on what happens when abstract methods fail with exception
- * FIXME -- cache expiration based on time since last access rather than just boolean flags?
- * FIXME -- option to collect updates in main queue and run write & resync when collected updates are more than some value? If doing this, will have to delay processing such items in main queue processing (to give time to finish resync)
- * FIXME -- option to handle unexpected resync? e.g. if write is implemented as read + write, we should be able to accept 'unexpected' resync based on this read+write; also skip resync in the return queue?
- * FIXME -- limit number of collected updates?
- * FIXME -- cache write should have (an option?) to write to element w/o reading it first; this probably means need to adjust merge decision so it can merge updates with just-read-data w/o having previous data
- * FIXME -- check returns inside ifPresent/ifException blocks -- they wouldn't do what might be expected
- * FIXME -- cache write needs flag or something to decide what to do if item is no longer in the cache; maybe also consider not-removing elements from cache if they are 'recently' accessed?; or maybe this doesn't matter, we do incremental updates anyway?
- * FIXME -- needs shutdown procedure
- * FIXME -- needs monitoring (relevant threads are alive, queue sizes, etc)
- * FIXME -- an option or an override to disable background resync (i.e. cache forever) option?
- * FIXME -- make sure not too many write changes are kept in memory in case of cassandra failure
- * FIXME -- make sure cassandra writes&reads have some kind of built-in timeout to do not consume thread pool & to do not make code keep change lists too long
- * FIXME -- reduce size of change command as much as possible
+ * TODO -- CCC marks placed where comments are needed, fixme replaced with FIX-ME, todo replaced with TO-DO to hide tasks from tracking for now
  * 
- * FIXME - class description
+ * FIX-ME -- probably need to add percentile monitoring for the read & write times somehow
+ * FIX-ME -- notes on monitoring performance impact? All these volatiles/atomics can't be great
+ * FIX-ME -- comments on what happens when abstract methods fail with exception
+ * FIX-ME -- cache expiration based on time since last access rather than just boolean flags?
+ * FIX-ME -- option to collect updates in main queue and run write & resync when collected updates are more than some value? If doing this, will have to delay processing such items in main queue processing (to give time to finish resync)
+ * FIX-ME -- option to handle unexpected resync? e.g. if write is implemented as read + write, we should be able to accept 'unexpected' resync based on this read+write; also skip resync in the return queue?
+ * FIX-ME -- limit number of collected updates?
+ * FIX-ME -- cache write should have (an option?) to write to element w/o reading it first; this probably means need to adjust merge decision so it can merge updates with just-read-data w/o having previous data
+ * FIX-ME -- check returns inside ifPresent/ifException blocks -- they wouldn't do what might be expected
+ * FIX-ME -- cache write needs flag or something to decide what to do if item is no longer in the cache; maybe also consider not-removing elements from cache if they are 'recently' accessed?; or maybe this doesn't matter, we do incremental updates anyway?
+ * FIX-ME -- needs shutdown procedure
+ * FIX-ME -- needs monitoring (relevant threads are alive, queue sizes, etc)
+ * FIX-ME -- an option or an override to disable background resync (i.e. cache forever) option?
+ * FIX-ME -- make sure not too many write changes are kept in memory in case of cassandra failure
+ * FIX-ME -- make sure cassandra writes&reads have some kind of built-in timeout to do not consume thread pool & to do not make code keep change lists too long
+ * FIX-ME -- reduce size of change command as much as possible
  * 
- * FIXME check qq-qs in pom.xml!
+ * FIX-ME - class description
  * 
- * TODO add option to handle situation where 'no error, but key is not in storage, data is not going to be available'
- * TODO check that resync failure actually sets sensible status
- * TODO test this actually works with nullable cache values
- * TODO make sure all SPI methods indicate lock type
- * TODO make sure to test time delay methods
- * TODO rename {@link WAInterruptedException} ?
- * TODO do CCC comments 
- * TODO do CCC comments in interface 
- * TODO mechanism to check whether incoming update actually changes anything (i.e. needs write afterwards) or not?
+ * TO-DO add option to handle situation where 'no error, but key is not in storage, data is not going to be available'
+ * TO-DO check that resync failure actually sets sensible status
+ * TO-DO test this actually works with nullable cache values
+ * TO-DO make sure all SPI methods indicate lock type
+ * TO-DO make sure to test time delay methods
+ * TO-DO rename {@link WAInterruptedException} ?
+ * TO-DO do CCC comments 
+ * TO-DO do CCC comments in interface 
+ * TO-DO mechanism to check whether incoming update actually changes anything (i.e. needs write afterwards) or not?
  *
  * @author Sergey Olefir
  * 
@@ -165,39 +166,39 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * this map -- it might already have become 'outdated' and needs to be re-read.
 	 * <p>
 	 * ATTENTION: if anything is added to this map, it has to be also added to
-	 * {@link #mainQueue} or TODO
-	 * TODO is above about outdated correct? 
-	 * TODO any reason to make initial size configurable?
-	 * TODO monitor size
-	 * FIXME make absolutely sure that there are no stray items in this map (e.g. removed from main or return queue and not removed from here due to an exception)
+	 * {@link #mainQueue} or TO-DO
+	 * TO-DO is above about outdated correct? 
+	 * TO-DO any reason to make initial size configurable?
+	 * TO-DO monitor size
+	 * FIX-ME make absolutely sure that there are no stray items in this map (e.g. removed from main or return queue and not removed from here due to an exception)
 	 */
 	protected final ConcurrentHashMap<K, WBRBCacheEntry> inflightMap = new ConcurrentHashMap<>(1024);
 	
 	/**
 	 * Queue for data in the main processing pipeline.
 	 * 
-	 * TODO is this the best choice for the queue here?
+	 * TO-DO is this the best choice for the queue here?
 	 */
 	protected final LinkedBlockingQueue<WBRBCacheEntry> mainQueue = new LinkedBlockingQueue<>();
 	
 	/**
 	 * Queue for data in the main processing pipeline.
 	 * 
-	 * TODO is this the best choice for the queue here?
+	 * TO-DO is this the best choice for the queue here?
 	 */
 	protected final LinkedBlockingQueue<WBRBCacheEntry> returnQueue = new LinkedBlockingQueue<>();
 	
 	/**
 	 * Queue for data to be read from the storage.
 	 * 
-	 * TODO is this the best choice for the queue here?
+	 * TO-DO is this the best choice for the queue here?
 	 */
 	protected final LinkedBlockingQueue<WBRBCacheEntry> readQueue = new LinkedBlockingQueue<>();
 	
 	/**
 	 * Queue for data to be read from the storage.
 	 * 
-	 * TODO is this the best choice for the queue here?
+	 * TO-DO is this the best choice for the queue here?
 	 */
 	protected final LinkedBlockingQueue<WBRBWriteQueueEntry> writeQueue = new LinkedBlockingQueue<>();
 	
@@ -218,8 +219,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * Can be null, in which case reads are performed synchronously in
 	 * {@link #readQueueProcessingThread}; this is typically only useful if
 	 * there's some other form of making this asynchronous, such as batch processing.
-	 * TODO expand comment
-	 * FIXME monitor size
+	 * TO-DO expand comment
+	 * FIX-ME monitor size
 	 */
 	@Nullable
 	protected final WAThreadPoolExecutor readThreadPool; 
@@ -240,8 +241,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * Can be null, in which case writes are performed synchronously in
 	 * {@link #writeQueueProcessingThread}; this is typically only useful if
 	 * there's some other form of making this asynchronous, such as batch processing.
-	 * TODO expand comment
-	 * FIXME monitor size
+	 * TO-DO expand comment
+	 * FIX-ME monitor size
 	 */
 	@Nullable
 	protected final WAThreadPoolExecutor writeThreadPool; 
@@ -489,6 +490,23 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 */
 		public AtomicLong returnQueueRequeueToReturnQueueCount = new AtomicLong(0);
 		
+		/**
+		 * In return queue processing we calculate time since last access in
+		 * order to determine what to do with the cache item; this counts how
+		 * many times that resulted in the negative value (this should not
+		 * normally happen, but could possibly happen if time is adjusted or
+		 * some such).
+		 */
+		public AtomicLong returnQueueNegativeTimeSinceLastAccessErrorCount = new AtomicLong(0);
+		
+		/**
+		 * In return queue processing there's decision as to whether to keep an
+		 * element in the cache; this monitors cases when item is ineligible to
+		 * be retained due to main queue size already being at the limit.
+		 */
+		public AtomicLong returnQueueItemNotRetainedDueToMainQueueSizeCount = new AtomicLong(0);
+		
+		
 		
 		/**
 		 * How many check-cache attempts were made -- these are not separated
@@ -554,6 +572,11 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 * How many errors during cache read occurred.
 		 */
 		public AtomicLong cacheReadErrors = new AtomicLong(0);
+		
+		/**
+		 * How many interrupts (external) during cache read occurred.
+		 */
+		public AtomicLong cacheReadInterrupts = new AtomicLong(0);
 		
 		
 		/**
@@ -647,6 +670,22 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		public AtomicReference<@Nullable String>[] lastLoggedTextMsgPerSeverityOrdinal;
 		
 		/**
+		 * 6-item list of 5 'equal or less than' counters (per each threshold) and 
+		 * sixth one of 'more than'
+		 * 
+		 * @see WBRBConfig#getMonitoringFullCacheCyclesThresholds()
+		 */
+		public AtomicLong[] fullCycleCountThresholdCounters;
+		
+		/**
+		 * 6-item list of 5 'equal or less than' counters (per each threshold) and 
+		 * sixth one of 'more than'
+		 * 
+		 * @see WBRBConfig#getMonitoringTimeSinceAccessThresholds()
+		 */
+		public AtomicLong[] timeSinceLastAccessThresholdCounters;
+		
+		/**
 		 * Constructor.
 		 */
 		public WBRBStats()
@@ -660,6 +699,16 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 				lastLoggedTextMsgPerSeverityOrdinal = TypeUtil.coerce(new AtomicReference[MAX_SEVERITY_ORDINAL + 1]); // must be + 1 for last index to work!
 				for (int i = 0; i < lastLoggedTextMsgPerSeverityOrdinal.length; i++)
 					lastLoggedTextMsgPerSeverityOrdinal[i] = new AtomicReference<>(null);
+			}
+			{
+				fullCycleCountThresholdCounters = TypeUtil.coerce(new AtomicLong[6]);
+				for (int i = 0; i < fullCycleCountThresholdCounters.length; i++)
+					fullCycleCountThresholdCounters[i] = new AtomicLong(0);
+			}
+			{
+				timeSinceLastAccessThresholdCounters = TypeUtil.coerce(new AtomicLong[6]);
+				for (int i = 0; i < timeSinceLastAccessThresholdCounters.length; i++)
+					timeSinceLastAccessThresholdCounters[i] = new AtomicLong(0);
 			}
 		}
 		
@@ -740,7 +789,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		WRITE_FAILED_FINAL,
 		/**
 		 * Element was removed from cache already.
-		 * FIXME use it to prevent failed write retries?
+		 * FIX-ME use it to prevent failed write retries?
 		 */
 		REMOVED_FROM_CACHE,
 		;
@@ -752,13 +801,12 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * NOTE: this is always accessed through the volatile variable to maintain
 	 * access consistency.
 	 */
-	@RequiredArgsConstructor
 	@ToString(exclude = "parentCacheEntry") // Exclude parent to avoid infinite loop
 	protected class WBRBCachePayload
 	{
 		/**
 		 * Parent cache entry.
-		 * TODO not sure it's a good idea to have it in here, but useful for setStatus unlatching
+		 * TO-DO not sure it's a good idea to have it in here, but useful for setStatus unlatching
 		 */
 		private final WBRBCacheEntry parentCacheEntry;
 		
@@ -771,23 +819,31 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		private long lastSyncedWithStorageTimestamp;
 		
 		/**
-		 * Track whether we've had any actual reads on the data (this is typically
-		 * reset when at the end of the main queue); used to decide
-		 * when it's okay to discard item from the cache.
+		 * Tracks timestamp of the last read of the data.
+		 * <p>
+		 * Zero value is not really used; positive values indicate last read
+		 * timestamp; negative values are an inversion of timestamp done
+		 * e.g. at the end of main queue in order to track whether any new
+		 * reads have been made since the inversion. 
 		 * <p>
 		 * volatile because it needs to be modifiable from read locks
 		 */
 		@Getter
 		@Setter
-		private volatile boolean hadReads = false;
+		private volatile long lastReadTimestamp;
 		
 		/**
-		 * Tracks whether we've had any writes to the data (this is typically
-		 * reset when data has been sent into write queue). 
+		 * Tracks timestamp of the last write to the data.
+		 * <p>
+		 * Zero means no writes; positive values indicate last write timestamp
+		 * and that the data 'is dirty'; negative values are an inversion of
+		 * last write timestamp -- set e.g. at the end of main queue processing --
+		 * used to indicate that the data is no longer 'dirty' but to still keep
+		 * track of when the last write was done.
 		 */
 		@Getter
 		@Setter
-		private boolean hadWrites = false;
+		private long lastWriteTimestamp = 0;
 		
 		/**
 		 * Entry read status.
@@ -815,7 +871,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 */
 		@Getter
 		@Setter
-		// FIXME make sure it is updated properly
+		// FIX-ME make sure it is updated properly
 		private long inQueueSince;
 		
 		/**
@@ -836,7 +892,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 * Keeps track of however many times full cache cycle completed for the
 		 * item without a full success (e.g. either read or write has failed);
 		 * useful to evict elements that keep failing
-		 * TODO check this is reset properly 
+		 * TO-DO check this is reset properly 
 		 */
 		@Getter
 		private final SimpleIntCounter fullCacheCycleFailureCount = new SimpleIntCounter(0);
@@ -844,10 +900,21 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		/**
 		 * Keeps track of however many times item was re-added to the return
 		 * queue to determine when we should give up.
-		 * TODO check this is reset properly 
+		 * TO-DO check this is reset properly 
 		 */
 		@Getter
 		private final SimpleIntCounter returnQueueRetryCount = new SimpleIntCounter(0);
+		
+		/**
+		 * Keeps track of however many times full cache cycle completed for the
+		 * item while it is still in the cache. This is incremented at the end
+		 * of return queue (unlike failure count which is handled in main queue
+		 * processing).
+		 * <p>
+		 * Mainly for monitoring cache performance.
+		 */
+		@Getter
+		private final SimpleIntCounter fullCacheCycleCountByReturnQueue = new SimpleIntCounter(0);
 		
 		/**
 		 * Indicates whether updates to this cache entry should be collected;
@@ -857,7 +924,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 */
 		@Getter
 		@Setter
-		// FIXME this shouldn't be used as flag to determine course of operations, because e.g. client code may be doing merge w/o collecting updates
+		// FIX-ME this shouldn't be used as flag to determine course of operations, because e.g. client code may be doing merge w/o collecting updates
 		//       probably best to implement overridable method 'is merge possible' or some such
 		private boolean collectUpdates = false;
 		
@@ -886,13 +953,30 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 * Field that can be used by custom extending code to store whatever it needs extra.
 		 * <p>
 		 * Field is marked as volatile to provide some cross-threads guarantees.
-		 * TODO keep? redo?
-		 * TODO needs copying/reset when cycling through cache?
+		 * TO-DO keep? redo?
+		 * TO-DO needs copying/reset when cycling through cache?
 		 */
 		@Getter
 		@Setter
 		@Nullable
 		private volatile Object customDataField = null;
+
+		/**
+		 * Constructor.
+		 */
+		public WBRBCachePayload(
+			WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W, UExt, UInt>.WBRBCacheEntry parentCacheEntry,
+			@NonNull WBRBCacheEntryReadStatus readStatus,
+			@NonNull WBRBCacheEntryWriteStatus writeStatus,
+			long timeNow)
+		{
+			super();
+			this.parentCacheEntry = parentCacheEntry;
+			this.readStatus = readStatus;
+			this.writeStatus = writeStatus;
+			this.lastReadTimestamp = timeNow;
+			this.inQueueSince = timeNow;
+		}
 		
 		/**
 		 * Custom setter makes sure to unlock the parent cache entry latch
@@ -973,20 +1057,19 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	/**
 	 * Internal class used as entries in this cache.
 	 */
-	@RequiredArgsConstructor
 	@ToString
 	protected class WBRBCacheEntry
 	{
 		/**
 		 * Key for this entry.
-		 * TODO check if this is actually necessary to keep around
+		 * TO-DO check if this is actually necessary to keep around
 		 */
 		@Getter
 		private final K key;
 		
 		/**
 		 * Lock used to protect writes to the entry.
-		 * TODO consider whether fairness should be configurable?
+		 * TO-DO consider whether fairness should be configurable?
 		 */
 		@Getter
 		private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
@@ -1006,7 +1089,18 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 */
 		@Getter
 		@Setter
-		private volatile WBRBCachePayload payload = new WBRBCachePayload(this, WBRBCacheEntryReadStatus.NOT_READ_YET, WBRBCacheEntryWriteStatus.NO_WRITE_REQUESTED_YET);
+		private volatile WBRBCachePayload payload;
+	
+		/**
+		 * @param key
+		 */
+		public WBRBCacheEntry(@Nonnull K key, long timeNow)
+		{
+			super();
+			this.key = key;
+			this.payload = new WBRBCachePayload(this, 
+				WBRBCacheEntryReadStatus.NOT_READ_YET, WBRBCacheEntryWriteStatus.NO_WRITE_REQUESTED_YET, timeNow);
+		}
 	}
 	
 	/**
@@ -1020,7 +1114,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	{
 		/**
 		 * Key for this entry.
-		 * TODO check if this is actually necessary to keep around
+		 * TO-DO check if this is actually necessary to keep around
 		 */
 		@Getter
 		private final K key;
@@ -1161,7 +1255,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	/**
 	 * Indicates a decision for whether main queue item being processed
 	 * shall be retained in cache.
-	 * FIXME probably needs a DO_NOTHING option for e.g. already-removed elements
+	 * FIX-ME probably needs a DO_NOTHING option for e.g. already-removed elements
 	 */
 	@RequiredArgsConstructor
 	protected static enum WBRBMainQueueItemCacheRetainDecision
@@ -1317,7 +1411,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		 * Used to determine between multiple values which one is the 'worst'.
 		 */
 		@Getter
-		//TODO probably is not needed
+		//TO-DO probably is not needed
 		private final int failureRating;
 	}
 	// CCC
@@ -1485,7 +1579,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			throw new CacheInternalException("assertion failed -- code should not be reachable");
 		}
 
-		// TODO remove cuz have annotation?
+		// TO-DO remove cuz have annotation?
 //		@Override
 //		public String toString()
 //		{
@@ -1838,8 +1932,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		this.returnQueueProcessingThread = createReturnQueueProcessor();
 	}
 	
-	// FIXME review
-	// FIXME update class/constructor javadocs to indicate that it needs to be started
+	// FIX-ME review
+	// FIX-ME update class/constructor javadocs to indicate that it needs to be started
 	@Override
 	public <C extends IWriteBehindResyncInBackgroundCacheWithControlMethods<K, V, S, R, W, UExt, UInt>> C start()
 		throws CacheControlStateException
@@ -2283,6 +2377,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			case RESYNC_IS_TOO_LATE:
 			case RETURN_QUEUE_NON_STANDARD_OUTCOME:
 			case RETURN_QUEUE_PROCESSOR_UNEXPECTED_INTERRUPT:
+			case RETURN_QUEUE_ITEM_NOT_RETAINED_DUE_TO_MAIN_QUEUE_SIZE:
+			case RETURN_QUEUE_NEGATIVE_TIME_SINCE_TOUCHED:
 			case SHUTDOWN_COMPLETED:
 			case SHUTDOWN_REQUESTED:
 			case SHUTDOWN_SPOOLDOWN_NOT_ACHIEVED:
@@ -2331,6 +2427,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			case UNEXPECTED_CACHE_REMOVAL_IN_ADD_ENTRY:
 			case UNEXPECTED_CACHE_REMOVAL_IN_MAIN_QUEUE_PROCESSING:
 			case UNEXPECTED_CACHE_REMOVAL_IN_RETURN_QUEUE_PROCESSING:
+			case CACHE_ADD_MAIN_QUEUE_SIZE_WARNING:
+			case CACHE_ADD_FAIL_CACHE_SIZE_LIMIT_EXCEEDED:
 			case UNEXPECTED_CACHE_STATE_FOR_READ_FAIL:
 			case UNEXPECTED_CACHE_STATE_FOR_READ_MERGE:
 			case UNEXPECTED_CACHE_STATE_FOR_READ_QUEUE_PROCESSING:
@@ -2407,7 +2505,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			getStats().msgErrorCount.incrementAndGet();
 
 			// Logging failed, try to log that fact, but it may well fail itself
-			// TODO monitor
+			// TO-DO monitor
 			try
 			{
 				spiUnknownLockLogMessage(WBRBCacheMessage.SPI_EXCEPTION_LogMessage, loggingException);
@@ -2479,7 +2577,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	}
 	
 	
-	// TODO preload tests?
+	// TO-DO preload tests?
 	@Override
 	public void preloadCache(K key) throws IllegalArgumentException, CacheFullException,
 		CacheIllegalStateException, CacheInternalException, WAInterruptedException
@@ -2551,10 +2649,10 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		if (!addIfMissing)
 			return null;
 		
-		// TODO not clear whether concurrent map mappingCount() performance is 'good enough'
-		long size = inflightMap.mappingCount(); 
+		// TO-DO not clear whether concurrent map mappingCount() performance is 'good enough'
+		long cacheSize = inflightMap.mappingCount();
 		
-		if (size >= config.getMaxCacheElementsHardLimit())
+		if (cacheSize >= config.getMaxCacheElementsHardLimit())
 		{
 			if (isPreload != null)
 			{
@@ -2564,12 +2662,16 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 					getStats().checkCacheReadCacheFullExceptionCount.incrementAndGet();
 			}
 			
-			throw new CacheFullException(config.getCacheName(), size, config.getMaxCacheElementsHardLimit());
+			logMessage(WBRBCacheMessage.CACHE_ADD_FAIL_CACHE_SIZE_LIMIT_EXCEEDED, null, key, cacheSize);
+			throw new CacheFullException(config.getCacheName(), cacheSize, config.getMaxCacheElementsHardLimit());
 		}
 		
-		WBRBCacheEntry entry = new WBRBCacheEntry(key);
+		long mainQueueSize = mainQueue.size();
+		if (mainQueueSize > config.getMainQueueMaxTargetSize())
+			logMessage(WBRBCacheMessage.CACHE_ADD_MAIN_QUEUE_SIZE_WARNING, null, key, mainQueueSize);
+		
+		WBRBCacheEntry entry = new WBRBCacheEntry(key, timeNow());
 		WBRBCachePayload payload = entry.getPayload();
-		entry.getPayload().setInQueueSince(timeNow());
 		wrappedSpiWriteLockUpdates_reset(WBRBUpdatesResetReason.NO_WRITE_LOCK_NEW_CACHE_ENTRY_CREATED, false, key, entry, payload);
 		
 		boolean removeEntry = true; // this is to make sure we don't leave orphans in inflight map
@@ -2705,7 +2807,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		
 		WBRBCachePayload payload = cacheEntry.getPayload();
 		
-		// TODO should it set the write status too?
+		// TO-DO should it set the write status too?
 		cacheEntry.getPayload().setReadStatus(WBRBCacheEntryReadStatus.REMOVED_FROM_CACHE);
 		
 		// Clear memory used by any collected updates
@@ -2898,7 +3000,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * Returns lock to be used by read queue processor; normally (and by default)
 	 * this is read lock; however if you're doing something special, you can
 	 * change that here.
-	 * TODO: reference read queue decision method here
+	 * TO-DO: reference read queue decision method here
 	 */
 	@SuppressWarnings("unused")
 	protected Lock spiNoLockGetReadQueueProcessorLock(WBRBCacheEntry cacheEntry)
@@ -2930,7 +3032,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			case DATA_READY:
 			case DATA_READY_RESYNC_FAILED_FINAL:
 			case READ_FAILED_FINAL:
-			case REMOVED_FROM_CACHE: // TODO not sure this status should produce message
+			case REMOVED_FROM_CACHE: // TO-DO not sure this status should produce message
 				logMessage(WBRBCacheMessage.UNEXPECTED_CACHE_STATE_FOR_READ_QUEUE_PROCESSING, null, key, status);
 				return WBRBReadQueueProcessingDecision.DO_NOTHING;
 			case NOT_READ_YET:
@@ -2966,7 +3068,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * to break something unless done very-very carefully.
 	 * <p>
 	 * Default implementation returns {@link System#currentTimeMillis()}
-	 * TODO make sure there are no other references to system.currentime
+	 * TO-DO make sure there are no other references to system.currentime
 	 */
 	protected long timeNow()
 	{
@@ -3107,7 +3209,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * <p>
 	 * WARNING: this is executed while holding write lock on the cache entry,
 	 * therefore it should be VERY FAST.
-	 * TODO desc
+	 * TO-DO desc
 	 */
 	protected abstract S convertToCacheFormatFromStorageData(K key, R storageData);
 	
@@ -3116,7 +3218,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * This is used to produce results during the reads.
 	 * <p>
 	 * This is executed while holding read lock on the cache entry.
-	 * TODO desc
+	 * TO-DO desc
 	 */
 	protected abstract V convertFromCacheFormatToReturnValue(K key, S cachedData);
 	
@@ -3188,14 +3290,14 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			else
 			{
 				// Write merges are not supported, so have to re-issue previous failed write
-				boolean haveAllUpdates = !payload.isHadWrites();
+				boolean haveAllUpdates = payload.getLastWriteTimestamp() <= 0;
 				return new WBRBWriteSplitWithFlags(new WriteSplit(payload.getValue(), previousFailedWriteData), haveAllUpdates/*flag: whether contains all updates*/);
 			}
 		}
 		else
 		{
 			// No previous write failure, so normal operation
-			if (payload.isHadWrites())
+			if (payload.getLastWriteTimestamp() > 0)
 				return new WBRBWriteSplitWithFlags(spiWriteLockSplitForWrite(key, cacheData, NullableOptional.empty(), cacheEntry, payload), true/*contains all updates*/);
 			else
 				return new WBRBWriteSplitWithFlags(new WriteSplit(payload.getValue()), true/*contains all updates*/);
@@ -3295,7 +3397,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 					return spiWriteLockMakeMergeDecision_ResyncTooLate(key, storageData, cacheEntry, payload);
 				}
 			case READ_FAILED_FINAL:
-			case REMOVED_FROM_CACHE: // TODO not sure this status should produce message
+			case REMOVED_FROM_CACHE: // TO-DO not sure this status should produce message
 				logMessage(WBRBCacheMessage.UNEXPECTED_CACHE_STATE_FOR_READ_MERGE, null, key, payload.getReadStatus());
 				return WBRBMergeDecision.DO_NOTHING;
 		}
@@ -3396,7 +3498,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			case READ_FAILED_FINAL:
 				logMessage(WBRBCacheMessage.UNEXPECTED_CACHE_STATE_FOR_READ_FAIL, null, payload.getReadStatus());
 				return WBRBRetryDecision.DO_NOTHING;
-			case REMOVED_FROM_CACHE: // TODO not sure this status should produce message
+			case REMOVED_FROM_CACHE: // TO-DO not sure this status should produce message
 				return WBRBRetryDecision.DO_NOTHING;
 		}
 		
@@ -3404,7 +3506,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		return WBRBRetryDecision.DO_NOTHING;
 	}
 	
-	// TODO comment
+	// TO-DO comment
 	protected void apiStorageReadSuccess(R readResult, WBRBCacheEntry cacheEntry)
 		throws InterruptedException
 	{
@@ -3498,7 +3600,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		}); // end write lock
 	}
 	
-	// TODO comment
+	// TO-DO comment
 	/**
 	 * WARNING: will NOT log error/exception information if going for retry
 	 * because normally it is already logged in {@link #spiNoLockProcessReadFromStorage(Object, boolean, WBRBCacheEntry)}
@@ -3890,35 +3992,35 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		return guardedInvocation(() -> {runnable.run(); return someObject;}, exceptionMessage, exceptionArgs);
 	}
 	
-	// FIXME comment
+	// CCC comment
 	protected <RV> RV withWriteLock(WBRBCacheEntry cacheEntry, InterruptableSupplier<RV> callable)
 		throws InterruptedException
 	{
 		return withLock(cacheEntry.getLock().writeLock(), cacheEntry, callable);
 	}
 
-	// FIXME comment
+	// CCC comment
 	protected void withWriteLock(WBRBCacheEntry cacheEntry, InterruptableRunnable runnable)
 		throws InterruptedException
 	{
 		withLock(cacheEntry.getLock().writeLock(), cacheEntry, runnable);
 	}
 	
-	// FIXME comment
+	// CCC comment
 	protected <RV> RV withReadLock(WBRBCacheEntry cacheEntry, InterruptableSupplier<RV> callable)
 		throws InterruptedException
 	{
 		return withLock(cacheEntry.getLock().readLock(), cacheEntry, callable);
 	}
 
-	// FIXME comment
+	// CCC comment
 	protected void withReadLock(WBRBCacheEntry cacheEntry, InterruptableRunnable runnable)
 		throws InterruptedException
 	{
 		withLock(cacheEntry.getLock().readLock(), cacheEntry, runnable);
 	}
 	
-	// FIXME comment or remove
+	// CCC comment or remove
 	/**
 	 * @deprecated use {@link #withLock(Lock, WBRBCacheEntry, InterruptableSupplier)}
 	 */
@@ -3936,7 +4038,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		}
 	}
 	
-	// FIXME comment or remove
+	// CCC comment or remove
 	/**
 	 * @deprecated use {@link #withLock(Lock, WBRBCacheEntry, InterruptableRunnable)}
 	 */
@@ -3948,7 +4050,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	}
 	
 	
-	// FIXME comment
+	// CCC comment
 	protected void withLock(final Lock lock, WBRBCacheEntry cacheEntry, InterruptableRunnable runnable)
 		throws InterruptedException
 	{
@@ -3968,7 +4070,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			
 			if (lock instanceof WriteLock)
 			{
-				// TODO is this a proper way to do memory barrier?
+				// TO-DO is this a proper way to do memory barrier?
 				WBRBCachePayload payload = cacheEntry.getPayload();
 				cacheEntry.setPayload(payload);
 			}
@@ -4248,7 +4350,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		});
 	}
 	
-	// TODO comment
+	// CCC comment
 	/**
 	 * WARNING: will NOT log error/exception information if going for retry
 	 * because normally it is already logged in {@link #spiNoLockProcessWriteToStorage(Object, WBRBWriteQueueEntry)}
@@ -4502,8 +4604,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 							timeGapVirtual(payload.getInQueueSince(), now)
 						);
 						
-						// FIXME probably needs early bail out if item is already marked as REMOVE_FROM_CACHE because we don't want to try removing something that already WAS removed
-						// FIXME redo triplet into real class with null-checking via Lombok
+						// FIX-ME probably needs early bail out if item is already marked as REMOVE_FROM_CACHE because we don't want to try removing something that already WAS removed
+						// FIX-ME redo triplet into real class with null-checking via Lombok
 						NullableOptional<WBRBMainQueueProcessingDecision> result = guardedInvocationNonNull(
 							() -> spiWriteLockMakeMainQueueProcessingDecision(key, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeMainQueueProcessingDecision, key);
 						
@@ -4553,7 +4655,11 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 								if (mayWrite)
 								{
 									if (writeSplitWithFlags.isWriteDataContainsAllPendingUpdates())
-										payload.setHadWrites(false); // only if there are no other pending updates
+									{
+										// only if there are no other pending updates -- 
+										// reset 'dirty' flag by forcing timestamp to non-positive value
+										payload.setLastWriteTimestamp(-Math.abs(payload.getLastWriteTimestamp()));
+									}
 									payload.getWriteFailureCount().reset(); // new write, so reset counter
 									
 									NullableOptional<W> writeData = writeSplit.getWriteData();
@@ -4597,14 +4703,21 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 							resetFailureCounts = invResult.isTrue();
 						}
 						
+						long lastReadTimestamp = Math.abs(payload.getLastReadTimestamp());
 						if (resetFailureCounts)
 						{
-							payload.setHadReads(false); // if there are no new reads on this entry, it can be removed by the return queue processor
+							// force read-timestamp to non-positive value in order
+							// to keep track if there are any new reads since 'now'
+							// (new reads will have positive timestamp)
+							payload.setLastReadTimestamp(-lastReadTimestamp);
 							payload.getFullCacheCycleFailureCount().reset();
 						}
 						else
 						{
-							payload.setHadReads(true); // make sure item goes through the full cycle (shouldn't be removed by the return queue processor) 
+							// make sure item goes through the full cycle 
+							// (set positive 'last read timestamp' so it 
+							// shouldn't be removed by the return queue processor)
+							payload.setLastReadTimestamp( lastReadTimestamp > 0 ? lastReadTimestamp : timeNow());
 							payload.getFullCacheCycleFailureCount().incrementAndGet();
 							getStats().mainQueueNotAllOkCount.incrementAndGet();
 						}
@@ -4649,7 +4762,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	}
 	
 	/**
-	 * TODO comment
+	 * CCC comment
 	 */
 	@SuppressWarnings("unused")
 	protected void spiWriteLockEvent_MainQueueProcessed(@Nonnull K key,
@@ -4814,7 +4927,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		return WBRBMainQueueItemCacheRetainDecision.RETURN_QUEUE_NO_WRITE;
 	}
 	
-	// TODO comment
+	// CCC comment
 	protected WBRBMainQueueItemCacheRetainDecision spiWriteLockMakeMainQueueProcessingDecision_ResyncPending(
 		K key, WBRBCacheEntry cacheEntry, WBRBCachePayload payload)
 			throws InterruptedException
@@ -4842,7 +4955,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	}
 	
 	
-	// TODO comment
+	// CCC comment
 	@SuppressWarnings("unused")
 	protected WBRBMainQueueItemCacheRetainDecision spiWriteLockMakeMainQueueProcessingDecision_WriteFailedFinal(
 		K key, WBRBCacheEntry cacheEntry, WBRBCachePayload payload)
@@ -4859,7 +4972,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		return WBRBMainQueueItemCacheRetainDecision.RETURN_QUEUE_KEEP_FULL_CYCLE_FAILURE_COUNT;
 	}
 	
-	// TODO comment
+	// CCC comment
 	@SuppressWarnings("unused")
 	protected WBRBMainQueueItemCacheRetainDecision spiWriteLockMakeMainQueueProcessingDecision_WritePending(
 		K key, WBRBCacheEntry cacheEntry, WBRBCachePayload payload)
@@ -5037,10 +5150,33 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 							timeGapVirtual(payload.getInQueueSince(), now)
 						);
 						
+						final boolean itemHadAccessSinceMainQueue;
+						final long itemUntouchedMs;
+						{
+							long lastRead = payload.getLastReadTimestamp();
+							long lastWrite = payload.getLastWriteTimestamp();
+							
+							itemHadAccessSinceMainQueue = (lastRead > 0) || (lastWrite > 0); 
+
+							long lastTouched = Math.max(Math.abs(lastRead), Math.abs(lastWrite));
+							long untouchedMs = timeGapVirtual(lastTouched, timeNow());
+							
+							if (untouchedMs < 0)
+							{
+								// This is basically an error
+								getStats().returnQueueNegativeTimeSinceLastAccessErrorCount.incrementAndGet();
+								logMessage(WBRBCacheMessage.RETURN_QUEUE_NEGATIVE_TIME_SINCE_TOUCHED, null, key, untouchedMs);
+								// if item had negative 'time since touched', replace with max value intending for item to be removed from cache
+								untouchedMs = Long.MAX_VALUE; 
+							}
+							
+							itemUntouchedMs = untouchedMs;
+						}
+						
 						WBRBReturnQueueItemProcessingDecision decision;
 						{
 							ObjectWrapper<@Nonnull WBRBReturnQueueItemProcessingDecision> decisionWrapper = ObjectWrapper.of(WBRBReturnQueueItemProcessingDecision.REMOVE_FROM_CACHE);
-							guardedInvocationNonNull(() -> spiWriteLockMakeReturnQueueProcessingDecision(key, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeReturnQueueProcessingDecision, key)
+							guardedInvocationNonNull(() -> spiWriteLockMakeReturnQueueProcessingDecision(key, itemHadAccessSinceMainQueue, itemUntouchedMs, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeReturnQueueProcessingDecision, key)
 								.ifPresentInterruptibly(d -> decisionWrapper.set(d))
 								.ifExceptionInterruptibly(e -> decisionWrapper.set(WBRBReturnQueueItemProcessingDecision.REMOVE_FROM_CACHE));
 							decision = decisionWrapper.get();
@@ -5049,6 +5185,54 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 						if (decision.isStopCollectingUpdates())
 						{
 							wrappedSpiWriteLockUpdates_reset(WBRBUpdatesResetReason.RETURN_QUEUE_DECISION, false, key, cacheEntry, payload);
+						}											
+						
+						// Do monitoring stuff
+						switch (decision.getAction())
+						{
+							case EXPIRE_FROM_CACHE:
+							case MAIN_QUEUE_NO_RESYNC:
+							case MAIN_QUEUE_PLUS_RESYNC:
+							case REMOVE_FROM_CACHE:
+								{
+									// full cache cycle monitoring
+									int cycleCount = payload.getFullCacheCycleCountByReturnQueue().incrementAndGet();
+									boolean processed = false;
+									List<Integer> cycleThresholds = config.getMonitoringFullCacheCyclesThresholds();
+									for (int i = 0; i < cycleThresholds.size(); i++)
+									{
+										if (cycleCount <= cycleThresholds.get(i))
+										{
+											processed = true;
+											getStats().fullCycleCountThresholdCounters[i].incrementAndGet();
+											break;
+										}
+									}
+									if (!processed) // process 'more than all thresholds'
+										getStats().fullCycleCountThresholdCounters[cycleThresholds.size()].incrementAndGet();
+								}
+								
+								{
+									// time since last access monitoring
+									List<Long> untouchedThresholds = config.getMonitoringTimeSinceAccessThresholds();
+									boolean processed = false;
+									for (int i = 0; i < untouchedThresholds.size(); i++)
+									{
+										if (itemUntouchedMs <= untouchedThresholds.get(i))
+										{
+											processed = true;
+											getStats().timeSinceLastAccessThresholdCounters[i].incrementAndGet();
+											break;
+										}
+									}
+									if (!processed) // process 'more than all thresholds'
+										getStats().timeSinceLastAccessThresholdCounters[untouchedThresholds.size()].incrementAndGet();
+								}
+								
+								break;
+							case DO_NOTHING:
+							case RETURN_QUEUE:
+								break; // if we didn't properly 'finish' return queue processing, don't update stats
 						}
 						
 						boolean logNonStandardOutcome = false;
@@ -5149,7 +5333,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 
 	// CCC comment
 	protected WBRBReturnQueueItemProcessingDecision spiWriteLockMakeReturnQueueProcessingDecision(
-		K key, WBRBCacheEntry cacheEntry, WBRBCachePayload payload)
+		K key, boolean itemHadAccessSinceMainQueue, long itemUntouchedMs, WBRBCacheEntry cacheEntry, WBRBCachePayload payload)
 			throws InterruptedException
 	{
 		ObjectWrapper<@Nonnull WBRBReturnQueueItemProcessingDecision> decision = ObjectWrapper.of(WBRBReturnQueueItemProcessingDecision.REMOVE_FROM_CACHE);
@@ -5172,7 +5356,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			case NO_WRITE_REQUESTED_YET: // this one is valid, it's set by main queue processing if write is not requested on the split (e.g. if there were no writes to cache entry)
 			case WRITE_SUCCESS:
 				// Standard handling
-				guardedInvocationNonNull(() -> spiWriteLockMakeReturnQueueProcessingDecision_WriteOk(key, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeReturnQueueProcessingDecision_WriteOk, key)
+				guardedInvocationNonNull(() -> spiWriteLockMakeReturnQueueProcessingDecision_WriteOk(key, itemHadAccessSinceMainQueue, itemUntouchedMs, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeReturnQueueProcessingDecision_WriteOk, key)
 					.ifPresentInterruptibly(d -> decision.set(d) )
 					.ifExceptionInterruptibly(e -> decision.set(WBRBReturnQueueItemProcessingDecision.REMOVE_FROM_CACHE) );
 				return decision.get();
@@ -5228,13 +5412,40 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			false);
 	// CCC
 	protected WBRBReturnQueueItemProcessingDecision spiWriteLockMakeReturnQueueProcessingDecision_WriteOk(
-		K key, WBRBCacheEntry cacheEntry, WBRBCachePayload payload)
+		K key, boolean itemHadAccessSinceMainQueue, long itemUntouchedMs, WBRBCacheEntry cacheEntry, WBRBCachePayload payload)
 			throws InterruptedException
 	{
-		if ((!payload.isHadReads()) && (!payload.isHadWrites()))
+		if (!itemHadAccessSinceMainQueue)
 		{
-			// Item was not touched in return queue, so just expire it.
-			return WBRBReturnQueueItemProcessingDecision.EXPIRE_FROM_CACHE;
+			// Item was not touched in return queue, we need to figure out
+			// whether it was 'recently' accessed to determine whether to keep
+			// or expire it
+			
+			// When flushing (also when shutting down), do not retain items unnecessarily
+			if (isFlushing())
+				return WBRBReturnQueueItemProcessingDecision.EXPIRE_FROM_CACHE;
+			
+			if (itemUntouchedMs < 0)
+			{
+				CacheInternalException e = new CacheInternalException("ASSERTION FAILED: unreachable code block reached for key [" + key + "]");
+				logMessage(WBRBCacheMessage.ASSERTION_FAILED, e, e.toString());
+				return WBRBReturnQueueItemProcessingDecision.EXPIRE_FROM_CACHE;
+			}
+			
+			// If item is untouched 'long enough', then expire it
+			if (itemUntouchedMs >= config.getUntouchedItemCacheExpirationDelay())
+				return WBRBReturnQueueItemProcessingDecision.EXPIRE_FROM_CACHE;
+
+			long mainQueueSize = mainQueue.size();
+			if (mainQueueSize >= config.getMainQueueMaxTargetSize())
+			{
+				// If cache is too full, expire item anyway
+				getStats().returnQueueItemNotRetainedDueToMainQueueSizeCount.incrementAndGet();
+				logMessage(WBRBCacheMessage.RETURN_QUEUE_ITEM_NOT_RETAINED_DUE_TO_MAIN_QUEUE_SIZE, null, key, mainQueueSize);
+				return WBRBReturnQueueItemProcessingDecision.EXPIRE_FROM_CACHE;
+			}
+			
+			// fall-through to decide whether we need to issue resync etc.
 		}
 		
 		if (wrappedSpiWriteLockUpdates_isMergePossible(key, cacheEntry, payload, NullableOptional.empty()))
@@ -5261,7 +5472,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			return WBRBReturnQueueItemProcessingDecision.REMOVE_FROM_CACHE;
 		}
 		else
-			return RETURN_DECISION_MAIN_QUEUE_NO_RESYNC; // FIXME check boolean is set properly for instances of this class
+			return RETURN_DECISION_MAIN_QUEUE_NO_RESYNC; // FIX-ME check boolean is set properly for instances of this class
 	}
 	
 	/**
@@ -5318,6 +5529,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		checkStandardCacheOperationsAllowed();
 		
 		boolean success = false;
+		boolean interrupted = false;
 		try
 		{
 			getStats().cacheReadAttempts.incrementAndGet();
@@ -5332,11 +5544,22 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			
 			success = true;
 			return result;
+		} catch (Exception e)
+		{
+			if (ExceptionUtils.getRootCause(e) instanceof InterruptedException)
+				interrupted = true;
+			
+			throw e;
 		}
 		finally
 		{
 			if (!success)
-				getStats().cacheReadErrors.incrementAndGet();
+			{
+				if (interrupted)
+					getStats().cacheReadInterrupts.incrementAndGet();
+				else
+					getStats().cacheReadErrors.incrementAndGet();
+			}
 		}
 	}
 	
@@ -5353,7 +5576,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * 		or CacheElementFailedLoadingException (in case underlying load failed)
 	 */
 	// CCC comment and check exceptions
-	// TODO tests for maxWaitVirtualMsec values
+	// TO-DO tests for maxWaitVirtualMsec values
 	protected NullableOptional<V> internalRead0(K key, long realWorldAnchorTime, long maxWaitVirtualMsec) 
 		throws CacheIllegalStateException, CacheInternalException, WAInterruptedException
 	{
@@ -5393,7 +5616,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 					@Nullable
 					NullableOptional<V> result = withReadLock(cacheEntry, () -> {
 						WBRBCachePayload payload = cacheEntry.getPayload();
-						payload.setHadReads(true); // this is volatile, so we can do this w/ read lock, also do it right after another volatile access to hopefully reduce perf hit
+						payload.setLastReadTimestamp(timeNow()); // this is volatile, so we can do this w/ read lock, also do it right after another volatile access to hopefully reduce perf hit
 						
 						NullableOptional<@Nonnull WBRBCacheAccessDecision> invocationResult = guardedInvocationNonNull(() -> 
 							spiReadLockMakeCacheReadDecision(key, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeCacheReadDecision, key);
@@ -5447,7 +5670,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 						Throwable exc = exceptionToThrow.get();
 						if (exc != null)
 						{
-							// TODO does it need logging?
+							// TO-DO does it need logging?
 							haveNoLock_RemoveFromCache(cacheEntry); // NOTE: there's counterpart for this in internalWriteIfCached0() 
 							throw new CacheInternalException("Failed cache read for key [" + key + "]: " + exc, exc);
 						}
@@ -5467,8 +5690,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 						else
 						{
 							// No result is yet available, decide if we should wait (we're OUTSIDE read lock here, it's IMPORTANT!)
-							// TODO: add to monitoring?
-							// TODO: needs testing to see if it waits properly
+							// TO-DO: add to monitoring?
+							// TO-DO: needs testing to see if it waits properly
 							if (maxWaitVirtualMsec < 1)
 							{
 								// If no wait, indicate no result immediately
@@ -5581,7 +5804,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		if (result.isPresent())
 			return result.get();
 	
-		// TODO monitor?
+		// TO-DO monitor?
 		throw generateAccessOrExceptionException(key, result); 
 	}
 	
@@ -5600,7 +5823,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		if (result.isPresent())
 			return result.get();
 	
-		// TODO monitor?
+		// TO-DO monitor?
 		throw generateAccessOrExceptionException(key, result); 
 	}
 	
@@ -5650,7 +5873,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		if (result.isPresent())
 			return result.get();
 		
-		// TODO monitor?
+		// TO-DO monitor?
 		throw generateAccessOrExceptionException(key, result); 
 	}
 	
@@ -5704,7 +5927,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	}
 
 	@Override
-	// TODO needs testing that it returns boolean instead of exception properly
+	// TO-DO needs testing that it returns boolean instead of exception properly
 	public NullableOptional<@Nonnull Boolean> writeIfCached(K key, UExt update) 
 		throws IllegalArgumentException, CacheIllegalStateException, CacheInternalException, WAInterruptedException
 	{
@@ -5781,7 +6004,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * 		why write has failed; optional may contain actual returnable
 	 * 		V value (for returning to the client) if produceReadResult is set
 	 */
-	// TODO needs testing that it returns boolean instead of exception properly
+	// TO-DO needs testing that it returns boolean instead of exception properly
 	protected NullableOptional<V> internalWriteIfCached0(K key, UExt externalUpdate, boolean produceReadResult)
 		throws IllegalArgumentException, CacheIllegalStateException, CacheInternalException, WAInterruptedException
 	{
@@ -5832,7 +6055,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 				@Nullable
 				NullableOptional<V> result = withWriteLock(cacheEntry, () -> {
 					WBRBCachePayload payload = cacheEntry.getPayload();
-					payload.setHadWrites(true);
+					payload.setLastWriteTimestamp(timeNow());
 					
 					NullableOptional<@Nonnull WBRBCacheAccessDecision> invocationResult = guardedInvocationNonNull(() -> 
 						spiWriteLockMakeCacheWriteDecision(key, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeCacheWriteDecision, key);
@@ -5855,7 +6078,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 						case RETURN_EXCEPTION:
 							return NullableOptional.emptyWithException(decision.getException()); // returns to write lock result
 						case WAIT_FOR_LATCH:
-							// TODO: add to monitoring?
+							// TO-DO: add to monitoring?
 							return NullableOptional.empty(); // returns to write lock result
 							
 						case VALUE_RETURNED:
@@ -5866,7 +6089,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 							if (resultOptional.hasException())
 							{
 								exceptionToThrow.set(resultOptional.getException());
-//								haveWriteLock_RemoveFromCache(cacheEntry); // TODO failed update probably doesn't mean forced removal? do we need to log? to monitor?
+//								haveWriteLock_RemoveFromCache(cacheEntry); // TO-DO failed update probably doesn't mean forced removal? do we need to log? to monitor?
 								return NullableOptional.empty(); // returns to write lock result
 							}
 							
@@ -5932,7 +6155,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 					Throwable exc = exceptionToThrow.get();
 					if (exc != null)
 					{
-						// TODO does it need logging?
+						// TO-DO does it need logging?
 						throw new CacheInternalException("Failed cache write for key [" + key + "]: " + exc, exc);
 					}
 				}
@@ -5980,7 +6203,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		
 		if (!result.isPresent())
 		{
-			// TODO monitor?
+			// TO-DO monitor?
 			throw generateAccessOrExceptionException(key, result); 
 		}
 	}
@@ -6009,7 +6232,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		
 		if (!result.isPresent())
 		{
-			// TODO monitor?
+			// TO-DO monitor?
 			throw generateAccessOrExceptionException(key, result); 
 		}
 		
@@ -6388,7 +6611,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			// Initial delay after flush flag is set to ensure all further operations are prevented
 			Thread.sleep(timeRealWorldInterval(
 				Math.min(Math.max(maxWaitVirtualMsec, 10), // minimum 10 ms 
-				Math.min(500, config.getMaxSleepTime()))));
+				         Math.min(500, config.getMaxSleepTime()))
+			));
 			
 			// NOTE: this logic is similar to the shutdown one, if making changes, check both places
 			boolean fullSpooldown;
@@ -6632,6 +6856,9 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 				logMessage(WBRBCacheMessage.ASSERTION_FAILED, new Exception("stack trace"), "code should not be reachable");
 			}
 			
+			AtomicLong[] fullCyclesMonitor = cacheStats.fullCycleCountThresholdCounters;
+			AtomicLong[] timeSinceLastAccessMonitor = cacheStats.timeSinceLastAccessThresholdCounters;
+			
 			WBRBStatus status = WBRBStatusBuilder
 				.statusCreatedAt(now)
 				.cacheAlive(resetEverythingAliveIfFalse.apply( isAlive()))
@@ -6693,6 +6920,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 				.returnQueueExpiredFromCacheCount(cacheStats.returnQueueExpiredFromCacheCount.get())
 				.returnQueueRemovedFromCacheCount(cacheStats.returnQueueRemovedFromCacheCount.get())
 				.returnQueueRequeueToReturnQueueCount(cacheStats.returnQueueRequeueToReturnQueueCount.get())
+				.returnQueueNegativeTimeSinceLastAccessErrorCount(cacheStats.returnQueueNegativeTimeSinceLastAccessErrorCount.get())
+				.returnQueueItemNotRetainedDueToMainQueueSizeCount(cacheStats.returnQueueItemNotRetainedDueToMainQueueSizeCount.get())
 				
 				.checkCacheAttemptsNoDedup(cacheStats.checkCacheAttemptsNoDedup.get())
 				.checkCachePreloadAttempts(cacheStats.checkCachePreloadAttempts.get())
@@ -6706,6 +6935,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 				
 				.cacheReadAttempts(cacheStats.cacheReadAttempts.get())
 				.cacheReadTimeouts(cacheStats.cacheReadTimeouts.get())
+				.cacheReadInterrupts(cacheStats.cacheReadInterrupts.get())
 				.cacheReadErrors(cacheStats.cacheReadErrors.get())
 				
 				.cacheWriteAttempts(cacheStats.cacheWriteAttempts.get())
@@ -6730,6 +6960,20 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 				.lastErrorLoggedMsgText(lastErrorLoggedMsgText)
 				.lastFatalMsgTimestamp(lastFatalMsgTimestamp)
 				.lastFatalLoggedMsgText(lastFatalLoggedMsgText)
+				
+				.fullCycleCountThreshold1(fullCyclesMonitor[0].get())
+				.fullCycleCountThreshold2(fullCyclesMonitor[1].get())
+				.fullCycleCountThreshold3(fullCyclesMonitor[2].get())
+				.fullCycleCountThreshold4(fullCyclesMonitor[3].get())
+				.fullCycleCountThreshold5(fullCyclesMonitor[4].get())
+				.fullCycleCountAboveAllThresholds(fullCyclesMonitor[5].get())
+				
+				.timeSinceAccessThreshold1(timeSinceLastAccessMonitor[0].get())
+				.timeSinceAccessThreshold2(timeSinceLastAccessMonitor[1].get())
+				.timeSinceAccessThreshold3(timeSinceLastAccessMonitor[2].get())
+				.timeSinceAccessThreshold4(timeSinceLastAccessMonitor[3].get())
+				.timeSinceAccessThreshold5(timeSinceLastAccessMonitor[4].get())
+				.timeSinceAccessThresholdAboveAllThresholds(timeSinceLastAccessMonitor[5].get())
 				
 				.buildWBRBStatus();
 			

@@ -16,6 +16,8 @@
 
 package com.github.solf.extra2.collection;
 
+import static com.github.solf.extra2.util.NullUtil.nn;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.util.AbstractMap.SimpleEntry;
@@ -23,10 +25,14 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -41,7 +47,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * @author Alex Snaps
  */
 @ParametersAreNonnullByDefault
-public class ConcurrentWeakIdentityHashMap<K, V> implements ConcurrentMap<K, V> {
+public class ConcurrentWeakIdentityHashMap<@Nonnull K, @Nonnull V> implements ConcurrentMap<@Nonnull K, @Nonnull V> {
 
   private final ConcurrentMap<WeakReference<K>, V> map = new ConcurrentHashMap<>();
   private final ReferenceQueue<K> queue = new ReferenceQueue<>();
@@ -122,7 +128,7 @@ public class ConcurrentWeakIdentityHashMap<K, V> implements ConcurrentMap<K, V> 
   }
 
   @Override
-  public void putAll(@SuppressWarnings("null") final Map<? extends K, ? extends V> m) {
+  public void putAll(final Map<? extends K, ? extends V> m) {
     purgeKeys();
     for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
       map.put(newKey(entry.getKey()), entry.getValue());
@@ -144,7 +150,7 @@ public class ConcurrentWeakIdentityHashMap<K, V> implements ConcurrentMap<K, V> 
         return new WeakSafeIterator<K, WeakReference<K>>(map.keySet().iterator()) {
           @Override
           protected K extract(WeakReference<K> u) {
-            return u.get();
+            return nn(u.get()); // 2021-04-19 purge above ought to remove stale (null) keys, but there's no guarantee, is there?
           }
         };
       }
@@ -178,7 +184,7 @@ public class ConcurrentWeakIdentityHashMap<K, V> implements ConcurrentMap<K, V> 
           @Nullable
           @Override
           protected Entry<K, V> extract(Entry<WeakReference<K>, V> u) {
-            K key = u.getKey().get();
+            @Nullable K key = u.getKey().get();
             if (key == null) {
               return null;
             } else {
@@ -258,11 +264,11 @@ public class ConcurrentWeakIdentityHashMap<K, V> implements ConcurrentMap<K, V> 
       return strongNext != null;
     }
 
-    @SuppressWarnings("null")
-	@Nullable
     @Override
     public final T next() {
-      T next = strongNext;
+      @Nullable T next = strongNext;
+      if (next == null)
+    	  throw new NoSuchElementException(); // 2021-04-28 Solf: previously it would return nulls when out of elements
       advance();
       return next;
     }
@@ -276,4 +282,36 @@ public class ConcurrentWeakIdentityHashMap<K, V> implements ConcurrentMap<K, V> 
     @Nullable
     protected abstract T extract(U u);
   }
-} 
+
+  	// method is here solely to resolve null-related warnings in Eclipse
+	@Override
+	public @Nullable V computeIfAbsent(@Nonnull K key,
+		Function<? super @Nonnull K, ? extends @Nonnull V> mappingFunction)
+	{
+		return ConcurrentMap.super.computeIfAbsent(key, mappingFunction);
+	}
+	
+  	// method is here solely to resolve null-related warnings in Eclipse
+	@Override
+	public @Nullable V computeIfPresent(@Nonnull K key,
+		BiFunction<? super @Nonnull K, ? super @Nonnull V, ? extends @Nonnull V> remappingFunction)
+	{
+		return ConcurrentMap.super.computeIfPresent(key, remappingFunction);
+	}
+	
+  	// method is here solely to resolve null-related warnings in Eclipse
+	@Override
+	public @Nullable V compute(@Nonnull K key,
+		BiFunction<? super @Nonnull K, ? super @Nonnull V, ? extends @Nonnull V> remappingFunction)
+	{
+		return ConcurrentMap.super.compute(key, remappingFunction);
+	}
+	
+  	// method is here solely to resolve null-related warnings in Eclipse
+	@Override
+	public @Nullable V merge(@Nonnull K key, @Nonnull V value,
+		BiFunction<? super @Nonnull V, ? super @Nonnull V, ? extends @Nonnull V> remappingFunction)
+	{
+		return ConcurrentMap.super.merge(key, value, remappingFunction);
+	}
+}

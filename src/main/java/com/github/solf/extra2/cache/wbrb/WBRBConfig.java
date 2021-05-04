@@ -15,6 +15,7 @@
  */
 package com.github.solf.extra2.cache.wbrb;
 
+import java.util.List;
 import java.util.MissingResourceException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -29,12 +30,12 @@ import com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRB
 import com.github.solf.extra2.config.FlatConfiguration;
 import com.github.solf.extra2.options.BaseDelegatingOptions;
 import com.github.solf.extra2.options.BaseOptions;
+import com.github.solf.extra2.options.OptionConstraint;
 
 import lombok.Getter;
 
 /**
  * Configuration for {@link WriteBehindResyncInBackgroundCache}
- * TODO: probably at least some stuff needs to be re-configurable at runtime?
  *
  * @author Sergey Olefir
  */
@@ -45,7 +46,7 @@ public class WBRBConfig extends BaseDelegatingOptions
 	@Getter
 	private final String cacheName = getRawOptions().getString("cacheName");
 	
-	/** Cache maintains an internal 'main' data queue for the data that was cached and may need to be written to the storage; this indicates maximum target size for this queue (i.e. should not exceed the size under normal circumstances); note that this is not the whole size of the cache, there's also 'return' queue TODO more details? */
+	/** Cache maintains an internal 'main' data queue for the data that was cached and may need to be written to the storage; this indicates maximum target size for this queue (i.e. should not exceed the size under normal circumstances); note that this is not the whole size of the cache, there's also 'return' queue TO-DO more details? */
 	@Getter
 	private final long mainQueueMaxTargetSize = getRawOptions().getLong("mainQueueMaxTargetSize");
 	
@@ -69,6 +70,10 @@ public class WBRBConfig extends BaseDelegatingOptions
 	@Getter
 	private final long returnQueueCacheTimeMin = getRawOptions().getTimeIntervalPositive("returnQueueCacheTimeMin");
 	
+	/** Zero is the valid value; time that cache item must be 'untouched' before it can be expired in return queue processing; zero means that only items touched while in return queue will be retained; this can still be ignored (and item expired from cache) if current main queue size exceeds target size */
+	@Getter
+	private final long untouchedItemCacheExpirationDelay = getRawOptions().getTimeInterval("untouchedItemCacheExpirationDelay");
+	
 	/** Whether cache can merge writes -- specifically if some background write has failed AND there are new updates to the cache value, can cache produce a single write data that merges these values in {@link WriteBehindResyncInBackgroundCache#splitForWrite(Object, Object, com.github.solf.extra2.nullable.NullableOptional)}; if not, then previously failed write can only be re-attempted by itself (thus delaying when further in-memory updates will be written out) */
 	@Getter
 	private final boolean canMergeWrites = getRawOptions().getBoolean("canMergeWrites");
@@ -90,7 +95,6 @@ public class WBRBConfig extends BaseDelegatingOptions
 	private final boolean allowDataWritingAfterResyncFailedFinal = getRawOptions().getBoolean("allowDataWritingAfterResyncFailedFinal");
 	
 	/** Whether cache is allowed to read (provide to clients) data that needed a resync when that resync failed and there is no option to attempt resync again; either value may result in data loss */
-	// FIXME use this!
 	@Getter
 	private final boolean allowDataReadingAfterResyncFailedFinal = getRawOptions().getBoolean("allowDataReadingAfterResyncFailedFinal");
 
@@ -103,7 +107,7 @@ public class WBRBConfig extends BaseDelegatingOptions
 	@Getter
 	private final int readQueueProcessingThreadPriority = getRawOptions().getIntPositive("readQueueProcessingThreadPriority", Thread.NORM_PRIORITY + 1);
 	
-	/** Default: 100ms; zero value disables batching functionality; how long read queue processor will wait for the next read item before declaring the batch finished; only useful if batching is used; TODO add info */
+	/** Default: 100ms; zero value disables batching functionality; how long read queue processor will wait for the next read item before declaring the batch finished; only useful if batching is used; TO-DO add info */
 	@Getter
 	private final long readQueueBatchingDelay = getRawOptions().getTimeInterval("readQueueBatchingDelay", "100ms"); 
 	
@@ -128,7 +132,7 @@ public class WBRBConfig extends BaseDelegatingOptions
 	@Getter
 	private final int writeQueueProcessingThreadPriority = getRawOptions().getIntPositive("writeQueueProcessingThreadPriority", Thread.NORM_PRIORITY + 1);
 	
-	/** Default: 100ms; zero value disables batching functionality; how long write queue processor will wait for the next write item before declaring the batch finished; only useful if batching is used; TODO add info */
+	/** Default: 100ms; zero value disables batching functionality; how long write queue processor will wait for the next write item before declaring the batch finished; only useful if batching is used; TO-DO add info */
 	@Getter
 	private final long writeQueueBatchingDelay = getRawOptions().getTimeInterval("writeQueueBatchingDelay", "100ms"); 
 	
@@ -192,6 +196,34 @@ public class WBRBConfig extends BaseDelegatingOptions
 	/** Default: false (for performance); if enabled, various events will be passed to {@link WriteBehindResyncInBackgroundCache#spiUnknownLock_Event(com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBEvent, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload, Throwable, Object...)} */
 	@Getter
 	private final boolean eventNotificationEnabled = getRawOptions().getBoolean("eventNotificationEnabled", false);
+	
+	/** Default: 1,2,3,4,9 ; a list of exactly 5 int thresholds to be used as thresholds (equal or less) for monitoring 'for how many full cycles items is in the cache' at the end of return queue; values MUST be in ascending order */
+	@Getter
+	private final List<Integer> monitoringFullCacheCyclesThresholds;
+	{
+		List<Integer> list = getRawOptions().getIntList("monitoringFullCacheCyclesThresholds", "1,2,3,4,9", OptionConstraint.POSITIVE, OptionConstraint.NON_EMPTY_COLLECTION);
+		if (list.size() != 5)
+			throw new IllegalStateException("monitoringFullCacheCyclesThresholds list must be exactly 5 elements long, got: " + list);
+		for (int i = 0; i < list.size() - 1; i++)
+			if (list.get(i) >= list.get(i + 1))
+				throw new IllegalStateException("monitoringFullCacheCyclesThresholds list must be in ascending order, got: " + list);
+		
+		monitoringFullCacheCyclesThresholds = list;
+	}
+	
+	/** Default: 5s,10s,15s,20s,25s ; a list of exactly 5 time intervals to be used as thresholds (equal or less) for monitoring 'time since last access' at the end of return queue; values MUST be in ascending order */
+	@Getter
+	private final List<Long> monitoringTimeSinceAccessThresholds;
+	{
+		List<Long> list = getRawOptions().getTimeIntervalList("monitoringTimeSinceAccessThresholds", "5s,10s,15s,20s,25s", OptionConstraint.NON_NEGATIVE, OptionConstraint.NON_EMPTY_COLLECTION);
+		if (list.size() != 5)
+			throw new IllegalStateException("monitoringTimeSinceAccessThresholds list must be exactly 5 elements long, got: " + list);
+		for (int i = 0; i < list.size() - 1; i++)
+			if (list.get(i) >= list.get(i + 1))
+				throw new IllegalStateException("monitoringTimeSinceAccessThresholds list must be in ascending order, got: " + list);
+		
+		monitoringTimeSinceAccessThresholds = list;
+	}
 
 	/**
 	 * @param initializeFrom

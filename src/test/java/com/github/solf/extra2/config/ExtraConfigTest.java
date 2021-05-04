@@ -15,6 +15,7 @@
  */
 package com.github.solf.extra2.config;
 
+import static com.github.solf.extra2.testutil.AssertExtra.assertFails;
 import static com.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static com.github.solf.extra2.util.NullUtil.nnc;
 import static com.github.solf.extra2.util.NullUtil.nonNull;
@@ -1842,6 +1843,225 @@ public class ExtraConfigTest
 			} catch (IllegalStateException e)
 			{
 				assert e.getMessage().contains("Duplicate value [1234567890123456]: in option: duplicates") : e.getMessage();
+			}
+		}
+	}
+	
+	
+	/**
+	 * Test time interval lists
+	 */
+	@Test
+	public void testTimeIntervalList()
+	{
+		BaseOptions options = new BaseOptions(Configuration.fromPropertiesFile("config/timeIntervalList.properties"));
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("empty");
+			assert list.size() == 0;
+		}
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("oneTimeInterval");
+			assert list.size() == 1;
+			assert list.get(0) == 1234567890123456l;
+			
+			// Test unmodifiability
+			try
+			{
+				list.remove(0);
+				assert false;
+			} catch (UnsupportedOperationException e)
+			{
+				// ok
+			}
+			try
+			{
+				list.add(1l);
+				assert false;
+			} catch (UnsupportedOperationException e)
+			{
+				// ok
+			}
+			try
+			{
+				list.clear();
+				assert false;
+			} catch (UnsupportedOperationException e)
+			{
+				// ok
+			}
+		}
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("twoTimeInterval");
+			assert list.size() == 2;
+			assert list.get(0) == 123 * 1000 * 60 * 60l;
+			assert list.get(1) == 1234567890123456l;
+		}
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("withZero");
+			assert list.size() == 2;
+			assert list.get(0) == 1 * 1000 * 60;
+			assert list.get(1) == 0;
+		}
+		
+		{
+			assertFails(() -> options.getTimeIntervalList("withNegative"), "Cannot parse value as time interval (must not be negative)");
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("missing");
+				assert false;
+			} catch (MissingResourceException e)
+			{
+				assert "Missing option: missing".equals(e.getMessage()) : e.getMessage();
+			}
+		}
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("defaultValue", "123s,1234567890123456ms");
+			assert list.size() == 2;
+			assert list.get(0) == 123 * 1000l;
+			assert list.get(1) == 1234567890123456l;
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("letters");
+				assert false;
+			} catch (NumberFormatException e)
+			{
+				assert e.getMessage().contains("Problem with option [letters]: failed to parse [asd] as long in: [asd]") : e.getMessage();
+			}
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("float");
+				assert false;
+			} catch (NumberFormatException e)
+			{
+				assert e.getMessage().contains("Problem with option [float]: failed to parse [1.34s] as long in: [1.34s]") : e.getMessage();
+			}
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("emptyListItem");
+				assert false;
+			} catch (NumberFormatException e)
+			{
+				assert e.getMessage().contains("Problem with option [emptyListItem]: failed to parse [] as long in: [123h, , 456m]") : e.getMessage();
+			}
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("empty", OptionConstraint.NON_EMPTY_COLLECTION);
+				assert false;
+			} catch (IllegalStateException e)
+			{
+				assert e.getMessage().contains("Collection is empty in option: empty") : e.getMessage();
+			}
+		}
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("twoTimeInterval", OptionConstraint.NON_EMPTY_COLLECTION, 
+				OptionConstraint.POSITIVE, OptionConstraint.NON_NEGATIVE, OptionConstraint.NEGATIVE_ONE_OR_MORE);
+			assert list.size() == 2;
+			assert list.get(0) == 123 * 1000 * 60 * 60l;
+			assert list.get(1) == 1234567890123456l;
+		}
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("singleZero", OptionConstraint.NON_EMPTY_COLLECTION, 
+				OptionConstraint.NON_NEGATIVE, OptionConstraint.NEGATIVE_ONE_OR_MORE);
+			assert list.size() == 1;
+			assert list.get(0) == 0l;
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("singleZero", OptionConstraint.NON_EMPTY_COLLECTION, 
+					OptionConstraint.POSITIVE, OptionConstraint.NON_NEGATIVE, OptionConstraint.NEGATIVE_ONE_OR_MORE);
+				assert false;
+			} catch (IllegalStateException e)
+			{
+				assert e.getMessage().contains("Option [singleZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+			}
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("withZero", OptionConstraint.NON_EMPTY_COLLECTION, 
+					OptionConstraint.POSITIVE);
+				assert false;
+			} catch (IllegalStateException e)
+			{
+				assert e.getMessage().contains("Option [withZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+			}
+		}
+		
+		{
+			@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("withZero", OptionConstraint.NON_EMPTY_COLLECTION, 
+				OptionConstraint.NON_NEGATIVE);
+			assert list.size() == 2;
+			assert list.get(0) == 1 * 1000 * 60l;
+			assert list.get(1) == 0l;
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("withMinusOne", OptionConstraint.NON_EMPTY_COLLECTION, 
+					OptionConstraint.NON_NEGATIVE);
+				assert false;
+			} catch (NumberFormatException e)
+			{
+				assert e.getMessage().contains("Cannot parse value as time interval (must not be negative): -1d") : e.getMessage();
+			}
+		}
+		
+		{
+			try
+			{
+				@SuppressWarnings("unused")
+				@Nonnull List<@Nonnull Long> list = options.getTimeIntervalList("withNegative", OptionConstraint.NON_EMPTY_COLLECTION, 
+					OptionConstraint.NEGATIVE_ONE_OR_MORE);
+				assert false;
+			} catch (NumberFormatException e)
+			{
+				assert e.getMessage().contains("Cannot parse value as time interval (must not be negative): -7s") : e.getMessage();
+			}
+		}
+		
+		{
+			// Test unapplicable constraint + list
+			try
+			{
+				options.getTimeIntervalList("singleZero", OptionConstraint.NON_EMPTY_ELEMENT);
+				assert false;
+			} catch (IllegalStateException e)
+			{
+				assert e.getMessage().contains("Option [singleZero] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
 			}
 		}
 	}

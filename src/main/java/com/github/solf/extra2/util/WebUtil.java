@@ -75,6 +75,27 @@ public class WebUtil
 	
 	/**
 	 * Reads contents at the given URL as String.
+	 * <p>
+	 * Connect timeout is set to {@link #DEFAULT_CONNECT_TIMEOUT} 60 seconds 
+	 * and read timeout is set to {@link #DEFAULT_READ_TIMEOUT}
+	 * 
+	 * @param basicAuthLogin if not null, specifies basic-auth login
+	 * @param basicAuthPassword if not null, specifies basic-auth password
+	 * @param method HTTP method, it's an error if this is set on non-http request
+	 * 
+	 * @throws IllegalStateException if something goes wrong
+	 */
+	public static String readURL(String url, 
+		@Nullable String basicAuthLogin, @Nullable String basicAuthPassword,
+		@Nullable String method) 
+			throws IllegalStateException
+	{
+		return readURL(url, basicAuthLogin, basicAuthPassword, DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT, method);
+	}
+	
+	
+	/**
+	 * Reads contents at the given URL as String.
 	 * 
 	 * @param basicAuthLogin if not null, specifies basic-auth login
 	 * @param basicAuthPassword if not null, specifies basic-auth password
@@ -87,9 +108,27 @@ public class WebUtil
 		int socketConnectTimeout, int socketReadTimeout)
 		throws IllegalStateException
 	{
+		return readURL(url, basicAuthLogin, basicAuthPassword, socketConnectTimeout, socketReadTimeout, null);
+	}
+	
+	/**
+	 * Reads contents at the given URL as String.
+	 * 
+	 * @param basicAuthLogin if not null, specifies basic-auth login
+	 * @param basicAuthPassword if not null, specifies basic-auth password
+	 * @param socketConnectTimeout in milliseconds; 0 means infinite timeout
+	 * @param socketReadTimeout in milliseconds; 0 means infinite timeout
+	 * @param method HTTP method, it's an error if this is set on non-http request
+	 * 
+	 * @throws IllegalStateException if something goes wrong
+	 */
+	public static String readURL(String url, @Nullable String basicAuthLogin, @Nullable String basicAuthPassword,
+		int socketConnectTimeout, int socketReadTimeout, @Nullable String method)
+		throws IllegalStateException
+	{
 		try
 		{
-			try (InputStream is = readBinaryURL(url, basicAuthLogin, basicAuthPassword, socketConnectTimeout, socketReadTimeout))
+			try (InputStream is = readBinaryURL(url, basicAuthLogin, basicAuthPassword, socketConnectTimeout, socketReadTimeout, method))
 			{
 				byte[] buff = new byte[1024];
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -147,6 +186,26 @@ public class WebUtil
 	
 	/**
 	 * Reads contents at the given URL as {@link InputStream}
+	 * <p>
+	 * Connect timeout is set to {@link #DEFAULT_CONNECT_TIMEOUT} 60 seconds 
+	 * and read timeout is set to {@link #DEFAULT_READ_TIMEOUT}
+	 * 
+	 * @param basicAuthLogin if not null, specifies basic-auth login
+	 * @param basicAuthPassword if not null, specifies basic-auth password
+	 * @param method HTTP method, it's an error if this is set on non-http request
+	 * 
+	 * @throws IllegalStateException if something goes wrong
+	 */
+	public static InputStream readBinaryURL(String url, @Nullable String basicAuthLogin, 
+		@Nullable String basicAuthPassword, @Nullable String method) 
+		throws IllegalStateException
+	{
+		return readBinaryURL(url, basicAuthLogin, basicAuthPassword, DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT, method);
+	}
+	
+	
+	/**
+	 * Reads contents at the given URL as {@link InputStream}
 	 * 
 	 * @param basicAuthLogin if not null, specifies basic-auth login
 	 * @param basicAuthPassword if not null, specifies basic-auth password
@@ -157,6 +216,24 @@ public class WebUtil
 	 */
 	public static InputStream readBinaryURL(String url, @Nullable String basicAuthLogin, @Nullable String basicAuthPassword,
 		int socketConnectTimeout, int socketReadTimeout)
+		throws IllegalStateException
+	{
+		return readBinaryURL(url, basicAuthLogin, basicAuthPassword, socketConnectTimeout, socketReadTimeout, null);
+	}
+	
+	/**
+	 * Reads contents at the given URL as {@link InputStream}
+	 * 
+	 * @param basicAuthLogin if not null, specifies basic-auth login
+	 * @param basicAuthPassword if not null, specifies basic-auth password
+	 * @param socketConnectTimeout in milliseconds; 0 means infinite timeout
+	 * @param socketReadTimeout in milliseconds; 0 means infinite timeout
+	 * @param method HTTP method, it's an error if this is set on non-http request
+	 * 
+	 * @throws IllegalStateException if something goes wrong
+	 */
+	public static InputStream readBinaryURL(String url, @Nullable String basicAuthLogin, @Nullable String basicAuthPassword,
+		int socketConnectTimeout, int socketReadTimeout, @Nullable String method)
 		throws IllegalStateException
 	{
 		try
@@ -173,11 +250,21 @@ public class WebUtil
 				conn.setRequestProperty ("Authorization", basicAuth);
 			}
 			
+			if (method != null)
+			{
+				if (conn instanceof HttpURLConnection)
+				{
+					((HttpURLConnection)conn).setRequestMethod(method);
+				}
+				else
+					throw new IllegalStateException("Unable to set 'method' on non-HTTP connection, got: " + conn.getClass());
+			}
+			
 			conn.connect();
 			if (conn instanceof HttpURLConnection)
 			{
 				int responseCode = ((HttpURLConnection)conn).getResponseCode();
-				if (responseCode != 200)
+				if ((responseCode < 200) || (responseCode >= 300))
 					throw new IllegalStateException("Response code [" + responseCode + "] while reading URL: " + url);
 			}
 			
