@@ -849,7 +849,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 
 	@Override
 	public @Nullable V computeIfAbsent(K key,
-		Function<? super K, @Nullable ? extends @Nullable V> mappingFunction)
+		@Nonnull Function<? super K, @Nullable ? extends @Nullable V> mappingFunction)
 	{
 		Entry<K, V> entry = map.computeIfAbsent(key, k -> {
 			@Nullable V r = mappingFunction.apply(k);
@@ -867,7 +867,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 	
 	@Override
 	public @Nullable V computeIfPresent(K key,
-		BiFunction<? super K, @Nonnull ? super @Nonnull V, @Nullable ? extends @Nullable V> remappingFunction)
+		@Nonnull BiFunction<? super K, @Nonnull ? super @Nonnull V, @Nullable ? extends @Nullable V> remappingFunction)
 	{
 		Entry<K, V> entry = map.computeIfPresent(key, (k, mapEntry) -> {
 			V v = mapEntry.getValue();
@@ -891,7 +891,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 
 	@Override
 	public @Nullable V compute(K key,
-		BiFunction<? super K, @Nullable ? super @Nullable V, @Nullable ? extends @Nullable V> remappingFunction)
+		@Nonnull BiFunction<? super K, @Nullable ? super @Nullable V, @Nullable ? extends @Nullable V> remappingFunction)
 	{
 		Entry<K, V> entry = map.compute(key, (k, mapEntry) -> {
 			@Nullable V v = mapEntry == null ? null : mapEntry.getValue();

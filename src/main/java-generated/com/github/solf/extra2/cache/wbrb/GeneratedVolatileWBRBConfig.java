@@ -41,7 +41,7 @@ import lombok.Getter;
  */
 @SuppressWarnings("unused")
 @ParametersAreNonnullByDefault
-public class VolatileWBRBConfig extends WBRBConfig
+public class GeneratedVolatileWBRBConfig extends WBRBConfig
 {
 	/** Used in thread names and other places to distinguish from other stuff, e.g. something like WBRBCache[cacheName]-read-thread-pool-1 */
 	private volatile String v_cacheName = super.getCacheName();
@@ -291,7 +291,7 @@ public class VolatileWBRBConfig extends WBRBConfig
 	 * @throws MissingResourceException
 	 * @throws NumberFormatException
 	 */
-	public VolatileWBRBConfig(BaseOptions initializeFrom)
+	public GeneratedVolatileWBRBConfig(BaseOptions initializeFrom)
 		throws MissingResourceException,
 		NumberFormatException
 	{
@@ -303,7 +303,7 @@ public class VolatileWBRBConfig extends WBRBConfig
 	 * @throws MissingResourceException
 	 * @throws NumberFormatException
 	 */
-	public VolatileWBRBConfig(FlatConfiguration configuration)
+	public GeneratedVolatileWBRBConfig(FlatConfiguration configuration)
 		throws MissingResourceException,
 		NumberFormatException
 	{

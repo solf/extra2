@@ -68,6 +68,22 @@ public interface ForIterable<T> extends Iterable<T>
 	}
 	
 	/**
+	 * If the {@link ForIterable} contains any elements, then throws an exception.
+	 * Otherwise simply returns.
+	 * <p>
+	 * This is mostly useful in testing
+	 * 
+	 * @throws IllegalStateException if {@link ForIterable} contains any elements
+	 */
+	default void assertNone() throws IllegalStateException
+	{
+		Iterator<T> iter = iterator();
+
+		if (iter.hasNext())
+			throw new IllegalStateException("Iterable has elements.");
+	}
+	
+	/**
 	 * If the {@link ForIterable} contains at least one element, returns one 
 	 * element at random; otherwise throws exception.
 	 * <p>
@@ -189,5 +205,14 @@ public interface ForIterable<T> extends Iterable<T>
 	default public @Nonnull Stream<T> stream()
 	{
 		return StreamSupport.stream(spliterator(), false);
+	}
+	
+	/**
+	 * Returns empty {@link ForIterable}.
+	 */
+	@Nonnull
+	public static <T> ForIterable<T> emptyForIterable()
+	{
+		return WACollections.emptyForIterable();
 	}
 }

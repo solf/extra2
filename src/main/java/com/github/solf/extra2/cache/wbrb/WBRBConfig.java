@@ -202,11 +202,7 @@ public class WBRBConfig extends BaseDelegatingOptions
 	private final List<Integer> monitoringFullCacheCyclesThresholds;
 	{
 		List<Integer> list = getRawOptions().getIntList("monitoringFullCacheCyclesThresholds", "1,2,3,4,9", OptionConstraint.POSITIVE, OptionConstraint.NON_EMPTY_COLLECTION);
-		if (list.size() != 5)
-			throw new IllegalStateException("monitoringFullCacheCyclesThresholds list must be exactly 5 elements long, got: " + list);
-		for (int i = 0; i < list.size() - 1; i++)
-			if (list.get(i) >= list.get(i + 1))
-				throw new IllegalStateException("monitoringFullCacheCyclesThresholds list must be in ascending order, got: " + list);
+		validateThresholdsListIsAscending(list, "monitoringFullCacheCyclesThresholds");
 		
 		monitoringFullCacheCyclesThresholds = list;
 	}
@@ -216,11 +212,7 @@ public class WBRBConfig extends BaseDelegatingOptions
 	private final List<Long> monitoringTimeSinceAccessThresholds;
 	{
 		List<Long> list = getRawOptions().getTimeIntervalList("monitoringTimeSinceAccessThresholds", "5s,10s,15s,20s,25s", OptionConstraint.NON_NEGATIVE, OptionConstraint.NON_EMPTY_COLLECTION);
-		if (list.size() != 5)
-			throw new IllegalStateException("monitoringTimeSinceAccessThresholds list must be exactly 5 elements long, got: " + list);
-		for (int i = 0; i < list.size() - 1; i++)
-			if (list.get(i) >= list.get(i + 1))
-				throw new IllegalStateException("monitoringTimeSinceAccessThresholds list must be in ascending order, got: " + list);
+		validateThresholdsListIsAscending(list, "monitoringTimeSinceAccessThresholds");
 		
 		monitoringTimeSinceAccessThresholds = list;
 	}
@@ -247,5 +239,24 @@ public class WBRBConfig extends BaseDelegatingOptions
 		NumberFormatException
 	{
 		super(configuration);
+	}
+
+	/**
+	 * Validates that the given thresholds list is in ascending order and contains
+	 * the 'correct' number of elements (5 in this case).
+	 * <p>
+	 * Also checks that values are non-negative.
+	 */
+	protected void validateThresholdsListIsAscending(List<? extends Number> list, String optionName)
+	{
+		if (list.size() != 5)
+			throw new IllegalStateException(optionName + " list must be exactly 5 elements long, got: " + list);
+		for (int i = 0; i < list.size() - 1; i++)
+		{
+			if (list.get(i).longValue() < 0)
+				throw new IllegalStateException(optionName + " list must contain non-negative values, got: " + list);
+			if (list.get(i).longValue() >= list.get(i + 1).longValue())
+				throw new IllegalStateException(optionName + " list must be in ascending order, got: " + list);
+		}
 	}
 }

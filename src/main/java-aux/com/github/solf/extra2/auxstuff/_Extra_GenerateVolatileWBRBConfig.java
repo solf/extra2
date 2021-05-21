@@ -27,11 +27,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import org.codehaus.plexus.util.StringUtils;
 
 import com.google.common.io.Files;
+import com.github.solf.extra2.cache.wbrb.GeneratedVolatileWBRBConfig;
 import com.github.solf.extra2.cache.wbrb.VolatileWBRBConfig;
 import com.github.solf.extra2.file.FileEditor;
 
 /**
- * Generates {@link VolatileWBRBConfig} which is useful to be able to adjust
+ * Generates {@link GeneratedVolatileWBRBConfig} on top of which {@link VolatileWBRBConfig}
+ * is built -- which is useful to be able to adjust
  * cache configuration at runtime (though at the performance cost of constant
  * volatile variable accesses).
  *
@@ -47,7 +49,7 @@ public class _Extra_GenerateVolatileWBRBConfig
 	{
 		System.out.println("Generation running...");
 		
-		final String targetClassName = "VolatileWBRBConfig";
+		final String targetClassName = "GeneratedVolatileWBRBConfig";
 		final String targetFileName = "src/main/java-generated/com/github/solf/extra2/cache/wbrb/" + targetClassName + ".java";
 		
 		nnChecked(new File(targetFileName).getParentFile()).mkdirs();
@@ -118,6 +120,42 @@ public class _Extra_GenerateVolatileWBRBConfig
 			}
 			
 			fe.spoolAndCommit();
+		}
+		
+		{
+			// Need to cut out everything after constructors (e.g. custom methods in config java file).
+			FileEditor fe = new FileEditor(targetFileName);
+			
+			int validClassNameMatchesCount = 0;
+			while (true)
+			{
+				try
+				{
+					fe.find(targetClassName);
+					validClassNameMatchesCount++;
+				} catch (RuntimeException e)
+				{
+					break; // no more matches
+				}
+			}
+			
+			fe = fe.recreate(); // reset editor (create new one)
+			
+			// Find where last constructor starts
+			for (int i = 0; i < validClassNameMatchesCount; i++)
+				fe.find(targetClassName);
+			
+			while(true)
+			{
+				String line = nnChecked(fe.readLine());
+				if (line.trim().equals("}")) // closing brace of the constructor
+					break;
+			}
+			
+			fe.readLine();
+			fe.writeLine("}"); // replace whatever after constructor with class-closing brace
+			
+			fe.truncateAndCommit(); // cut the rest of the file and save
 		}
 		
 		System.out.println("Done.");

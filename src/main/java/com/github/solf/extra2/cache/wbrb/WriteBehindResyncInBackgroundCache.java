@@ -6886,6 +6886,9 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 				.configReturnQueueCacheTimeMinMs(config.getReturnQueueCacheTimeMin())
 				.configMainQueueMaxTargetSize(config.getMainQueueMaxTargetSize())
 				.configMaxCacheElementsHardLimit(config.getMaxCacheElementsHardLimit())
+				.configUntouchedItemCacheExpirationDelay(config.getUntouchedItemCacheExpirationDelay())
+				.configMonitoringFullCacheCyclesThresholdMax(config.getMonitoringFullCacheCyclesThresholds().get(config.getMonitoringFullCacheCyclesThresholds().size() - 1))
+				.configMonitoringTimeSinceAccessThresholdMax(config.getMonitoringTimeSinceAccessThresholds().get(config.getMonitoringTimeSinceAccessThresholds().size() - 1))
 				
 				.storageReadQueueProcessedItems(cacheStats.storageReadQueueProcessedItems.get())
 				.storageReadTotalAttempts(storageReadInitialAttempts + storageReadRefreshAttempts)

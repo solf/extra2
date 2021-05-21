@@ -183,6 +183,24 @@ public class WBRBStatus
 	@Getter
 	private final long configMaxCacheElementsHardLimit;
 	
+	/**
+	 * 'untouched' item cache expiration delay (as configured)
+	 */
+	@Getter
+	private final long configUntouchedItemCacheExpirationDelay;
+	
+	/**
+	 * The value of the highest threshold in {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}  
+	 */
+	@Getter
+	private final int configMonitoringFullCacheCyclesThresholdMax;
+	
+	/**
+	 * The value of the highest threshold in {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}  
+	 */
+	@Getter
+	private final long configMonitoringTimeSinceAccessThresholdMax;
+	
 	
 	
 	/**

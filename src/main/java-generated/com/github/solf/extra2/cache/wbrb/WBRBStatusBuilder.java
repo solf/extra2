@@ -47,7 +47,7 @@ public class WBRBStatusBuilder {
         public WBRBStatus buildWBRBStatus();
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg103 {
 
         /**
          * How many items were above all thresholds for
@@ -56,163 +56,163 @@ public class WBRBStatusBuilder {
         public ZBSI_WBRBStatusBuilder_statusCreatedAt_builder timeSinceAccessThresholdAboveAllThresholds(long timeSinceAccessThresholdAboveAllThresholds);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg102 {
 
         /**
          * How many items were at or below threshold 5 for
          * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100 timeSinceAccessThreshold5(long timeSinceAccessThreshold5);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg103 timeSinceAccessThreshold5(long timeSinceAccessThreshold5);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg101 {
+
+        /**
+         * How many items were at or below threshold 4 for
+         * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg102 timeSinceAccessThreshold4(long timeSinceAccessThreshold4);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100 {
+
+        /**
+         * How many items were at or below threshold 3 for
+         * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg101 timeSinceAccessThreshold3(long timeSinceAccessThreshold3);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99 {
+
+        /**
+         * How many items were at or below threshold 2 for
+         * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100 timeSinceAccessThreshold2(long timeSinceAccessThreshold2);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg98 {
 
         /**
-         * How many items were at or below threshold 4 for
+         * How many items were at or below threshold 1 for
          * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99 timeSinceAccessThreshold4(long timeSinceAccessThreshold4);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99 timeSinceAccessThreshold1(long timeSinceAccessThreshold1);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg97 {
 
         /**
-         * How many items were at or below threshold 3 for
-         * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+         * How many items were above all thresholds for
+         * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg98 timeSinceAccessThreshold3(long timeSinceAccessThreshold3);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg98 fullCycleCountAboveAllThresholds(long fullCycleCountAboveAllThresholds);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg96 {
 
         /**
-         * How many items were at or below threshold 2 for
-         * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+         * How many items were at or below threshold 5 for
+         * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg97 timeSinceAccessThreshold2(long timeSinceAccessThreshold2);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg97 fullCycleCountThreshold5(long fullCycleCountThreshold5);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg95 {
 
         /**
-         * How many items were at or below threshold 1 for
-         * {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+         * How many items were at or below threshold 4 for
+         * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg96 timeSinceAccessThreshold1(long timeSinceAccessThreshold1);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg96 fullCycleCountThreshold4(long fullCycleCountThreshold4);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg94 {
 
         /**
-         * How many items were above all thresholds for
+         * How many items were at or below threshold 3 for
          * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg95 fullCycleCountAboveAllThresholds(long fullCycleCountAboveAllThresholds);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg95 fullCycleCountThreshold3(long fullCycleCountThreshold3);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg93 {
 
         /**
-         * How many items were at or below threshold 5 for
+         * How many items were at or below threshold 2 for
          * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg94 fullCycleCountThreshold5(long fullCycleCountThreshold5);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg94 fullCycleCountThreshold2(long fullCycleCountThreshold2);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg92 {
 
         /**
-         * How many items were at or below threshold 4 for
-         * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
-         */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg93 fullCycleCountThreshold4(long fullCycleCountThreshold4);
-    }
-
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91 {
-
-        /**
-         * How many items were at or below threshold 3 for
-         * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
-         */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg92 fullCycleCountThreshold3(long fullCycleCountThreshold3);
-    }
-
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90 {
-
-        /**
-         * How many items were at or below threshold 2 for
-         * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
-         */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91 fullCycleCountThreshold2(long fullCycleCountThreshold2);
-    }
-
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89 {
-
-        /**
          * How many items were at or below threshold 1 for
          * {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90 fullCycleCountThreshold1(long fullCycleCountThreshold1);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg93 fullCycleCountThreshold1(long fullCycleCountThreshold1);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91 {
 
         /**
          * Last logged message text of the FATAL-type severity, null if no
          * such messages were logged (this does not track messages that were not
          * logged due to low severity or throttling).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89 lastFatalLoggedMsgText(@Nullable String lastFatalLoggedMsgText);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg92 lastFatalLoggedMsgText(@Nullable String lastFatalLoggedMsgText);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90 {
 
         /**
          * Timestamp for the last message (regardless of whether it was logged)
          * of the FATAL-type severity, 0 if no such messages were logged.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88 lastFatalMsgTimestamp(long lastFatalMsgTimestamp);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91 lastFatalMsgTimestamp(long lastFatalMsgTimestamp);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89 {
 
         /**
          * Last logged message text of the ERROR-type severity, null if no
          * such messages were logged (this does not track messages that were not
          * logged due to low severity or throttling).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87 lastErrorLoggedMsgText(@Nullable String lastErrorLoggedMsgText);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90 lastErrorLoggedMsgText(@Nullable String lastErrorLoggedMsgText);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88 {
 
         /**
          * Timestamp for the last message (regardless of whether it was logged)
          * of the ERROR-type severity, 0 if no such messages were logged.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86 lastErrorMsgTimestamp(long lastErrorMsgTimestamp);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89 lastErrorMsgTimestamp(long lastErrorMsgTimestamp);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87 {
 
         /**
          * Last logged message text of the WARN-type severity, null if no
          * such messages were logged (this does not track messages that were not
          * logged due to low severity or throttling).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85 lastWarnLoggedMsgText(@Nullable String lastWarnLoggedMsgText);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88 lastWarnLoggedMsgText(@Nullable String lastWarnLoggedMsgText);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86 {
 
         /**
          * Timestamp for the last message (regardless of whether it was logged)
          * of the WARN-type severity, 0 if no such messages were logged.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84 lastWarnMsgTimestamp(long lastWarnMsgTimestamp);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87 lastWarnMsgTimestamp(long lastWarnMsgTimestamp);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85 {
 
         /**
          * Collects last message text per each severity in {@link WBRBCacheMessageSeverity}
@@ -225,10 +225,10 @@ public class WBRBStatusBuilder {
          * NOTE2: those are not 'atomic' with {@link #getLastTimestampMsgPerSeverityOrdinal()}
          * there can be discrepancies.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83 lastLoggedTextMsgPerSeverityOrdinal(@Nullable String[] lastLoggedTextMsgPerSeverityOrdinal);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86 lastLoggedTextMsgPerSeverityOrdinal(@Nullable String[] lastLoggedTextMsgPerSeverityOrdinal);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84 {
 
         /**
          * Collects last message timestamps per each severity in {@link WBRBCacheMessageSeverity}
@@ -241,35 +241,35 @@ public class WBRBStatusBuilder {
          * NOTE2: those are not 'atomic' with {@link #getLastLoggedTextMsgPerSeverityOrdinal()}
          * there can be discrepancies.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82 lastTimestampMsgPerSeverityOrdinal(long[] lastTimestampMsgPerSeverityOrdinal);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85 lastTimestampMsgPerSeverityOrdinal(long[] lastTimestampMsgPerSeverityOrdinal);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83 {
 
         /**
          * Total count of messages with severity 'error' or higher.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81 msgTotalErrorOrHigherCount(long msgTotalErrorOrHigherCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84 msgTotalErrorOrHigherCount(long msgTotalErrorOrHigherCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82 {
 
         /**
          * Total count of messages with severity 'warn' or higher.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80 msgTotalWarnOrHigherCount(long msgTotalWarnOrHigherCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83 msgTotalWarnOrHigherCount(long msgTotalWarnOrHigherCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81 {
 
         /**
          * Indicates a likely fatal error, meaning cache may well become unusable
          * after this happens.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79 msgFatalCount(long msgFatalCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82 msgFatalCount(long msgFatalCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80 {
 
         /**
          * Indicates an error which is likely to be caused by the
@@ -277,10 +277,10 @@ public class WBRBStatusBuilder {
          * <p>
          * Data loss is likely although this should not be fatal.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78 msgErrorCount(long msgErrorCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81 msgErrorCount(long msgErrorCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79 {
 
         /**
          * Indicates an error probably caused by external factors, such
@@ -289,10 +289,10 @@ public class WBRBStatusBuilder {
          * This is used when data loss is highly likely, e.g. when cache implementation
          * gives up on writing piece of data to the underlying storage.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77 msgExternalDataLossCount(long msgExternalDataLossCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80 msgExternalDataLossCount(long msgExternalDataLossCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78 {
 
         /**
          * Indicates an error probably caused by external factors, such
@@ -300,20 +300,20 @@ public class WBRBStatusBuilder {
          * <p>
          * These messages usually indicate that there was no data loss (yet).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76 msgExternalErrorCount(long msgExternalErrorCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79 msgExternalErrorCount(long msgExternalErrorCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77 {
 
         /**
          * Indicates an externally-caused warning.
          * <p>
          * These messages usually indicate that there was no data loss (yet).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75 msgExternalWarnCount(long msgExternalWarnCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78 msgExternalWarnCount(long msgExternalWarnCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76 {
 
         /**
          * Indicates problem that is probably caused by internal somewhat-known
@@ -322,139 +322,139 @@ public class WBRBStatusBuilder {
          * <p>
          * These usually should not result in data loss.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74 msgWarnCount(long msgWarnCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77 msgWarnCount(long msgWarnCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75 {
 
         /**
          * How many times did we encounter {@link WBRBCacheMessage#TOO_MANY_CACHE_ELEMENT_UPDATES}
          * issue (which potentially leads to data loss).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73 cacheWriteTooManyUpdates(long cacheWriteTooManyUpdates);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76 cacheWriteTooManyUpdates(long cacheWriteTooManyUpdates);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74 {
+
+        /**
+         * How many errors during cache write occurred.
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75 cacheWriteErrors(long cacheWriteErrors);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73 {
+
+        /**
+         * How many cache writes failed because relevant cache element was not present.
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74 cacheWriteElementNotPresentCount(long cacheWriteElementNotPresentCount);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72 {
+
+        /**
+         * How many cache write attempts were made.
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73 cacheWriteAttempts(long cacheWriteAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg71 {
 
         /**
-         * How many errors during cache write occurred.
+         * How many errors during cache read occurred.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72 cacheWriteErrors(long cacheWriteErrors);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72 cacheReadErrors(long cacheReadErrors);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg70 {
 
         /**
-         * How many cache writes failed because relevant cache element was not present.
+         * How many times cache reads were interrupted (externally).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg71 cacheWriteElementNotPresentCount(long cacheWriteElementNotPresentCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg71 cacheReadInterrupts(long cacheReadInterrupts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg69 {
 
         /**
-         * How many cache write attempts were made.
+         * How many cache reads timed out (haven't got result in allowed time).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg70 cacheWriteAttempts(long cacheWriteAttempts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg70 cacheReadTimeouts(long cacheReadTimeouts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg68 {
 
         /**
-         * How many errors during cache read occurred.
+         * How many cache read attempts were made.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg69 cacheReadErrors(long cacheReadErrors);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg69 cacheReadAttempts(long cacheReadAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg67 {
 
         /**
-         * How many times cache reads were interrupted (externally).
+         * How many check-cache (via read or preload) attempts hit the 'null key' error.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg68 cacheReadInterrupts(long cacheReadInterrupts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg68 checkCacheNullKeyCount(long checkCacheNullKeyCount);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg66 {
 
         /**
-         * How many cache reads timed out (haven't got result in allowed time).
+         * How many check-cache (via read or preload) attempts hit the 'cache full' state.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg67 cacheReadTimeouts(long cacheReadTimeouts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg67 checkCacheTotalCacheFullExceptionCount(long checkCacheTotalCacheFullExceptionCount);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg65 {
 
         /**
-         * How many cache read attempts were made.
+         * How many check-cache (via read) attempts hit the 'cache full' state.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg66 cacheReadAttempts(long cacheReadAttempts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg66 checkCacheReadCacheFullExceptionCount(long checkCacheReadCacheFullExceptionCount);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg64 {
 
         /**
-         * How many check-cache (via read or preload) attempts hit the 'null key' error.
+         * How many check-cache (via read) attempts hit the cache.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg65 checkCacheNullKeyCount(long checkCacheNullKeyCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg65 checkCacheReadCacheHit(long checkCacheReadCacheHit);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg63 {
 
         /**
-         * How many check-cache (via read or preload) attempts hit the 'cache full' state.
+         * How many check-cache (via read) attempts were made.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg64 checkCacheTotalCacheFullExceptionCount(long checkCacheTotalCacheFullExceptionCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg64 checkCacheReadAttempts(long checkCacheReadAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg62 {
 
         /**
-         * How many check-cache (via read) attempts hit the 'cache full' state.
+         * How many check-cache (via preload) attempts hit the 'cache full' state.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg63 checkCacheReadCacheFullExceptionCount(long checkCacheReadCacheFullExceptionCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg63 checkCachePreloadCacheFullExceptionCount(long checkCachePreloadCacheFullExceptionCount);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg61 {
 
         /**
-         * How many check-cache (via read) attempts hit the cache.
+         * How many check-cache (via preload) attempts hit the cache.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg62 checkCacheReadCacheHit(long checkCacheReadCacheHit);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg62 checkCachePreloadCacheHit(long checkCachePreloadCacheHit);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg60 {
 
         /**
-         * How many check-cache (via read) attempts were made.
+         * How many check-cache (via preload) attempts were made.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg61 checkCacheReadAttempts(long checkCacheReadAttempts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg61 checkCachePreloadAttempts(long checkCachePreloadAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg59 {
-
-        /**
-         * How many check-cache (via preload) attempts hit the 'cache full' state.
-         */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg60 checkCachePreloadCacheFullExceptionCount(long checkCachePreloadCacheFullExceptionCount);
-    }
-
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58 {
-
-        /**
-         * How many check-cache (via preload) attempts hit the cache.
-         */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg59 checkCachePreloadCacheHit(long checkCachePreloadCacheHit);
-    }
-
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57 {
-
-        /**
-         * How many check-cache (via preload) attempts were made.
-         */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58 checkCachePreloadAttempts(long checkCachePreloadAttempts);
-    }
-
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56 {
 
         /**
          * How many check-cache attempts were made -- these are not separated
@@ -463,20 +463,20 @@ public class WBRBStatusBuilder {
          * <p>
          * This is basically for debugging/testing purposes.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57 checkCacheAttemptsNoDedup(long checkCacheAttemptsNoDedup);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg60 checkCacheAttemptsNoDedup(long checkCacheAttemptsNoDedup);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58 {
 
         /**
          * In return queue processing there's decision as to whether to keep an
          * element in the cache; this monitors cases when item is ineligible to
          * be retained due to main queue size already being at the limit.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56 returnQueueItemNotRetainedDueToMainQueueSizeCount(long returnQueueItemNotRetainedDueToMainQueueSizeCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg59 returnQueueItemNotRetainedDueToMainQueueSizeCount(long returnQueueItemNotRetainedDueToMainQueueSizeCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57 {
 
         /**
          * In return queue processing we calculate time since last access in
@@ -485,259 +485,283 @@ public class WBRBStatusBuilder {
          * normally happen, but could possibly happen if time is adjusted or
          * some such).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55 returnQueueNegativeTimeSinceLastAccessErrorCount(long returnQueueNegativeTimeSinceLastAccessErrorCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58 returnQueueNegativeTimeSinceLastAccessErrorCount(long returnQueueNegativeTimeSinceLastAccessErrorCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56 {
 
         /**
          * How many items were requeued back to the return queue
          * as the result of the return queue processing.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54 returnQueueRequeueToReturnQueueCount(long returnQueueRequeueToReturnQueueCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57 returnQueueRequeueToReturnQueueCount(long returnQueueRequeueToReturnQueueCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55 {
 
         /**
          * How many items were removed from cache (removal is generally an 'error',
          * non-error is 'expire') as the result of the return queue processing.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53 returnQueueRemovedFromCacheCount(long returnQueueRemovedFromCacheCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56 returnQueueRemovedFromCacheCount(long returnQueueRemovedFromCacheCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54 {
 
         /**
          * How many items were expired from cache as the result of the return queue processing.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52 returnQueueExpiredFromCacheCount(long returnQueueExpiredFromCacheCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55 returnQueueExpiredFromCacheCount(long returnQueueExpiredFromCacheCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53 {
 
         /**
          * How many items were processed as 'do nothing' as the result of the return queue processing.
          * <p>
          * This is usually not a normal behavior.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51 returnQueueDoNothingCount(long returnQueueDoNothingCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54 returnQueueDoNothingCount(long returnQueueDoNothingCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52 {
 
         /**
          * How many resyncs were scheduled while processing return queue.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50 returnQueueScheduledResyncs(long returnQueueScheduledResyncs);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53 returnQueueScheduledResyncs(long returnQueueScheduledResyncs);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51 {
 
         /**
          * For the last processed item in the return queue -- how long it actually
          * was in the queue (in virtual ms).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49 returnQueueLastItemInQueueDurationMs(long returnQueueLastItemInQueueDurationMs);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52 returnQueueLastItemInQueueDurationMs(long returnQueueLastItemInQueueDurationMs);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50 {
 
         /**
          * How many items were processed out of return queue.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48 returnQueueProcessedItems(long returnQueueProcessedItems);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51 returnQueueProcessedItems(long returnQueueProcessedItems);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49 {
 
         /**
          * How many items weren't marked as 'all ok' as the result of main queue processing.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47 mainQueueNotAllOkCount(long mainQueueNotAllOkCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50 mainQueueNotAllOkCount(long mainQueueNotAllOkCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48 {
 
         /**
          * How many items were requeued back to the main processing queue
          * as the result of main queue processing.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46 mainQueueRequeueToMainQueueCount(long mainQueueRequeueToMainQueueCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49 mainQueueRequeueToMainQueueCount(long mainQueueRequeueToMainQueueCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47 {
 
         /**
          * How many items were removed from cache as the result of main queue processing.
          * <p>
          * 'removed' action indicates abnormal processing, an error is logged
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45 mainQueueRemovedFromCacheCount(long mainQueueRemovedFromCacheCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48 mainQueueRemovedFromCacheCount(long mainQueueRemovedFromCacheCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46 {
 
         /**
          * How many items were expired from cache as the result of main queue processing.
          * <p>
          * 'expired' action indicates normal processing, no error is logged
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44 mainQueueExpiredFromCacheCount(long mainQueueExpiredFromCacheCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47 mainQueueExpiredFromCacheCount(long mainQueueExpiredFromCacheCount);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45 {
 
         /**
          * How many writes were sent while processing main processing queue.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43 mainQueueSentWrites(long mainQueueSentWrites);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46 mainQueueSentWrites(long mainQueueSentWrites);
     }
 
-    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41 {
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44 {
 
         /**
          * For the last processed item in the main queue -- how long it actually
          * was in the queue (in virtual ms).
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42 mainQueueLastItemInQueueDurationMs(long mainQueueLastItemInQueueDurationMs);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45 mainQueueLastItemInQueueDurationMs(long mainQueueLastItemInQueueDurationMs);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43 {
+
+        /**
+         * How many items were processed out of main processing queue.
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44 mainQueueProcessedItems(long mainQueueProcessedItems);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42 {
+
+        /**
+         * How many writes failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageWriteFail(Throwable, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43 storageWriteFailures(long storageWriteFailures);
+    }
+
+    public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41 {
+
+        /**
+         * How many writes succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageWriteSuccess(com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
+         */
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42 storageWriteSuccesses(long storageWriteSuccesses);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg40 {
 
         /**
-         * How many items were processed out of main processing queue.
+         * How many write attempts were made.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41 mainQueueProcessedItems(long mainQueueProcessedItems);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41 storageWriteAttempts(long storageWriteAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg39 {
 
         /**
-         * How many writes failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageWriteFail(Throwable, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
+         * How many items were processed out of write queue.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg40 storageWriteFailures(long storageWriteFailures);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg40 storageWriteQueueProcessedItems(long storageWriteQueueProcessedItems);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg38 {
 
         /**
-         * How many writes succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageWriteSuccess(com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
+         * How many reads (initial) failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadFail(Throwable, WBRBCacheEntry)}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg39 storageWriteSuccesses(long storageWriteSuccesses);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg39 storageReadInitialFailures(long storageReadInitialFailures);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg37 {
 
         /**
-         * How many write attempts were made.
+         * How many reads (initial) succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadSuccess(Object, WBRBCacheEntry)}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg38 storageWriteAttempts(long storageWriteAttempts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg38 storageReadInitialSuccesses(long storageReadInitialSuccesses);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg36 {
 
         /**
-         * How many items were processed out of write queue.
+         * How many read (initial) attempts were made.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg37 storageWriteQueueProcessedItems(long storageWriteQueueProcessedItems);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg37 storageReadInitialAttempts(long storageReadInitialAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg35 {
 
         /**
-         * How many reads (initial) failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadFail(Throwable, WBRBCacheEntry)}
+         * How many reads (refresh) arrived but data was not used (not set/merged) for
+         * whatever reason./
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg36 storageReadInitialFailures(long storageReadInitialFailures);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg36 storageReadRefreshDataNotUsedCount(long storageReadRefreshDataNotUsedCount);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg34 {
 
         /**
-         * How many reads (initial) succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadSuccess(Object, WBRBCacheEntry)}
+         * How many reads (refresh) arrived too late for a proper resync.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg35 storageReadInitialSuccesses(long storageReadInitialSuccesses);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg35 storageReadRefreshTooLateCount(long storageReadRefreshTooLateCount);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg33 {
 
         /**
-         * How many read (initial) attempts were made.
+         * How many reads (refresh) failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadFail(Throwable, WBRBCacheEntry)}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg34 storageReadInitialAttempts(long storageReadInitialAttempts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg34 storageReadRefreshFailures(long storageReadRefreshFailures);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg32 {
 
         /**
-         * How many reads (refresh) arrived but data was not used (not set/merged) for
-         * whatever reason./
+         * How many reads (refresh) succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadSuccess(Object, WBRBCacheEntry)}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg33 storageReadRefreshDataNotUsedCount(long storageReadRefreshDataNotUsedCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg33 storageReadRefreshSuccesses(long storageReadRefreshSuccesses);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg31 {
 
         /**
-         * How many reads (refresh) arrived too late for a proper resync.
+         * How many read (refresh) attempts were made.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg32 storageReadRefreshTooLateCount(long storageReadRefreshTooLateCount);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg32 storageReadRefreshAttempts(long storageReadRefreshAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg30 {
 
         /**
-         * How many reads (refresh) failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadFail(Throwable, WBRBCacheEntry)}
+         * How many reads (total, initial + refresh) failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadFail(Throwable, WBRBCacheEntry)}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg31 storageReadRefreshFailures(long storageReadRefreshFailures);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg31 storageReadTotalFailures(long storageReadTotalFailures);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg29 {
 
         /**
-         * How many reads (refresh) succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadSuccess(Object, WBRBCacheEntry)}
+         * How many reads (total, initial + refresh) succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadSuccess(Object, WBRBCacheEntry)}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg30 storageReadRefreshSuccesses(long storageReadRefreshSuccesses);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg30 storageReadTotalSuccesses(long storageReadTotalSuccesses);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg28 {
 
         /**
-         * How many read (refresh) attempts were made.
+         * How many read attempts (total, initial + refresh) were made.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg29 storageReadRefreshAttempts(long storageReadRefreshAttempts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg29 storageReadTotalAttempts(long storageReadTotalAttempts);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg27 {
 
         /**
-         * How many reads (total, initial + refresh) failed (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadFail(Throwable, WBRBCacheEntry)}
+         * How many items were processed out of read queue.
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg28 storageReadTotalFailures(long storageReadTotalFailures);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg28 storageReadQueueProcessedItems(long storageReadQueueProcessedItems);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg26 {
 
         /**
-         * How many reads (total, initial + refresh) succeeded (via {@link WriteBehindResyncInBackgroundCache#apiStorageReadSuccess(Object, WBRBCacheEntry)}
+         * The value of the highest threshold in {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg27 storageReadTotalSuccesses(long storageReadTotalSuccesses);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg27 configMonitoringTimeSinceAccessThresholdMax(long configMonitoringTimeSinceAccessThresholdMax);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg25 {
 
         /**
-         * How many read attempts (total, initial + refresh) were made.
+         * The value of the highest threshold in {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg26 storageReadTotalAttempts(long storageReadTotalAttempts);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg26 configMonitoringFullCacheCyclesThresholdMax(int configMonitoringFullCacheCyclesThresholdMax);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg24 {
 
         /**
-         * How many items were processed out of read queue.
+         * 'untouched' item cache expiration delay (as configured)
          */
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg25 storageReadQueueProcessedItems(long storageReadQueueProcessedItems);
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg25 configUntouchedItemCacheExpirationDelay(long configUntouchedItemCacheExpirationDelay);
     }
 
     public interface ZBSI_WBRBStatusBuilder_statusCreatedAt_arg23 {
@@ -928,7 +952,7 @@ public class WBRBStatusBuilder {
         public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg2 statusCreatedAt(long statusCreatedAt);
     }
 
-    private static final class ZBSI_WBRBStatusBuilder_statusCreatedAt_builderClass implements ZBSI_WBRBStatusBuilder_statusCreatedAt_builder, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg98, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg97, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg96, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg95, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg94, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg93, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg92, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg71, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg70, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg69, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg68, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg67, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg66, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg65, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg64, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg63, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg62, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg61, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg60, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg59, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg40, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg39, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg38, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg37, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg36, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg35, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg34, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg33, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg32, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg31, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg30, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg29, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg28, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg27, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg26, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg25, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg24, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg23, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg22, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg21, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg20, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg19, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg18, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg17, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg16, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg15, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg14, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg13, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg12, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg11, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg10, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg9, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg8, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg7, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg6, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg5, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg4, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg3, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg2, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg1 {
+    private static final class ZBSI_WBRBStatusBuilder_statusCreatedAt_builderClass implements ZBSI_WBRBStatusBuilder_statusCreatedAt_builder, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg103, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg102, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg101, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg98, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg97, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg96, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg95, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg94, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg93, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg92, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg71, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg70, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg69, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg68, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg67, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg66, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg65, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg64, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg63, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg62, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg61, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg60, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg59, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg40, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg39, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg38, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg37, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg36, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg35, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg34, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg33, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg32, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg31, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg30, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg29, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg28, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg27, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg26, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg25, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg24, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg23, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg22, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg21, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg20, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg19, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg18, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg17, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg16, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg15, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg14, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg13, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg12, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg11, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg10, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg9, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg8, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg7, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg6, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg5, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg4, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg3, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg2, ZBSI_WBRBStatusBuilder_statusCreatedAt_arg1 {
 
         @SuppressWarnings("all")
         private long timeSinceAccessThresholdAboveAllThresholds;
@@ -1166,6 +1190,15 @@ public class WBRBStatusBuilder {
         private long storageReadQueueProcessedItems;
 
         @SuppressWarnings("all")
+        private long configMonitoringTimeSinceAccessThresholdMax;
+
+        @SuppressWarnings("all")
+        private int configMonitoringFullCacheCyclesThresholdMax;
+
+        @SuppressWarnings("all")
+        private long configUntouchedItemCacheExpirationDelay;
+
+        @SuppressWarnings("all")
         private long configMaxCacheElementsHardLimit;
 
         @SuppressWarnings("all")
@@ -1251,7 +1284,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100 timeSinceAccessThreshold5(long timeSinceAccessThreshold5) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg103 timeSinceAccessThreshold5(long timeSinceAccessThreshold5) {
             this.timeSinceAccessThreshold5 = timeSinceAccessThreshold5;
             return this;
         }
@@ -1262,7 +1295,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99 timeSinceAccessThreshold4(long timeSinceAccessThreshold4) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg102 timeSinceAccessThreshold4(long timeSinceAccessThreshold4) {
             this.timeSinceAccessThreshold4 = timeSinceAccessThreshold4;
             return this;
         }
@@ -1273,7 +1306,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg98 timeSinceAccessThreshold3(long timeSinceAccessThreshold3) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg101 timeSinceAccessThreshold3(long timeSinceAccessThreshold3) {
             this.timeSinceAccessThreshold3 = timeSinceAccessThreshold3;
             return this;
         }
@@ -1284,7 +1317,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg97 timeSinceAccessThreshold2(long timeSinceAccessThreshold2) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg100 timeSinceAccessThreshold2(long timeSinceAccessThreshold2) {
             this.timeSinceAccessThreshold2 = timeSinceAccessThreshold2;
             return this;
         }
@@ -1295,7 +1328,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg96 timeSinceAccessThreshold1(long timeSinceAccessThreshold1) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg99 timeSinceAccessThreshold1(long timeSinceAccessThreshold1) {
             this.timeSinceAccessThreshold1 = timeSinceAccessThreshold1;
             return this;
         }
@@ -1306,7 +1339,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg95 fullCycleCountAboveAllThresholds(long fullCycleCountAboveAllThresholds) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg98 fullCycleCountAboveAllThresholds(long fullCycleCountAboveAllThresholds) {
             this.fullCycleCountAboveAllThresholds = fullCycleCountAboveAllThresholds;
             return this;
         }
@@ -1317,7 +1350,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg94 fullCycleCountThreshold5(long fullCycleCountThreshold5) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg97 fullCycleCountThreshold5(long fullCycleCountThreshold5) {
             this.fullCycleCountThreshold5 = fullCycleCountThreshold5;
             return this;
         }
@@ -1328,7 +1361,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg93 fullCycleCountThreshold4(long fullCycleCountThreshold4) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg96 fullCycleCountThreshold4(long fullCycleCountThreshold4) {
             this.fullCycleCountThreshold4 = fullCycleCountThreshold4;
             return this;
         }
@@ -1339,7 +1372,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg92 fullCycleCountThreshold3(long fullCycleCountThreshold3) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg95 fullCycleCountThreshold3(long fullCycleCountThreshold3) {
             this.fullCycleCountThreshold3 = fullCycleCountThreshold3;
             return this;
         }
@@ -1350,7 +1383,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91 fullCycleCountThreshold2(long fullCycleCountThreshold2) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg94 fullCycleCountThreshold2(long fullCycleCountThreshold2) {
             this.fullCycleCountThreshold2 = fullCycleCountThreshold2;
             return this;
         }
@@ -1361,7 +1394,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90 fullCycleCountThreshold1(long fullCycleCountThreshold1) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg93 fullCycleCountThreshold1(long fullCycleCountThreshold1) {
             this.fullCycleCountThreshold1 = fullCycleCountThreshold1;
             return this;
         }
@@ -1373,7 +1406,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89 lastFatalLoggedMsgText(@Nullable String lastFatalLoggedMsgText) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg92 lastFatalLoggedMsgText(@Nullable String lastFatalLoggedMsgText) {
             this.lastFatalLoggedMsgText = lastFatalLoggedMsgText;
             return this;
         }
@@ -1384,7 +1417,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88 lastFatalMsgTimestamp(long lastFatalMsgTimestamp) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg91 lastFatalMsgTimestamp(long lastFatalMsgTimestamp) {
             this.lastFatalMsgTimestamp = lastFatalMsgTimestamp;
             return this;
         }
@@ -1396,7 +1429,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87 lastErrorLoggedMsgText(@Nullable String lastErrorLoggedMsgText) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg90 lastErrorLoggedMsgText(@Nullable String lastErrorLoggedMsgText) {
             this.lastErrorLoggedMsgText = lastErrorLoggedMsgText;
             return this;
         }
@@ -1407,7 +1440,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86 lastErrorMsgTimestamp(long lastErrorMsgTimestamp) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg89 lastErrorMsgTimestamp(long lastErrorMsgTimestamp) {
             this.lastErrorMsgTimestamp = lastErrorMsgTimestamp;
             return this;
         }
@@ -1419,7 +1452,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85 lastWarnLoggedMsgText(@Nullable String lastWarnLoggedMsgText) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg88 lastWarnLoggedMsgText(@Nullable String lastWarnLoggedMsgText) {
             this.lastWarnLoggedMsgText = lastWarnLoggedMsgText;
             return this;
         }
@@ -1430,7 +1463,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84 lastWarnMsgTimestamp(long lastWarnMsgTimestamp) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg87 lastWarnMsgTimestamp(long lastWarnMsgTimestamp) {
             this.lastWarnMsgTimestamp = lastWarnMsgTimestamp;
             return this;
         }
@@ -1448,7 +1481,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83 lastLoggedTextMsgPerSeverityOrdinal(@Nullable String[] lastLoggedTextMsgPerSeverityOrdinal) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg86 lastLoggedTextMsgPerSeverityOrdinal(@Nullable String[] lastLoggedTextMsgPerSeverityOrdinal) {
             this.lastLoggedTextMsgPerSeverityOrdinal = lastLoggedTextMsgPerSeverityOrdinal;
             return this;
         }
@@ -1466,7 +1499,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82 lastTimestampMsgPerSeverityOrdinal(long[] lastTimestampMsgPerSeverityOrdinal) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg85 lastTimestampMsgPerSeverityOrdinal(long[] lastTimestampMsgPerSeverityOrdinal) {
             this.lastTimestampMsgPerSeverityOrdinal = lastTimestampMsgPerSeverityOrdinal;
             return this;
         }
@@ -1476,7 +1509,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81 msgTotalErrorOrHigherCount(long msgTotalErrorOrHigherCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg84 msgTotalErrorOrHigherCount(long msgTotalErrorOrHigherCount) {
             this.msgTotalErrorOrHigherCount = msgTotalErrorOrHigherCount;
             return this;
         }
@@ -1486,7 +1519,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80 msgTotalWarnOrHigherCount(long msgTotalWarnOrHigherCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg83 msgTotalWarnOrHigherCount(long msgTotalWarnOrHigherCount) {
             this.msgTotalWarnOrHigherCount = msgTotalWarnOrHigherCount;
             return this;
         }
@@ -1497,7 +1530,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79 msgFatalCount(long msgFatalCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg82 msgFatalCount(long msgFatalCount) {
             this.msgFatalCount = msgFatalCount;
             return this;
         }
@@ -1510,7 +1543,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78 msgErrorCount(long msgErrorCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg81 msgErrorCount(long msgErrorCount) {
             this.msgErrorCount = msgErrorCount;
             return this;
         }
@@ -1524,7 +1557,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77 msgExternalDataLossCount(long msgExternalDataLossCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg80 msgExternalDataLossCount(long msgExternalDataLossCount) {
             this.msgExternalDataLossCount = msgExternalDataLossCount;
             return this;
         }
@@ -1537,7 +1570,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76 msgExternalErrorCount(long msgExternalErrorCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg79 msgExternalErrorCount(long msgExternalErrorCount) {
             this.msgExternalErrorCount = msgExternalErrorCount;
             return this;
         }
@@ -1549,7 +1582,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75 msgExternalWarnCount(long msgExternalWarnCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg78 msgExternalWarnCount(long msgExternalWarnCount) {
             this.msgExternalWarnCount = msgExternalWarnCount;
             return this;
         }
@@ -1563,7 +1596,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74 msgWarnCount(long msgWarnCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg77 msgWarnCount(long msgWarnCount) {
             this.msgWarnCount = msgWarnCount;
             return this;
         }
@@ -1574,7 +1607,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73 cacheWriteTooManyUpdates(long cacheWriteTooManyUpdates) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg76 cacheWriteTooManyUpdates(long cacheWriteTooManyUpdates) {
             this.cacheWriteTooManyUpdates = cacheWriteTooManyUpdates;
             return this;
         }
@@ -1584,7 +1617,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72 cacheWriteErrors(long cacheWriteErrors) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg75 cacheWriteErrors(long cacheWriteErrors) {
             this.cacheWriteErrors = cacheWriteErrors;
             return this;
         }
@@ -1594,7 +1627,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg71 cacheWriteElementNotPresentCount(long cacheWriteElementNotPresentCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg74 cacheWriteElementNotPresentCount(long cacheWriteElementNotPresentCount) {
             this.cacheWriteElementNotPresentCount = cacheWriteElementNotPresentCount;
             return this;
         }
@@ -1604,7 +1637,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg70 cacheWriteAttempts(long cacheWriteAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg73 cacheWriteAttempts(long cacheWriteAttempts) {
             this.cacheWriteAttempts = cacheWriteAttempts;
             return this;
         }
@@ -1614,7 +1647,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg69 cacheReadErrors(long cacheReadErrors) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg72 cacheReadErrors(long cacheReadErrors) {
             this.cacheReadErrors = cacheReadErrors;
             return this;
         }
@@ -1624,7 +1657,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg68 cacheReadInterrupts(long cacheReadInterrupts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg71 cacheReadInterrupts(long cacheReadInterrupts) {
             this.cacheReadInterrupts = cacheReadInterrupts;
             return this;
         }
@@ -1634,7 +1667,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg67 cacheReadTimeouts(long cacheReadTimeouts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg70 cacheReadTimeouts(long cacheReadTimeouts) {
             this.cacheReadTimeouts = cacheReadTimeouts;
             return this;
         }
@@ -1644,7 +1677,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg66 cacheReadAttempts(long cacheReadAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg69 cacheReadAttempts(long cacheReadAttempts) {
             this.cacheReadAttempts = cacheReadAttempts;
             return this;
         }
@@ -1654,7 +1687,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg65 checkCacheNullKeyCount(long checkCacheNullKeyCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg68 checkCacheNullKeyCount(long checkCacheNullKeyCount) {
             this.checkCacheNullKeyCount = checkCacheNullKeyCount;
             return this;
         }
@@ -1664,7 +1697,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg64 checkCacheTotalCacheFullExceptionCount(long checkCacheTotalCacheFullExceptionCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg67 checkCacheTotalCacheFullExceptionCount(long checkCacheTotalCacheFullExceptionCount) {
             this.checkCacheTotalCacheFullExceptionCount = checkCacheTotalCacheFullExceptionCount;
             return this;
         }
@@ -1674,7 +1707,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg63 checkCacheReadCacheFullExceptionCount(long checkCacheReadCacheFullExceptionCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg66 checkCacheReadCacheFullExceptionCount(long checkCacheReadCacheFullExceptionCount) {
             this.checkCacheReadCacheFullExceptionCount = checkCacheReadCacheFullExceptionCount;
             return this;
         }
@@ -1684,7 +1717,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg62 checkCacheReadCacheHit(long checkCacheReadCacheHit) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg65 checkCacheReadCacheHit(long checkCacheReadCacheHit) {
             this.checkCacheReadCacheHit = checkCacheReadCacheHit;
             return this;
         }
@@ -1694,7 +1727,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg61 checkCacheReadAttempts(long checkCacheReadAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg64 checkCacheReadAttempts(long checkCacheReadAttempts) {
             this.checkCacheReadAttempts = checkCacheReadAttempts;
             return this;
         }
@@ -1704,7 +1737,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg60 checkCachePreloadCacheFullExceptionCount(long checkCachePreloadCacheFullExceptionCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg63 checkCachePreloadCacheFullExceptionCount(long checkCachePreloadCacheFullExceptionCount) {
             this.checkCachePreloadCacheFullExceptionCount = checkCachePreloadCacheFullExceptionCount;
             return this;
         }
@@ -1714,7 +1747,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg59 checkCachePreloadCacheHit(long checkCachePreloadCacheHit) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg62 checkCachePreloadCacheHit(long checkCachePreloadCacheHit) {
             this.checkCachePreloadCacheHit = checkCachePreloadCacheHit;
             return this;
         }
@@ -1724,7 +1757,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58 checkCachePreloadAttempts(long checkCachePreloadAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg61 checkCachePreloadAttempts(long checkCachePreloadAttempts) {
             this.checkCachePreloadAttempts = checkCachePreloadAttempts;
             return this;
         }
@@ -1738,7 +1771,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57 checkCacheAttemptsNoDedup(long checkCacheAttemptsNoDedup) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg60 checkCacheAttemptsNoDedup(long checkCacheAttemptsNoDedup) {
             this.checkCacheAttemptsNoDedup = checkCacheAttemptsNoDedup;
             return this;
         }
@@ -1750,7 +1783,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56 returnQueueItemNotRetainedDueToMainQueueSizeCount(long returnQueueItemNotRetainedDueToMainQueueSizeCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg59 returnQueueItemNotRetainedDueToMainQueueSizeCount(long returnQueueItemNotRetainedDueToMainQueueSizeCount) {
             this.returnQueueItemNotRetainedDueToMainQueueSizeCount = returnQueueItemNotRetainedDueToMainQueueSizeCount;
             return this;
         }
@@ -1764,7 +1797,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55 returnQueueNegativeTimeSinceLastAccessErrorCount(long returnQueueNegativeTimeSinceLastAccessErrorCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg58 returnQueueNegativeTimeSinceLastAccessErrorCount(long returnQueueNegativeTimeSinceLastAccessErrorCount) {
             this.returnQueueNegativeTimeSinceLastAccessErrorCount = returnQueueNegativeTimeSinceLastAccessErrorCount;
             return this;
         }
@@ -1775,7 +1808,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54 returnQueueRequeueToReturnQueueCount(long returnQueueRequeueToReturnQueueCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg57 returnQueueRequeueToReturnQueueCount(long returnQueueRequeueToReturnQueueCount) {
             this.returnQueueRequeueToReturnQueueCount = returnQueueRequeueToReturnQueueCount;
             return this;
         }
@@ -1786,7 +1819,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53 returnQueueRemovedFromCacheCount(long returnQueueRemovedFromCacheCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg56 returnQueueRemovedFromCacheCount(long returnQueueRemovedFromCacheCount) {
             this.returnQueueRemovedFromCacheCount = returnQueueRemovedFromCacheCount;
             return this;
         }
@@ -1796,7 +1829,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52 returnQueueExpiredFromCacheCount(long returnQueueExpiredFromCacheCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg55 returnQueueExpiredFromCacheCount(long returnQueueExpiredFromCacheCount) {
             this.returnQueueExpiredFromCacheCount = returnQueueExpiredFromCacheCount;
             return this;
         }
@@ -1808,7 +1841,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51 returnQueueDoNothingCount(long returnQueueDoNothingCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg54 returnQueueDoNothingCount(long returnQueueDoNothingCount) {
             this.returnQueueDoNothingCount = returnQueueDoNothingCount;
             return this;
         }
@@ -1818,7 +1851,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50 returnQueueScheduledResyncs(long returnQueueScheduledResyncs) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg53 returnQueueScheduledResyncs(long returnQueueScheduledResyncs) {
             this.returnQueueScheduledResyncs = returnQueueScheduledResyncs;
             return this;
         }
@@ -1829,7 +1862,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49 returnQueueLastItemInQueueDurationMs(long returnQueueLastItemInQueueDurationMs) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg52 returnQueueLastItemInQueueDurationMs(long returnQueueLastItemInQueueDurationMs) {
             this.returnQueueLastItemInQueueDurationMs = returnQueueLastItemInQueueDurationMs;
             return this;
         }
@@ -1839,7 +1872,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48 returnQueueProcessedItems(long returnQueueProcessedItems) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg51 returnQueueProcessedItems(long returnQueueProcessedItems) {
             this.returnQueueProcessedItems = returnQueueProcessedItems;
             return this;
         }
@@ -1849,7 +1882,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47 mainQueueNotAllOkCount(long mainQueueNotAllOkCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg50 mainQueueNotAllOkCount(long mainQueueNotAllOkCount) {
             this.mainQueueNotAllOkCount = mainQueueNotAllOkCount;
             return this;
         }
@@ -1860,7 +1893,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46 mainQueueRequeueToMainQueueCount(long mainQueueRequeueToMainQueueCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg49 mainQueueRequeueToMainQueueCount(long mainQueueRequeueToMainQueueCount) {
             this.mainQueueRequeueToMainQueueCount = mainQueueRequeueToMainQueueCount;
             return this;
         }
@@ -1872,7 +1905,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45 mainQueueRemovedFromCacheCount(long mainQueueRemovedFromCacheCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg48 mainQueueRemovedFromCacheCount(long mainQueueRemovedFromCacheCount) {
             this.mainQueueRemovedFromCacheCount = mainQueueRemovedFromCacheCount;
             return this;
         }
@@ -1884,7 +1917,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44 mainQueueExpiredFromCacheCount(long mainQueueExpiredFromCacheCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg47 mainQueueExpiredFromCacheCount(long mainQueueExpiredFromCacheCount) {
             this.mainQueueExpiredFromCacheCount = mainQueueExpiredFromCacheCount;
             return this;
         }
@@ -1894,7 +1927,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43 mainQueueSentWrites(long mainQueueSentWrites) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg46 mainQueueSentWrites(long mainQueueSentWrites) {
             this.mainQueueSentWrites = mainQueueSentWrites;
             return this;
         }
@@ -1905,7 +1938,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42 mainQueueLastItemInQueueDurationMs(long mainQueueLastItemInQueueDurationMs) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg45 mainQueueLastItemInQueueDurationMs(long mainQueueLastItemInQueueDurationMs) {
             this.mainQueueLastItemInQueueDurationMs = mainQueueLastItemInQueueDurationMs;
             return this;
         }
@@ -1915,7 +1948,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41 mainQueueProcessedItems(long mainQueueProcessedItems) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg44 mainQueueProcessedItems(long mainQueueProcessedItems) {
             this.mainQueueProcessedItems = mainQueueProcessedItems;
             return this;
         }
@@ -1925,7 +1958,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg40 storageWriteFailures(long storageWriteFailures) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg43 storageWriteFailures(long storageWriteFailures) {
             this.storageWriteFailures = storageWriteFailures;
             return this;
         }
@@ -1935,7 +1968,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg39 storageWriteSuccesses(long storageWriteSuccesses) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg42 storageWriteSuccesses(long storageWriteSuccesses) {
             this.storageWriteSuccesses = storageWriteSuccesses;
             return this;
         }
@@ -1945,7 +1978,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg38 storageWriteAttempts(long storageWriteAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg41 storageWriteAttempts(long storageWriteAttempts) {
             this.storageWriteAttempts = storageWriteAttempts;
             return this;
         }
@@ -1955,7 +1988,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg37 storageWriteQueueProcessedItems(long storageWriteQueueProcessedItems) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg40 storageWriteQueueProcessedItems(long storageWriteQueueProcessedItems) {
             this.storageWriteQueueProcessedItems = storageWriteQueueProcessedItems;
             return this;
         }
@@ -1965,7 +1998,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg36 storageReadInitialFailures(long storageReadInitialFailures) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg39 storageReadInitialFailures(long storageReadInitialFailures) {
             this.storageReadInitialFailures = storageReadInitialFailures;
             return this;
         }
@@ -1975,7 +2008,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg35 storageReadInitialSuccesses(long storageReadInitialSuccesses) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg38 storageReadInitialSuccesses(long storageReadInitialSuccesses) {
             this.storageReadInitialSuccesses = storageReadInitialSuccesses;
             return this;
         }
@@ -1985,7 +2018,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg34 storageReadInitialAttempts(long storageReadInitialAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg37 storageReadInitialAttempts(long storageReadInitialAttempts) {
             this.storageReadInitialAttempts = storageReadInitialAttempts;
             return this;
         }
@@ -1996,7 +2029,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg33 storageReadRefreshDataNotUsedCount(long storageReadRefreshDataNotUsedCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg36 storageReadRefreshDataNotUsedCount(long storageReadRefreshDataNotUsedCount) {
             this.storageReadRefreshDataNotUsedCount = storageReadRefreshDataNotUsedCount;
             return this;
         }
@@ -2006,7 +2039,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg32 storageReadRefreshTooLateCount(long storageReadRefreshTooLateCount) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg35 storageReadRefreshTooLateCount(long storageReadRefreshTooLateCount) {
             this.storageReadRefreshTooLateCount = storageReadRefreshTooLateCount;
             return this;
         }
@@ -2016,7 +2049,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg31 storageReadRefreshFailures(long storageReadRefreshFailures) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg34 storageReadRefreshFailures(long storageReadRefreshFailures) {
             this.storageReadRefreshFailures = storageReadRefreshFailures;
             return this;
         }
@@ -2026,7 +2059,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg30 storageReadRefreshSuccesses(long storageReadRefreshSuccesses) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg33 storageReadRefreshSuccesses(long storageReadRefreshSuccesses) {
             this.storageReadRefreshSuccesses = storageReadRefreshSuccesses;
             return this;
         }
@@ -2036,7 +2069,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg29 storageReadRefreshAttempts(long storageReadRefreshAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg32 storageReadRefreshAttempts(long storageReadRefreshAttempts) {
             this.storageReadRefreshAttempts = storageReadRefreshAttempts;
             return this;
         }
@@ -2046,7 +2079,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg28 storageReadTotalFailures(long storageReadTotalFailures) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg31 storageReadTotalFailures(long storageReadTotalFailures) {
             this.storageReadTotalFailures = storageReadTotalFailures;
             return this;
         }
@@ -2056,7 +2089,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg27 storageReadTotalSuccesses(long storageReadTotalSuccesses) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg30 storageReadTotalSuccesses(long storageReadTotalSuccesses) {
             this.storageReadTotalSuccesses = storageReadTotalSuccesses;
             return this;
         }
@@ -2066,7 +2099,7 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg26 storageReadTotalAttempts(long storageReadTotalAttempts) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg29 storageReadTotalAttempts(long storageReadTotalAttempts) {
             this.storageReadTotalAttempts = storageReadTotalAttempts;
             return this;
         }
@@ -2076,8 +2109,38 @@ public class WBRBStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg25 storageReadQueueProcessedItems(long storageReadQueueProcessedItems) {
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg28 storageReadQueueProcessedItems(long storageReadQueueProcessedItems) {
             this.storageReadQueueProcessedItems = storageReadQueueProcessedItems;
+            return this;
+        }
+
+        /**
+         * The value of the highest threshold in {@link WBRBConfig#getMonitoringTimeSinceAccessThresholds()}
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg27 configMonitoringTimeSinceAccessThresholdMax(long configMonitoringTimeSinceAccessThresholdMax) {
+            this.configMonitoringTimeSinceAccessThresholdMax = configMonitoringTimeSinceAccessThresholdMax;
+            return this;
+        }
+
+        /**
+         * The value of the highest threshold in {@link WBRBConfig#getMonitoringFullCacheCyclesThresholds()}
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg26 configMonitoringFullCacheCyclesThresholdMax(int configMonitoringFullCacheCyclesThresholdMax) {
+            this.configMonitoringFullCacheCyclesThresholdMax = configMonitoringFullCacheCyclesThresholdMax;
+            return this;
+        }
+
+        /**
+         * 'untouched' item cache expiration delay (as configured)
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_WBRBStatusBuilder_statusCreatedAt_arg25 configUntouchedItemCacheExpirationDelay(long configUntouchedItemCacheExpirationDelay) {
+            this.configUntouchedItemCacheExpirationDelay = configUntouchedItemCacheExpirationDelay;
             return this;
         }
 
@@ -2318,7 +2381,7 @@ public class WBRBStatusBuilder {
         @Override
         @SuppressWarnings("all")
         public WBRBStatus buildWBRBStatus() {
-            return new WBRBStatus(statusCreatedAt, cacheAlive, cacheUsable, cacheControlState, cacheControlStateString, readQueueProcessingThreadAlive, writeQueueProcessingThreadAlive, mainQueueProcessingThreadAlive, returnQueueProcessingThreadAlive, readThreadPoolAlive, writeThreadPoolAlive, readThreadPoolActiveThreads, writeThreadPoolActiveThreads, everythingAlive, currentCacheSize, mainQueueSize, returnQueueSize, readQueueSize, writeQueueSize, configMainQueueCacheTimeMs, configReturnQueueCacheTimeMinMs, configMainQueueMaxTargetSize, configMaxCacheElementsHardLimit, storageReadQueueProcessedItems, storageReadTotalAttempts, storageReadTotalSuccesses, storageReadTotalFailures, storageReadRefreshAttempts, storageReadRefreshSuccesses, storageReadRefreshFailures, storageReadRefreshTooLateCount, storageReadRefreshDataNotUsedCount, storageReadInitialAttempts, storageReadInitialSuccesses, storageReadInitialFailures, storageWriteQueueProcessedItems, storageWriteAttempts, storageWriteSuccesses, storageWriteFailures, mainQueueProcessedItems, mainQueueLastItemInQueueDurationMs, mainQueueSentWrites, mainQueueExpiredFromCacheCount, mainQueueRemovedFromCacheCount, mainQueueRequeueToMainQueueCount, mainQueueNotAllOkCount, returnQueueProcessedItems, returnQueueLastItemInQueueDurationMs, returnQueueScheduledResyncs, returnQueueDoNothingCount, returnQueueExpiredFromCacheCount, returnQueueRemovedFromCacheCount, returnQueueRequeueToReturnQueueCount, returnQueueNegativeTimeSinceLastAccessErrorCount, returnQueueItemNotRetainedDueToMainQueueSizeCount, checkCacheAttemptsNoDedup, checkCachePreloadAttempts, checkCachePreloadCacheHit, checkCachePreloadCacheFullExceptionCount, checkCacheReadAttempts, checkCacheReadCacheHit, checkCacheReadCacheFullExceptionCount, checkCacheTotalCacheFullExceptionCount, checkCacheNullKeyCount, cacheReadAttempts, cacheReadTimeouts, cacheReadInterrupts, cacheReadErrors, cacheWriteAttempts, cacheWriteElementNotPresentCount, cacheWriteErrors, cacheWriteTooManyUpdates, msgWarnCount, msgExternalWarnCount, msgExternalErrorCount, msgExternalDataLossCount, msgErrorCount, msgFatalCount, msgTotalWarnOrHigherCount, msgTotalErrorOrHigherCount, lastTimestampMsgPerSeverityOrdinal, lastLoggedTextMsgPerSeverityOrdinal, lastWarnMsgTimestamp, lastWarnLoggedMsgText, lastErrorMsgTimestamp, lastErrorLoggedMsgText, lastFatalMsgTimestamp, lastFatalLoggedMsgText, fullCycleCountThreshold1, fullCycleCountThreshold2, fullCycleCountThreshold3, fullCycleCountThreshold4, fullCycleCountThreshold5, fullCycleCountAboveAllThresholds, timeSinceAccessThreshold1, timeSinceAccessThreshold2, timeSinceAccessThreshold3, timeSinceAccessThreshold4, timeSinceAccessThreshold5, timeSinceAccessThresholdAboveAllThresholds);
+            return new WBRBStatus(statusCreatedAt, cacheAlive, cacheUsable, cacheControlState, cacheControlStateString, readQueueProcessingThreadAlive, writeQueueProcessingThreadAlive, mainQueueProcessingThreadAlive, returnQueueProcessingThreadAlive, readThreadPoolAlive, writeThreadPoolAlive, readThreadPoolActiveThreads, writeThreadPoolActiveThreads, everythingAlive, currentCacheSize, mainQueueSize, returnQueueSize, readQueueSize, writeQueueSize, configMainQueueCacheTimeMs, configReturnQueueCacheTimeMinMs, configMainQueueMaxTargetSize, configMaxCacheElementsHardLimit, configUntouchedItemCacheExpirationDelay, configMonitoringFullCacheCyclesThresholdMax, configMonitoringTimeSinceAccessThresholdMax, storageReadQueueProcessedItems, storageReadTotalAttempts, storageReadTotalSuccesses, storageReadTotalFailures, storageReadRefreshAttempts, storageReadRefreshSuccesses, storageReadRefreshFailures, storageReadRefreshTooLateCount, storageReadRefreshDataNotUsedCount, storageReadInitialAttempts, storageReadInitialSuccesses, storageReadInitialFailures, storageWriteQueueProcessedItems, storageWriteAttempts, storageWriteSuccesses, storageWriteFailures, mainQueueProcessedItems, mainQueueLastItemInQueueDurationMs, mainQueueSentWrites, mainQueueExpiredFromCacheCount, mainQueueRemovedFromCacheCount, mainQueueRequeueToMainQueueCount, mainQueueNotAllOkCount, returnQueueProcessedItems, returnQueueLastItemInQueueDurationMs, returnQueueScheduledResyncs, returnQueueDoNothingCount, returnQueueExpiredFromCacheCount, returnQueueRemovedFromCacheCount, returnQueueRequeueToReturnQueueCount, returnQueueNegativeTimeSinceLastAccessErrorCount, returnQueueItemNotRetainedDueToMainQueueSizeCount, checkCacheAttemptsNoDedup, checkCachePreloadAttempts, checkCachePreloadCacheHit, checkCachePreloadCacheFullExceptionCount, checkCacheReadAttempts, checkCacheReadCacheHit, checkCacheReadCacheFullExceptionCount, checkCacheTotalCacheFullExceptionCount, checkCacheNullKeyCount, cacheReadAttempts, cacheReadTimeouts, cacheReadInterrupts, cacheReadErrors, cacheWriteAttempts, cacheWriteElementNotPresentCount, cacheWriteErrors, cacheWriteTooManyUpdates, msgWarnCount, msgExternalWarnCount, msgExternalErrorCount, msgExternalDataLossCount, msgErrorCount, msgFatalCount, msgTotalWarnOrHigherCount, msgTotalErrorOrHigherCount, lastTimestampMsgPerSeverityOrdinal, lastLoggedTextMsgPerSeverityOrdinal, lastWarnMsgTimestamp, lastWarnLoggedMsgText, lastErrorMsgTimestamp, lastErrorLoggedMsgText, lastFatalMsgTimestamp, lastFatalLoggedMsgText, fullCycleCountThreshold1, fullCycleCountThreshold2, fullCycleCountThreshold3, fullCycleCountThreshold4, fullCycleCountThreshold5, fullCycleCountAboveAllThresholds, timeSinceAccessThreshold1, timeSinceAccessThreshold2, timeSinceAccessThreshold3, timeSinceAccessThreshold4, timeSinceAccessThreshold5, timeSinceAccessThresholdAboveAllThresholds);
         }
     }
 
