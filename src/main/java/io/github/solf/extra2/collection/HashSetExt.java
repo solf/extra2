@@ -66,7 +66,7 @@ public class HashSetExt<E> extends HashSet<E> implements SetExt<E>
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.collection.ExtendedSet#get(java.lang.Object)
+	 * @see io.github.solf.extra2.collection.ExtendedSet#get(java.lang.Object)
 	 */
 	@Override
 	public @Nullable E get(E item)

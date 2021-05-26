@@ -37,7 +37,7 @@ import io.github.solf.extra2.io.CompressedBlockInputStream;
 import io.github.solf.extra2.io.CompressedBlockOutputStream;
 
 /**
- * Tests for com.github.solf.extra2.io
+ * Tests for io.github.solf.extra2.io
  *
  * @author Sergey Olefir
  */

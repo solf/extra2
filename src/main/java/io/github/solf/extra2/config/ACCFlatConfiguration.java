@@ -63,7 +63,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.FlatConfiguration#getString(java.lang.String)
+	 * @see io.github.solf.extra2.config.FlatConfiguration#getString(java.lang.String)
 	 */
 	@Override
 	public String getString(String key)
@@ -83,7 +83,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.FlatConfiguration#getAllKeys()
+	 * @see io.github.solf.extra2.config.FlatConfiguration#getAllKeys()
 	 */
 	@Override
 	public Iterable<String> getAllKeys()

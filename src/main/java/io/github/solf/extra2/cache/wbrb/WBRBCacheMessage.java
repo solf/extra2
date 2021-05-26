@@ -507,7 +507,7 @@ public enum WBRBCacheMessage
 	FLUSH_SUCCESFULLY_COMPLETED(INFO),
 	
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockReadFromStorage(Object, boolean, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockReadFromStorage(Object, boolean, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
@@ -519,62 +519,62 @@ public enum WBRBCacheMessage
 	 */
 	SPI_EXCEPTION_ReadBatchDelayExpired(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMergeDecision(Object, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMergeDecision(Object, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMergeDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeInitialReadFailedFinalDecision(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeInitialReadFailedFinalDecision(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeInitialReadFailedFinalDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeResyncFailedFinalDecision(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeResyncFailedFinalDecision(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeResyncFailedFinalDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockUpdates_reset(boolean, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockUpdates_reset(boolean, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_Updates_reset(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockUpdates_collect(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload, Object)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockUpdates_collect(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload, Object)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_Updates_collect(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockUpdates_isMergePossible(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload, com.github.solf.extra2.nullable.NullableOptional)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockUpdates_isMergePossible(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload, io.github.solf.extra2.nullable.NullableOptional)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_Updates_isMergePossible(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReadRetryDecision(Throwable, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReadRetryDecision(Throwable, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeReadRetryDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockGetReadQueueProcessorLock(com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockGetReadQueueProcessorLock(io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_GetReadQueueProcessorLock(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiSomeLockMakeReadQueueProcessingDecision(Object, WBRBCacheEntryStatus, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiSomeLockMakeReadQueueProcessingDecision(Object, WBRBCacheEntryStatus, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeReadQueueProcessingDecision(EXTERNAL_DATA_LOSS),
 	
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockWriteToStorage(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockWriteToStorage(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
@@ -586,98 +586,98 @@ public enum WBRBCacheMessage
 	 */
 	SPI_EXCEPTION_WriteBatchDelayExpired(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockMakeWriteQueueProcessingDecision(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiNoLockMakeWriteQueueProcessingDecision(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeWriteQueueProcessingDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReadRetryDecision(Throwable, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReadRetryDecision(Throwable, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeWriteRetryDecision(EXTERNAL_DATA_LOSS),
 	
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_ResyncFailedFinal(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_ResyncFailedFinal(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMainQueueProcessingDecision_ResyncFailedFinal(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_ResyncPending(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_ResyncPending(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMainQueueProcessingDecision_ResyncPending(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_WriteFailedFinal(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_WriteFailedFinal(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMainQueueProcessingDecision_WriteFailedFinal(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_WritePending(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_WritePending(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMainQueueProcessingDecision_WritePending(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMainQueueProcessingDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_isResetFailureCounts(boolean, WBRBMainQueueItemCacheRetainDecision, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_isResetFailureCounts(boolean, WBRBMainQueueItemCacheRetainDecision, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMainQueueProcessingDecision_isResetFailureCounts(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_logNonStandardOutcome(boolean, WBRBMainQueueItemCacheRetainDecision, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeMainQueueProcessingDecision_logNonStandardOutcome(boolean, WBRBMainQueueItemCacheRetainDecision, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeMainQueueProcessingDecision_logNonStandardOutcome(EXTERNAL_ERROR),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeReturnQueueProcessingDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_WriteFailedFinal(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_WriteFailedFinal(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeReturnQueueProcessingDecision_WriteFailedFinal(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_WritePending(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_WritePending(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeReturnQueueProcessingDecision_WritePending(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_WriteOk(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_WriteOk(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeReturnQueueProcessingDecision_WriteOk(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_logNonStandardOutcome(boolean, WBRBReturnQueueItemProcessingDecision, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeReturnQueueProcessingDecision_logNonStandardOutcome(boolean, WBRBReturnQueueItemProcessingDecision, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeReturnQueueProcessingDecision_logNonStandardOutcome(EXTERNAL_ERROR),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiReadLockMakeCacheReadDecision(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiReadLockMakeCacheReadDecision(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
 	SPI_EXCEPTION_MakeCacheReadDecision(EXTERNAL_DATA_LOSS),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeCacheWriteDecision(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiWriteLockMakeCacheWriteDecision(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * <p>
 	 * Arguments: exception, key
 	 */
@@ -689,7 +689,7 @@ public enum WBRBCacheMessage
 	 */
 	SPI_EXCEPTION_LogMessage(ERROR),
 	/**
-	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiUnknownLock_Event(com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBEvent, Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload, Throwable, Object...)
+	 * Indicates exception in {@link WriteBehindResyncInBackgroundCache#spiUnknownLock_Event(io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBEvent, Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload, Throwable, Object...)
 	 * <p>
 	 * Arguments: exception
 	 */

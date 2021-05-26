@@ -53,11 +53,11 @@ public class StackTrace
 	
 	/**
 	 * Checks whether stack trace invocation printing is requested on JVM level
-	 * via -Dcom.github.solf.extra2.debug.showInvocationTraces=true
+	 * via -Dio.github.solf.extra2.debug.showInvocationTraces=true
 	 */
 	public static boolean isShowInvocationTrace()
 	{
-		return "true".equals(System.getProperty("com.github.solf.extra2.debug.showInvocationTraces"));
+		return "true".equals(System.getProperty("io.github.solf.extra2.debug.showInvocationTraces"));
 	}
 	
 	/**
@@ -133,7 +133,7 @@ public class StackTrace
 	/**
 	 * Gets condensed (one-line) stack trace for the exception.
 	 * Format is something like:
-	 * com.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; com.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
+	 * io.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; io.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
 	 * (i.e. it only lists line numbers while they are in the same class).
 	 * 
 	 * @param e exception to prepare stack trace for, if null, it'll create new
@@ -159,7 +159,7 @@ public class StackTrace
 	/**
 	 * Gets condensed (one-line) stack trace for the exception.
 	 * Format is something like:
-	 * com.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; com.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
+	 * io.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; io.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
 	 * (i.e. it only lists line numbers while they are in the same class).
 	 * 
 	 * @param e exception to prepare stack trace for, if null, it'll create new

@@ -66,7 +66,7 @@ public class MergingSectionedConfiguration implements SectionedConfiguration
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getGlobalSection()
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getGlobalSection()
 	 */
 	@Override
 	public FlatConfiguration getGlobalSection()
@@ -77,7 +77,7 @@ public class MergingSectionedConfiguration implements SectionedConfiguration
 
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getSection(java.lang.String)
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getSection(java.lang.String)
 	 */
 	@Override
 	public FlatConfiguration getSection(String sectionKey)

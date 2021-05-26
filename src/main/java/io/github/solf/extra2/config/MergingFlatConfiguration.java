@@ -61,7 +61,7 @@ public class MergingFlatConfiguration implements FlatConfiguration
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.FlatConfiguration#getString(java.lang.String)
+	 * @see io.github.solf.extra2.config.FlatConfiguration#getString(java.lang.String)
 	 */
 	@Override
 	public @Nonnull String getString(@Nonnull String key)
@@ -82,7 +82,7 @@ public class MergingFlatConfiguration implements FlatConfiguration
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.FlatConfiguration#getAllKeys()
+	 * @see io.github.solf.extra2.config.FlatConfiguration#getAllKeys()
 	 */
 	@Override
 	public @Nonnull Iterable<@Nonnull String> getAllKeys()

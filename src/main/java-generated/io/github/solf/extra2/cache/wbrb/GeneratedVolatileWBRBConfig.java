@@ -90,7 +90,7 @@ public class GeneratedVolatileWBRBConfig extends WBRBConfig
 	public long getUntouchedItemCacheExpirationDelay() {return v_untouchedItemCacheExpirationDelay;}
 	public void setUntouchedItemCacheExpirationDelay(long newValue) {v_untouchedItemCacheExpirationDelay = newValue;}
 	
-	/** Whether cache can merge writes -- specifically if some background write has failed AND there are new updates to the cache value, can cache produce a single write data that merges these values in {@link WriteBehindResyncInBackgroundCache#splitForWrite(Object, Object, com.github.solf.extra2.nullable.NullableOptional)}; if not, then previously failed write can only be re-attempted by itself (thus delaying when further in-memory updates will be written out) */
+	/** Whether cache can merge writes -- specifically if some background write has failed AND there are new updates to the cache value, can cache produce a single write data that merges these values in {@link WriteBehindResyncInBackgroundCache#splitForWrite(Object, Object, io.github.solf.extra2.nullable.NullableOptional)}; if not, then previously failed write can only be re-attempted by itself (thus delaying when further in-memory updates will be written out) */
 	private volatile boolean v_canMergeWrites = super.isCanMergeWrites();
 	@Override
 	public boolean isCanMergeWrites() {return v_canMergeWrites;}

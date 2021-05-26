@@ -85,7 +85,7 @@ public class TreeMapExt<K, V> extends TreeMap<K, V> implements NavigableMapExt<K
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.collection.ExtendedMap#getEntry(java.lang.Object)
+	 * @see io.github.solf.extra2.collection.ExtendedMap#getEntry(java.lang.Object)
 	 */
 	@Override
 	@Nullable 
@@ -96,7 +96,7 @@ public class TreeMapExt<K, V> extends TreeMap<K, V> implements NavigableMapExt<K
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.collection.MapExt#get(java.lang.Object, java.util.function.Supplier)
+	 * @see io.github.solf.extra2.collection.MapExt#get(java.lang.Object, java.util.function.Supplier)
 	 */
 	@Override
 	public V get(K key, @Nonnull Supplier<@Nonnull V> factory)
@@ -113,7 +113,7 @@ public class TreeMapExt<K, V> extends TreeMap<K, V> implements NavigableMapExt<K
 
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.collection.MapExt#setFactory(java.util.function.Function)
+	 * @see io.github.solf.extra2.collection.MapExt#setFactory(java.util.function.Function)
 	 */
 	@Override
 	public MapExt<K, V> setFactory(Function<K, @Nonnull V> factory)
@@ -124,7 +124,7 @@ public class TreeMapExt<K, V> extends TreeMap<K, V> implements NavigableMapExt<K
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.collection.MapExt#getOrCreate(java.lang.Object)
+	 * @see io.github.solf.extra2.collection.MapExt#getOrCreate(java.lang.Object)
 	 */
 	@Override
 	public V getOrCreate(K key)

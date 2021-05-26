@@ -56,7 +56,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getGlobalSection()
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getGlobalSection()
 	 */
 	@Override
 	public FlatConfiguration getGlobalSection()
@@ -68,7 +68,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getSection(java.lang.String)
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getSection(java.lang.String)
 	 */
 	@Override
 	public FlatConfiguration getSection(String sectionKey)
@@ -93,7 +93,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getAllSectionKeys()
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getAllSectionKeys()
 	 */
 	@Override
 	public Iterable<String> getAllSectionKeys()

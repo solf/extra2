@@ -35,7 +35,7 @@ import io.github.solf.extra2.objectgraph.ObjectGraphVisitor;
 	public final ArrayList<@Nonnull OGRelation> data = new ArrayList<>();
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.objectgraph.ObjectGraphVisitor#visit(java.lang.Object, java.lang.Class, java.lang.String, com.github.solf.extra2.objectgraph.ObjectGraphRelationType, com.github.solf.extra2.objectgraph.ObjectGraphCollectionStep[], java.lang.Object)
+	 * @see io.github.solf.extra2.objectgraph.ObjectGraphVisitor#visit(java.lang.Object, java.lang.Class, java.lang.String, io.github.solf.extra2.objectgraph.ObjectGraphRelationType, io.github.solf.extra2.objectgraph.ObjectGraphCollectionStep[], java.lang.Object)
 	 */
 	@Override
 	public void visit(ObjectGraphRelation relation)

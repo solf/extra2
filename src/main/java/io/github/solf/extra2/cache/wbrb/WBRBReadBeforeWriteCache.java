@@ -83,7 +83,7 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	 * <p>
 	 * If not allowed, then all in-memory updates are lost.
 	 * <p>
-	 * The actual decision is taken in {@link #isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * The actual decision is taken in {@link #isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 */
 	protected final boolean allowWritesWithoutPriorResync;
 	
@@ -180,7 +180,7 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	 * 	(W) and for resyncing cached value (S, which will be converted to R)
 	 * <p>
 	 * - If updates tracking is not available for w/e reason and 
-	 * 	{@link WBRBReadBeforeWriteCache#isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * 	{@link WBRBReadBeforeWriteCache#isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * 	return true, then split is performed in order to separate full in-memory value
 	 * 	to be written and the copy staying in the cache
 	 */
@@ -337,7 +337,7 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	 * 	(W) and for resyncing cached value (S, which will be converted to R)
 	 * <p>
 	 * - If updates tracking is not available for w/e reason and 
-	 * 	{@link WBRBReadBeforeWriteCache#isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * 	{@link WBRBReadBeforeWriteCache#isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 * 	return true, then split is performed in order to separate full in-memory value
 	 * 	to be written and the copy staying in the cache
 	 */
@@ -345,7 +345,7 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 
 	/**
 	 * Default {@link #splitForWrite(Object, Object, NullableOptional)} is not
-	 * used in this cache because it is intercepted in {@link #spiWriteLockSplitForWrite(Object, Object, NullableOptional, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * used in this cache because it is intercepted in {@link #spiWriteLockSplitForWrite(Object, Object, NullableOptional, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 */
 	@Override
 	protected WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WriteSplit splitForWrite(
@@ -362,7 +362,7 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	
 	/**
 	 * {@link WBRBReadBeforeWriteCache} implementation of 
-	 * {@link WriteBehindResyncInBackgroundCache#spiNoLockWriteToStorage(Object, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)} 
+	 * {@link WriteBehindResyncInBackgroundCache#spiNoLockWriteToStorage(Object, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry)} 
 	 * that actually carries out read-before-write resync logic.
 	 */
 	@Override
@@ -412,7 +412,7 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	
 	/**
 	 * Override default implementation to channel everything through
-	 * {@link #spiNoLockReadFromStorageRBW(Object, boolean, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry, WBRBCacheEntry)}
+	 * {@link #spiNoLockReadFromStorageRBW(Object, boolean, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBWriteQueueEntry, WBRBCacheEntry)}
 	 * for more flexibility in implementations.
 	 */
 	@Override
@@ -474,7 +474,7 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	 * Default implementation simply calls {@link #writeToStorageRBW(Object, Object)}
 	 * 
 	 * @param resyncCompleted true if read-resync-before-write was completed,
-	 * 		false otherwise (if just dumping in-memory data); see {@link #isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, com.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
+	 * 		false otherwise (if just dumping in-memory data); see {@link #isAllowWritesWithoutPriorResync(Object, Object, NullableOptional, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry, io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCachePayload)}
 	 */
 	@SuppressWarnings("unused")
 	protected void spiNoLockWriteToStorageRBW(@Nonnull K key, W dataToWrite,

@@ -63,7 +63,7 @@ public class OverrideSectionedConfiguration implements SectionedConfiguration
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getGlobalSection()
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getGlobalSection()
 	 */
 	@Override
 	public OverrideFlatConfiguration getGlobalSection()
@@ -72,7 +72,7 @@ public class OverrideSectionedConfiguration implements SectionedConfiguration
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getSection(java.lang.String)
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getSection(java.lang.String)
 	 */
 	@Override
 	public synchronized OverrideFlatConfiguration getSection(String sectionKey)
@@ -93,7 +93,7 @@ public class OverrideSectionedConfiguration implements SectionedConfiguration
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.config.SectionedConfiguration#getAllSectionKeys()
+	 * @see io.github.solf.extra2.config.SectionedConfiguration#getAllSectionKeys()
 	 */
 	@Override
 	public Iterable<String> getAllSectionKeys()

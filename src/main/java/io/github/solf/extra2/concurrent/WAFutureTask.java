@@ -48,7 +48,7 @@ public class WAFutureTask<T extends Callable<V>, V> extends FutureTask<V> implem
 	}
 
 	/* (non-Javadoc)
-	 * @see com.github.solf.extra2.concurrent.WAFuture#getTask()
+	 * @see io.github.solf.extra2.concurrent.WAFuture#getTask()
 	 */
 	@Override
 	public T getTask()
