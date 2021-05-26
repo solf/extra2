@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -36,7 +36,7 @@ import io.github.solf.extra2.testutil.TestUtil.AsyncTestRunner;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestMockSocketData
 {
 	/** self-documenting */

@@ -18,7 +18,7 @@ package io.github.solf.extra2.testutil.sockets.test;
 import java.io.IOException;
 import java.net.Socket;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.testutil.MockSocketService;
 import io.github.solf.extra2.testutil.sockets.ExampleSocketsUsingService;
@@ -29,7 +29,7 @@ import lombok.Getter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class MockExampleSocketsUsingService extends ExampleSocketsUsingService
 {
 	/**

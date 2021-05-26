@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.storage;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Used to define 'already exist' modes.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public enum ExistMode
 {
 	/** Item must already exist */

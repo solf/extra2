@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.MissingResourceException;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Implementation of {@link FlatConfiguration} that 'merges' two other
@@ -32,7 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class MergingFlatConfiguration implements FlatConfiguration
 {
 	/**

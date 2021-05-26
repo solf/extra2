@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Class for editing files.
@@ -44,7 +44,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class FileEditor
 {
 	/**

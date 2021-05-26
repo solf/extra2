@@ -18,7 +18,7 @@ package io.github.solf.extra2.objectgraph;
 import static io.github.solf.extra2.util.NullUtil.nn;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Step (reference) inside a collection.
@@ -32,7 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ObjectGraphCollectionStep
 {
 	/**

@@ -17,7 +17,7 @@ package io.github.solf.extra2;
 
 import java.io.IOException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WBRBStatus;
 import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext;
@@ -28,7 +28,7 @@ import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderGenerator;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class _Extra_GenerateStepBuilders
 {
 

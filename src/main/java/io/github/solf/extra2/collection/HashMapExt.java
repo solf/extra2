@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * An extension to {@link HashMap}
@@ -31,7 +31,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class HashMapExt<K, V> extends HashMap<K, V> implements MapExt<K, V>
 {
 	/**

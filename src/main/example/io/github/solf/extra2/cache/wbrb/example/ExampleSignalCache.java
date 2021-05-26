@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WBRBConfig;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache;
@@ -32,7 +32,7 @@ import lombok.Getter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExampleSignalCache extends WriteBehindResyncInBackgroundCache<
 	Long /*key*/, 
 	ExSignalSample /*returned value*/, 

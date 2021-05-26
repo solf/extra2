@@ -31,7 +31,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 import org.joda.time.DateTime;
@@ -57,7 +57,7 @@ import lombok.Getter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class BaseOptions
 {
 	/**

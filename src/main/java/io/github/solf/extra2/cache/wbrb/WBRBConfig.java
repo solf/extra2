@@ -18,7 +18,7 @@ package io.github.solf.extra2.cache.wbrb;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 
@@ -38,7 +38,7 @@ import lombok.Getter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class WBRBConfig extends BaseDelegatingOptions
 {
 	/** Used in thread names and other places to distinguish from other stuff, e.g. something like WBRBCache[cacheName]-read-thread-pool-1 */

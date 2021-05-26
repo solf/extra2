@@ -18,7 +18,7 @@ package io.github.solf.extra2.objectgraph;
 import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.objectgraph.ObjectGraphRelation;
 import io.github.solf.extra2.objectgraph.ObjectGraphVisitor;
@@ -28,7 +28,7 @@ import io.github.solf.extra2.objectgraph.ObjectGraphVisitor;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ class OGDataCollector implements ObjectGraphVisitor
 {
 	

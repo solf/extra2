@@ -18,7 +18,7 @@ package io.github.solf.extra2.concurrent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * This is an extension to {@link FutureTask} that also contains reference
@@ -29,7 +29,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class WAFutureTask<T extends Callable<V>, V> extends FutureTask<V> implements WAFuture<T, V>
 {
 

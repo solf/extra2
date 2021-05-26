@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.cache.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Indicates that cache operation failed due to some kind of internal exception.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class CacheInternalException extends BaseCacheException
 {
 

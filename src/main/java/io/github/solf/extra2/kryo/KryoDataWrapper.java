@@ -16,14 +16,14 @@
 package io.github.solf.extra2.kryo;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Wrapper for data stored by {@link KryoDB} -- contains any necessary metadata.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ class KryoDataWrapper<T>
 {
 	/**

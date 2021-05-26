@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.storage.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Base class for storage exceptions.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public abstract class BaseStorageException extends RuntimeException
 {
 

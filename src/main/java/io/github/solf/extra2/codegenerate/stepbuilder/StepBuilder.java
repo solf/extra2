@@ -20,7 +20,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Indicates that Step Builder should be generated for this constructor.
@@ -29,7 +29,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  */
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.CONSTRUCTOR)
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public @interface StepBuilder
 {
     /**

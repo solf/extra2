@@ -20,14 +20,14 @@ import static io.github.solf.extra2.util.NullUtil.nn;
 import java.util.Arrays;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate failure to determine proper handling for the field.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ObjectGraphUnhandledTypeException extends RuntimeException
 {
 	/** Parent object (null if problem is with root object). */

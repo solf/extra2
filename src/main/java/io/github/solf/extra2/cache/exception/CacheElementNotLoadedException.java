@@ -16,7 +16,7 @@
 package io.github.solf.extra2.cache.exception;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Indicates that element has not been loaded (possibly 'yet' or loading has
@@ -24,7 +24,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public abstract class CacheElementNotLoadedException extends CacheIllegalStateException
 {
 

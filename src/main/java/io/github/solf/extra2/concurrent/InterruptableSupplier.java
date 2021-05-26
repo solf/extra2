@@ -17,14 +17,14 @@ package io.github.solf.extra2.concurrent;
 
 import java.util.function.Supplier;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * {@link Supplier} that is allowed to throw {@link InterruptedException}
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @FunctionalInterface
 public interface InterruptableSupplier<T>
 {

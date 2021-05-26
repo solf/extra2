@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.cache.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate that cache is full and no further elements can be added
@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class CacheFullException extends CacheIllegalStateException
 {
 	/**

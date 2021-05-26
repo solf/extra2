@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * 'Visitor' for object graph -- for each processed relation in the object
@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface ObjectGraphVisitor
 {
 	/**

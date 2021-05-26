@@ -17,7 +17,7 @@ package io.github.solf.extra2.log4j;
 
 import java.util.function.Supplier;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
@@ -27,7 +27,7 @@ import org.apache.log4j.spi.LoggingEvent;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class PatternLayoutWithInheritableContext extends PatternLayout
 {
 	/**

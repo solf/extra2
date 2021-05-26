@@ -23,14 +23,14 @@ import java.net.URLConnection;
 import java.util.Base64;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Web-related utilities, e.g. for reading content from URL and such.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class WebUtil
 {
 	/**

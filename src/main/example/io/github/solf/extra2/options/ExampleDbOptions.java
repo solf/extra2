@@ -17,7 +17,7 @@ package io.github.solf.extra2.options;
 
 import java.util.MissingResourceException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.config.Configuration;
 import io.github.solf.extra2.config.FlatConfiguration;
@@ -29,7 +29,7 @@ import lombok.Getter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExampleDbOptions extends BaseOptions
 {
 	/** Host for databases, defaults to 'localhost' */

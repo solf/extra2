@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.storage.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate that data (e.g. data file or metadata) is absent when
@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class MissingDataStorageException extends BaseStorageException
 {
 	/**

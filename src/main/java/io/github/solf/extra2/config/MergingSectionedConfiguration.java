@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.MissingResourceException;
 import java.util.Set;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Implementation of {@link SectionedConfiguration} that 'merges' two other
@@ -36,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class MergingSectionedConfiguration implements SectionedConfiguration
 {
 	/**

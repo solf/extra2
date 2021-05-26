@@ -21,7 +21,7 @@ import static io.github.solf.extra2.util.NullUtil.nullable;
 import java.util.Iterator;
 import java.util.MissingResourceException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -34,7 +34,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ class ACCFlatConfiguration implements FlatConfiguration
 {
 	/**

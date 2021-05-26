@@ -17,7 +17,7 @@ package io.github.solf.extra2.cache.wbrb;
 
 import static io.github.solf.extra2.cache.wbrb.WBRBCacheMessageSeverity.*;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBMainQueueItemCacheRetainDecision;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBReturnQueueItemProcessingDecision;
@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @RequiredArgsConstructor
 public enum WBRBCacheMessage
 {

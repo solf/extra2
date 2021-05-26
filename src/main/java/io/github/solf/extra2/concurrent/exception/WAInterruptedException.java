@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.concurrent.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * This is wrapper class to rethrow {@link InterruptedException} as unchecked.
@@ -25,7 +25,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class WAInterruptedException extends RuntimeException
 {
 	/**

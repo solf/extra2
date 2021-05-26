@@ -22,7 +22,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -36,7 +36,7 @@ import io.github.solf.extra2.testutil.sockets.ExampleSocketsUsingService;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestExampleSocketsUsingService
 {
 	@Test

@@ -17,7 +17,7 @@ package io.github.solf.extra2.config;
 
 import java.util.MissingResourceException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Represents a flat configuration -- that is a configuration that simply contains
@@ -29,7 +29,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface FlatConfiguration
 {
 	/**

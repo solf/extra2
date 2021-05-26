@@ -28,7 +28,7 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.jvnet.winp.WinProcess;
 
@@ -40,7 +40,7 @@ import io.github.solf.extra2.exception.InvalidUserInputException;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class Console
 {
 	/**

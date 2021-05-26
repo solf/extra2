@@ -41,7 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.storage.exception.IOStorageException;
 import io.github.solf.extra2.storage.exception.MissingDataStorageException;
@@ -64,7 +64,7 @@ import io.github.solf.extra2.util.ASCIIUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class StorageItem
 {
 	/**

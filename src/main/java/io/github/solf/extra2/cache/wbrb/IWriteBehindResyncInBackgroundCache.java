@@ -16,7 +16,7 @@
 package io.github.solf.extra2.cache.wbrb;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.exception.CacheControlStateException;
 import io.github.solf.extra2.cache.exception.CacheElementNotYetLoadedException;
@@ -52,7 +52,7 @@ import io.github.solf.extra2.nullable.NullableOptional;
  * @author Sergey Olefir
  */
 @SuppressWarnings("unused") // for type parameters
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface IWriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W, UExt, UInt>
 {
 	

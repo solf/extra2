@@ -37,7 +37,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.joda.time.LocalDate;
 
@@ -88,7 +88,7 @@ import io.github.solf.extra2.util.ReflectionUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class KryoDB<T>
 {
 	/**
@@ -363,7 +363,7 @@ public class KryoDB<T>
 	 * 
 	 * WARNING: must add all required serializers prior to invoking any other methods
 	 */
-	@ParametersAreNonnullByDefault({}) // To avoid constraints on K which causes annoyanced in invoking code.
+	@NonNullByDefault({}) // To avoid constraints on K which causes annoyanced in invoking code.
 	public synchronized <K> void addSerializer(@Nonnull Class<K> type, @Nonnull Class<? extends Serializer<K>> serializerClass)
 	{
 		kryo.addDefaultSerializer(type, serializerClass);

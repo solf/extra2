@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.objectgraph.ObjectGraphRelation;
 
@@ -26,7 +26,7 @@ import io.github.solf.extra2.objectgraph.ObjectGraphRelation;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class OGDataCollectorWithNulling extends OGDataCollector
 {
 

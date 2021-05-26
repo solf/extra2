@@ -18,7 +18,7 @@ package io.github.solf.extra2.collection;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Extension interface for {@link Set}
@@ -27,7 +27,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface SetExt<E> extends Set<E>
 {
 	

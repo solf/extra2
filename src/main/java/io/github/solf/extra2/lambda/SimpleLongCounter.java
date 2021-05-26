@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.lambda;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import lombok.ToString;
 
@@ -27,7 +27,7 @@ import lombok.ToString;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @ToString
 public class SimpleLongCounter
 {

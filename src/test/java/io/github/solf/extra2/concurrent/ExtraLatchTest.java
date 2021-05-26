@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -31,7 +31,7 @@ import io.github.solf.extra2.concurrent.Latch;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExtraLatchTest
 {
 	/**

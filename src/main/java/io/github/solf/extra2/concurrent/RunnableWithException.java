@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.concurrent;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * {@link Runnable} that is allowed to throw exception.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @FunctionalInterface
 public interface RunnableWithException
 {

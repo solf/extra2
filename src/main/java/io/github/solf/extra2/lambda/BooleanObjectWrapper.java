@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.lambda;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Convenience/optimization version of {@link ObjectWrapper}
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class BooleanObjectWrapper extends ObjectWrapper<Boolean>
 {
 

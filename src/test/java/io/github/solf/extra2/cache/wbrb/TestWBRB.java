@@ -62,7 +62,7 @@ import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -98,7 +98,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Sergey Olefir
  */
 @Slf4j
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestWBRB
 {
 	/**

@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 
@@ -57,7 +57,7 @@ import lombok.SneakyThrows;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestUtil
 {
 	/**
@@ -264,7 +264,7 @@ public class TestUtil
 	 * @throws ExecutionException any throwable that might've occurred in the
 	 * 		asynchronous thread is re-thrown for the calling thread
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	public static <V> V callWithTimeLimit(long timeLimit, final @Nonnull Callable<V> callable) throws TimeoutException, ExecutionException, InterruptedException
 	{
 		AsyncTestRunner<V> runner = callAsynchronously(callable);
@@ -281,7 +281,7 @@ public class TestUtil
 	 * @return {@link AsyncTestRunner} that can be used to monitor state and
 	 * 		retrieve execution result
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	public static <V> @Nonnull AsyncTestRunner<V> callAsynchronously(final @Nonnull Callable<V> callable)
 	{
 		final @Nonnull ArrayBlockingQueue<@Nonnull Object> commQueue = new ArrayBlockingQueue<>(5);

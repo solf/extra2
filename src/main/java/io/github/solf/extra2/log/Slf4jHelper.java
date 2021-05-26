@@ -17,7 +17,7 @@ package io.github.solf.extra2.log;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.slf4j.helpers.MessageFormatter;
 
@@ -26,7 +26,7 @@ import org.slf4j.helpers.MessageFormatter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class Slf4jHelper
 {
 	/**

@@ -23,7 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.net.SocketTimeoutException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 import org.testng.annotations.Test;
@@ -38,7 +38,7 @@ import io.github.solf.extra2.testutil.TestUtil.AsyncTestRunner;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestRevivableInputStream
 {
 	/** self-documenting */

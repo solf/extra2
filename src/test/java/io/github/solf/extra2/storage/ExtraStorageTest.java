@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
@@ -50,7 +50,7 @@ import io.github.solf.extra2.util.ASCIIUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExtraStorageTest
 {
 	/**

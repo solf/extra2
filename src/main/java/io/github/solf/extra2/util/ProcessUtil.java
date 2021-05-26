@@ -18,14 +18,14 @@ package io.github.solf.extra2.util;
 import java.lang.management.ManagementFactory;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Utility for (system)process-related stuff.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ProcessUtil
 {
 	/**

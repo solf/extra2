@@ -58,7 +58,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.LOCAL_VARIABLE })
-public @interface ParametersAreNonnullByDefault {
+public @interface NonNullByDefault {
 	/**
 	 * Specifies the set of locations within the annotated declaration that should be affected by the nonnull default.
 	 * @return the locations, or an empty array to cancel any null defaults from enclosing scopes

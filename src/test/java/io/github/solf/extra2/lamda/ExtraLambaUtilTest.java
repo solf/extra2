@@ -48,7 +48,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -62,7 +62,7 @@ import io.github.solf.extra2.options.OptionConstraint;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExtraLambaUtilTest
 {
 	/**

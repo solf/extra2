@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Possible relation types between the parent and the child/visitee object. 
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public enum ObjectGraphRelationType
 {
 	/** Child/visitee is a field in parent */

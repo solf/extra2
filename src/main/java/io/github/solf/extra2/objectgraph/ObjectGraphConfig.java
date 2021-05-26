@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Configuration options for object graph walking.
@@ -43,7 +43,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ObjectGraphConfig implements Cloneable
 {
 	/**

@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.collection.ConcurrentWeakIdentityHashMap;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ import lombok.experimental.Delegate;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class FluentIntrospector
 {
 	/**

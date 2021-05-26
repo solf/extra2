@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.codegenerate.stepbuilder.unused;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Unused interface.
@@ -25,7 +25,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface UnusedInterface
 {
 	// Empty.

@@ -17,14 +17,14 @@ package io.github.solf.extra2.storage.exception;
 
 import java.io.IOException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate general IO problem.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class IOStorageException extends BaseStorageException
 {
 	/**

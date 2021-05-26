@@ -22,14 +22,14 @@ import static io.github.solf.extra2.util.NullUtil.nullable;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * ResourceBundle-based implementation.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ class RBFlatConfiguration implements FlatConfiguration
 {
 	/**

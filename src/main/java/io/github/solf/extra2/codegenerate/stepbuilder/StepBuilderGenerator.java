@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 
@@ -91,7 +91,7 @@ import lombok.RequiredArgsConstructor;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class StepBuilderGenerator
 {
 	/**
@@ -149,7 +149,7 @@ public class StepBuilderGenerator
 	/**
 	 * Optional additional marker annotation to be added to the final buildXXX() method --
 	 * e.g. 'javax.annotation.Nonnull' to mark as non-null return for classes
-	 * that don't declare {@link ParametersAreNonnullByDefault}
+	 * that don't declare {@link NonNullByDefault}
 	 */
 	@Nullable
 	private final String finalBuildMethodAdditionalMarkerAnnotation;

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.collection.IdentityHashSet;
 import io.github.solf.extra2.objectgraph.ObjectGraphUnhandledTypeException.VisiteeClassClassification;
@@ -43,7 +43,7 @@ import io.github.solf.extra2.util.ReflectionUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ObjectGraphUtil
 {
 	/**

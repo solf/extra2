@@ -25,7 +25,7 @@ import java.net.Socket;
 import java.util.Hashtable;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 import javax.naming.Context;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -37,7 +37,7 @@ import javax.naming.directory.InitialDirContext;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ReverseDNS
 {
     /**

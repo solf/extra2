@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * An extension to {@link TreeMap}
@@ -33,7 +33,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TreeMapExt<K, V> extends TreeMap<K, V> implements NavigableMapExt<K, V>
 {
 	/**

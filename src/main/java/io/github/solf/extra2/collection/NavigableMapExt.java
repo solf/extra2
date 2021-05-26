@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.NavigableMap;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Extends {@link NavigableMap} with additional methods from {@link MapExt}
@@ -26,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface NavigableMapExt<K, V> extends SortedMapExt<K, V>, NavigableMap<K, V>
 {
 	// No additional methods

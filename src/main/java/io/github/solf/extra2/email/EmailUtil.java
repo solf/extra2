@@ -25,7 +25,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class EmailUtil
 {
 	/**

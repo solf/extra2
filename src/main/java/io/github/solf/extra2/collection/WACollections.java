@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.util.TypeUtil;
 
@@ -50,7 +50,7 @@ import io.github.solf.extra2.util.TypeUtil;
  * 
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class WACollections
 {
 	/**
@@ -296,7 +296,7 @@ public class WACollections
 	 *
 	 * @author Sergey Olefir
 	 */
-	@ParametersAreNonnullByDefault
+	@NonNullByDefault
 	public static class SupplierIterator<T> implements Iterator<@Nonnull T> 
 	{
 		/**
@@ -445,7 +445,7 @@ public class WACollections
 	 * <p>
 	 * Note that it only allows a single use.
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	public static <T> @Nonnull ForIterable<@Nonnull T> toIterable(@Nonnull Supplier<@Nullable T> supplier)
 	{
 		return toForIterable(new SupplierIterator<T>(supplier));
@@ -461,7 +461,7 @@ public class WACollections
 	 * List<Integer> will be skipped and any null Integers inside List<Integer>
 	 * will be returned as nulls.
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	public static <T, C extends Collection<T>> @Nonnull ForIterable<T> toIterableValuesFromMapWithCollectionElements(@Nonnull Map<?, C> map)
 	{
 		return ForIterableOfIterable.of(map.values());
@@ -575,7 +575,7 @@ public class WACollections
 	/**
 	 * Empty read-only set implementation.
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private static class EmptyReadOnlySet implements ReadOnlySet<Object>, Serializable
 	{
 		@SuppressWarnings("deprecation")
@@ -635,7 +635,7 @@ public class WACollections
 	/**
 	 * Empty read-only map implementation.
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private static class EmptyReadOnlyMap implements ReadOnlyMap<Object, Object>, Serializable
 	{
 
@@ -731,7 +731,7 @@ public class WACollections
 	/**
 	 * Empty {@link ForIterable} implementation.
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private static class EmptyForIterable implements ForIterable<Object>, Serializable
 	{
 		@Override
@@ -768,7 +768,7 @@ public class WACollections
 	 * convert iterator elements from the source iterator format to the desired
 	 * format.
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	@Nonnull
 	public static <From, To> Iterator<To> remapIterator(final @Nonnull Iterator<From> source, 
 		final @Nonnull Function<From, To> remapFunction)

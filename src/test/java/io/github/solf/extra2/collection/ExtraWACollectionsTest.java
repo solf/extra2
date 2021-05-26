@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -50,7 +50,7 @@ import lombok.With;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExtraWACollectionsTest
 {
 	/**
@@ -58,7 +58,7 @@ public class ExtraWACollectionsTest
 	 * <p>
 	 * Returns nulls when there are no more elements.
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private static class SupplierFromIterable<T> implements Supplier<@Nullable T>
 	{
 		/**
@@ -148,7 +148,7 @@ public class ExtraWACollectionsTest
 			// Exception test
 			SupplierFromIterable<@Nullable Integer> supplier = new SupplierFromIterable<>(Arrays.asList(0, 1, null, 3));
 			
-			@ParametersAreNonnullByDefault({})
+			@NonNullByDefault({})
 			@SuppressWarnings("deprecation") Iterator<Integer> iter = WACollections.toIterable(supplier).iterator();
 			
 			assertEquals((int)iter.next(), 0);

@@ -17,7 +17,7 @@ package io.github.solf.extra2.log4j;
 
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
@@ -34,7 +34,7 @@ import lombok.Setter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class StringAndExceptionMatchFilter extends StringMatchFilter
 {
 	/**

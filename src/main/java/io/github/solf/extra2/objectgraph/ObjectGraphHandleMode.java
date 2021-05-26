@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Mode for handling some set of classes during the walk.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public enum ObjectGraphHandleMode
 {
 	/** Will cause an exception */

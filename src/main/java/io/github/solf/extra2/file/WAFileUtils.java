@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.commons.io.FileUtils;
 import org.joda.time.LocalDate;
@@ -29,7 +29,7 @@ import org.joda.time.LocalDate;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class WAFileUtils
 {
 	/**

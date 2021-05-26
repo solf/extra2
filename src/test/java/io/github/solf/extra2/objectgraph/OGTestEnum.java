@@ -17,7 +17,7 @@ package io.github.solf.extra2.objectgraph;
 
 import static io.github.solf.extra2.util.NullUtil.nn;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.objectgraph.ObjectGraphUtil;
 
@@ -26,7 +26,7 @@ import io.github.solf.extra2.objectgraph.ObjectGraphUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ enum OGTestEnum
 {
 	VAL1,

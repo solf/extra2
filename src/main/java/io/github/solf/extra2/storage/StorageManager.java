@@ -29,7 +29,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.storage.exception.IOStorageException;
 import io.github.solf.extra2.storage.exception.MismatchedExistModeException;
@@ -48,7 +48,7 @@ import io.github.solf.extra2.util.SplitUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class StorageManager 
 {
 	/**

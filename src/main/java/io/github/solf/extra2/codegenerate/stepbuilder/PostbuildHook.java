@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.codegenerate.stepbuilder;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * {@link StepBuilderGenerator} will invoke postbuild() method for classes
@@ -31,7 +31,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface PostbuildHook
 {
 	/**

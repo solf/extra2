@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.cache.wbrb;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Possible cache message severities.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public enum WBRBCacheMessageSeverity
 {
 	DEBUG,

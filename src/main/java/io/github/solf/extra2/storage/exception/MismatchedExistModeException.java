@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.storage.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.storage.ExistMode;
 
@@ -24,7 +24,7 @@ import io.github.solf.extra2.storage.ExistMode;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class MismatchedExistModeException extends BaseStorageException
 {
 	/**

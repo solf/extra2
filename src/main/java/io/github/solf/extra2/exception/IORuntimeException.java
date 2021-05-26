@@ -17,7 +17,7 @@ package io.github.solf.extra2.exception;
 
 import java.io.IOException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * This is wrapper class to rethrow {@link IOException} as unchecked.
@@ -27,7 +27,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class IORuntimeException extends RuntimeException
 {
 	/**

@@ -17,7 +17,7 @@ package io.github.solf.extra2.cache.wbrb.example;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WBRBConfig;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache;
@@ -28,7 +28,7 @@ import io.github.solf.extra2.config.OverrideFlatConfiguration;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ class ExampleSignalCacheUsage
 {
 

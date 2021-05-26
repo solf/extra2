@@ -17,14 +17,14 @@ package io.github.solf.extra2.util;
 
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * ASCII utilities.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ASCIIUtil
 {
 	/**

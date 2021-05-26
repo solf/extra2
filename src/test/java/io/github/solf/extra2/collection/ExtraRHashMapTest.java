@@ -43,7 +43,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -60,7 +60,7 @@ import lombok.With;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExtraRHashMapTest
 {
 	/**
@@ -212,7 +212,7 @@ public class ExtraRHashMapTest
 	 * Tests {@link RHashMap}
 	 */
 	@SuppressWarnings("deprecation")
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private void testRHashMapInternal(@Nonnull Supplier<@Nonnull RHashMap<TKeyWithValue, Integer>> mapFactory, 
 		@Nullable Map<TKeyWithValue, Integer> initialState)
 	{
@@ -471,7 +471,7 @@ public class ExtraRHashMapTest
 	 * Checks that the given {@link RHashMap} is fully the same as initial state +
 	 * expected changes map (this check is non-destructive).
 	 */
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private static <K, V> void compareRMapNonDestructively(@Nonnull RHashMap<K, V> srcMap, 
 		@Nullable Map<K, V> initialState, @Nonnull Map<K, V> srcExpectedChanges)
 	{

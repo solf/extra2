@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.concurrent.WAExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +51,7 @@ import lombok.extern.slf4j.Slf4j;
  * </pre>
  * 
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @Slf4j
 public class SimpleObjectPool<T>
 {
@@ -85,7 +85,7 @@ public class SimpleObjectPool<T>
     /**
      * AutoCloseable wrapper for pool objects -- close() returns wrapper to the pool.
      */
-    @ParametersAreNonnullByDefault
+    @NonNullByDefault
     public static class PoolObjectWrapper<O> implements AutoCloseable
     {
     	/**

@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.objectgraph2;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Another test object for object graph utils that is in different package
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class OGTestObject2
 {
 	/**

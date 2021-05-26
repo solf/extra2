@@ -16,14 +16,14 @@
 package io.github.solf.extra2.cache.exception;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Indicates that cache operation failed due to the invalid cache state.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class CacheIllegalStateException extends BaseCacheException
 {
 

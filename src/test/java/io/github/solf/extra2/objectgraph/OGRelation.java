@@ -20,7 +20,7 @@ import static io.github.solf.extra2.util.NullUtil.nn;
 import java.util.Arrays;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.objectgraph.ObjectGraphCollectionStep;
 import io.github.solf.extra2.objectgraph.ObjectGraphRelationType;
@@ -31,7 +31,7 @@ import io.github.solf.extra2.objectgraph.ObjectGraphRelationType;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class OGRelation
 {
 	public final Object parent;

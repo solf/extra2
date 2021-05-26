@@ -18,14 +18,14 @@ package io.github.solf.extra2.log4j;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Support for inheritable logging context, see e.g. {@link PatternLayoutWithInheritableContext}
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class LoggingInheritableContext
 {
 	/**

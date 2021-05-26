@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.slf4j.Logger;
 
@@ -37,7 +37,7 @@ import lombok.Setter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestWBRBReadBeforeWriteCache extends 
 	WBRBReadBeforeWriteCache<String, String, StringBuilder, StringBuilder, String, Character, Character>
 {

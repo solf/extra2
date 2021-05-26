@@ -45,7 +45,7 @@ import java.util.zip.Inflater;
 import java.util.zip.ZipException;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Input stream that decompresses data.
@@ -64,7 +64,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * 
  * NOT THREAD-SAFE.
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class CompressedBlockInputStream extends FilterInputStream
 {
 	/**
@@ -257,7 +257,7 @@ public class CompressedBlockInputStream extends FilterInputStream
 	}
 
 	@Override
-	@ParametersAreNonnullByDefault({}) // because cannot externally annotate proper class properly -- bug in Eclipse?
+	@NonNullByDefault({}) // because cannot externally annotate proper class properly -- bug in Eclipse?
 	public int read(byte[] b, int off, int len)
 		throws IOException
 	{

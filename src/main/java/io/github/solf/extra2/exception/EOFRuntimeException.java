@@ -17,7 +17,7 @@ package io.github.solf.extra2.exception;
 
 import java.io.EOFException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate end-of-file or stream.
@@ -26,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class EOFRuntimeException extends RuntimeException
 {
 

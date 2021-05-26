@@ -18,7 +18,7 @@ package io.github.solf.extra2.cache.exception;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.util.TypeUtil;
 
@@ -29,7 +29,7 @@ import io.github.solf.extra2.util.TypeUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class CacheElementFailedLoadingException extends CacheIllegalExternalStateException
 {
 	/**

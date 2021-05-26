@@ -21,7 +21,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Extension for {@link TreeSet}
@@ -30,7 +30,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TreeSetExt<E> extends TreeSet<E> implements NavigableSetExt<E>
 {
 

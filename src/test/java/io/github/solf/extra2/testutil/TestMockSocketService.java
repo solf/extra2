@@ -26,7 +26,7 @@ import java.net.Socket;
 import java.util.NoSuchElementException;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -42,7 +42,7 @@ import io.github.solf.extra2.testutil.TestUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestMockSocketService
 {
 	/** self-documenting */

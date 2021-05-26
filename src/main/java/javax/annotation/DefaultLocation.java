@@ -11,9 +11,9 @@
 package javax.annotation;
 
 /**
- * Locations that can be affected by a {@link ParametersAreNonnullByDefault} annotation.
+ * Locations that can be affected by a {@link NonNullByDefault} annotation.
  * Each constant of this enum describes a specific kind of type use.
- * Wildcards and the use of type variables are always excluded from {@link ParametersAreNonnullByDefault}.
+ * Wildcards and the use of type variables are always excluded from {@link NonNullByDefault}.
  * @since 2.0
  */
 public enum DefaultLocation {

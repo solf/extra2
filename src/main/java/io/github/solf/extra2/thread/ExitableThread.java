@@ -16,14 +16,14 @@
 package io.github.solf.extra2.thread;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thread implementation that can be signalled to exit via {@link #exitAsap()}
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public abstract class ExitableThread extends Thread
 {
 	/**

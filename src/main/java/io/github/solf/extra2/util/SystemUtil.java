@@ -18,14 +18,14 @@ package io.github.solf.extra2.util;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Some system utilities.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class SystemUtil
 {
 	/**

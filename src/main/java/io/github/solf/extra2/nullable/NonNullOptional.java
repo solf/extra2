@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.util.TypeUtil;
 import lombok.NonNull;
@@ -34,7 +34,7 @@ import lombok.ToString;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @ToString(callSuper = true)
 public class NonNullOptional<@Nonnull T> extends NullableOptional<T>
 {
@@ -118,7 +118,7 @@ public class NonNullOptional<@Nonnull T> extends NullableOptional<T>
      * @throws IllegalArgumentException if argument {@link NullableOptional}
      * 		contains null value
      */
-    @ParametersAreNonnullByDefault({})
+    @NonNullByDefault({})
     @Nonnull
     public static <T> NonNullOptional<@Nonnull T> fromNullableOptionalIfNonNull(@Nonnull NullableOptional<T> prototype)
     	throws IllegalArgumentException

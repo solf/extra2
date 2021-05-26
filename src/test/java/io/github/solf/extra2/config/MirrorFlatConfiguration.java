@@ -21,7 +21,7 @@ import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.config.RBFlatConfiguration;
 
@@ -32,7 +32,7 @@ import io.github.solf.extra2.config.RBFlatConfiguration;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class MirrorFlatConfiguration extends RBFlatConfiguration
 {
 	/**

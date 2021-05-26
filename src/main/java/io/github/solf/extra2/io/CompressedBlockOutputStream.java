@@ -38,7 +38,7 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Output stream that compresses data. A compressed block is generated and
@@ -55,7 +55,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * 
  * NOT THREAD-SAFE.
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class CompressedBlockOutputStream extends FilterOutputStream
 {
 	/**
@@ -165,7 +165,7 @@ public class CompressedBlockOutputStream extends FilterOutputStream
 	}
 
 	@Override
-	@ParametersAreNonnullByDefault({}) // because cannot externally annotate proper class properly -- bug in Eclipse?
+	@NonNullByDefault({}) // because cannot externally annotate proper class properly -- bug in Eclipse?
 	public void write(byte[] b, int boff, int blen)
 		throws IOException
 	{

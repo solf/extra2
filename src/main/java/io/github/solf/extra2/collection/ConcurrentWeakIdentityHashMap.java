@@ -34,7 +34,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Concurrent weak identity hash map that is taken from ehcache3:
@@ -46,7 +46,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * 
  * @author Alex Snaps
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ConcurrentWeakIdentityHashMap<@Nonnull K, @Nonnull V> implements ConcurrentMap<@Nonnull K, @Nonnull V> {
 
   private final ConcurrentMap<WeakReference<K>, V> map = new ConcurrentHashMap<>();

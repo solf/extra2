@@ -17,14 +17,14 @@ package io.github.solf.extra2.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Utilities for working with classes / types.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TypeUtil
 {
 	/**
@@ -48,7 +48,7 @@ public class TypeUtil
 	 * T result = TypeUtil.coerce(new SomethingThatIsActuallyT());
 	 */
 	@SuppressWarnings("unchecked")
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	public static <@Nonnull K> @Nonnull K coerceForceNonnull(Object obj)
 	{
 		return (K)obj;
@@ -76,7 +76,7 @@ public class TypeUtil
 	 * T result = TypeUtil.coerce(new SomethingThatIsActuallyT());
 	 */
 	@SuppressWarnings("unchecked")
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	public static <K> K coerceUnknown(Object obj)
 	{
 		return (K)obj;

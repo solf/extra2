@@ -15,14 +15,14 @@
  */
 package io.github.solf.extra2.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate an invalid user input.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class InvalidUserInputException extends RuntimeException
 {
 

@@ -18,7 +18,7 @@ package io.github.solf.extra2.concurrent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Extension to {@link Future} interface that has reference to {@link Callable} 
@@ -29,7 +29,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * 
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface WAFuture<T extends Callable<V>, V> extends Future<V>
 {
 	/**

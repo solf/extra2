@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 import org.testng.annotations.Test;
@@ -49,7 +49,7 @@ import io.github.solf.extra2.util.SplitUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExtraConfigTest
 {
 	/**

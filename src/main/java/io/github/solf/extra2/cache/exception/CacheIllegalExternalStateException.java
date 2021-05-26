@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.cache.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Indicates that cache operation failed due to the invalid EXTERNAL cache state,
@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public abstract class CacheIllegalExternalStateException extends CacheIllegalStateException
 {
 

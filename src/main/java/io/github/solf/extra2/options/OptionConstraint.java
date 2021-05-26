@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.options;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Possible option constraints for methods that support it, e.g. 
@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public enum OptionConstraint
 {
 	/** Indicates that collection-type value must not be empty (e.g. non-empty list or w/e) */

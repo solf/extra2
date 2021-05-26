@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * An extension to {@link HashSet}
@@ -28,7 +28,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class HashSetExt<E> extends HashSet<E> implements SetExt<E>
 {
 

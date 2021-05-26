@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.cache.wbrb;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import lombok.AllArgsConstructor;
 import lombok.experimental.Delegate;
@@ -25,7 +25,7 @@ import lombok.experimental.Delegate;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @AllArgsConstructor
 public class WBRBBeanForStatus
 {

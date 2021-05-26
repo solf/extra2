@@ -17,7 +17,7 @@ package io.github.solf.extra2.cache.wbrb;
 
 import java.util.MissingResourceException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.config.FlatConfiguration;
 
@@ -26,7 +26,7 @@ import io.github.solf.extra2.config.FlatConfiguration;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestWBRBStringOverwriteCache extends TestAbstractWBRBStringCache
 {
 	/**

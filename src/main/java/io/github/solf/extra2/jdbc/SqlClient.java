@@ -32,14 +32,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 
 /**
  * Helpful functions for working with SQL via JDBC.
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class SqlClient implements AutoCloseable
 {
 	private final Connection connection;

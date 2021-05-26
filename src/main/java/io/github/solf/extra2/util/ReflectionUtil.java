@@ -18,14 +18,14 @@ package io.github.solf.extra2.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Some reflection-related utilities.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ReflectionUtil
 {
 	/**

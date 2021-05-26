@@ -16,14 +16,14 @@
 package io.github.solf.extra2.cache.exception;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Base exception to be thrown by cache issues.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public abstract class BaseCacheException extends RuntimeException
 {
 	

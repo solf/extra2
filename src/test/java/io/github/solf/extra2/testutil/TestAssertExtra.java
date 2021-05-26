@@ -36,7 +36,7 @@ import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static org.testng.Assert.fail;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -45,7 +45,7 @@ import org.testng.annotations.Test;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestAssertExtra
 {
 	/**

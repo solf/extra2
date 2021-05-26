@@ -17,7 +17,7 @@ package io.github.solf.extra2.file;
 
 import java.io.File;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Provides an interface to read file line-by-line and provides support for
@@ -34,7 +34,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class IncludingFileReader extends SimpleFileReader
 {
 

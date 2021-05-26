@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -43,7 +43,7 @@ import lombok.RequiredArgsConstructor;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @RequiredArgsConstructor
 public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 {

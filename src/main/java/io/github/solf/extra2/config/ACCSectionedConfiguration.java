@@ -22,7 +22,7 @@ import static io.github.solf.extra2.util.NullUtil.nullable;
 import java.util.MissingResourceException;
 import java.util.Set;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -35,7 +35,7 @@ import org.apache.commons.configuration.SubnodeConfiguration;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ class ACCSectionedConfiguration implements SectionedConfiguration
 {
 	/**

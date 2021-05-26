@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.SortedSet;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Extends {@link SortedSet} with additional methods from {@link SetExt}
@@ -26,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface SortedSetExt<E> extends SetExt<E>, SortedSet<E>
 {
 	// no additional methods

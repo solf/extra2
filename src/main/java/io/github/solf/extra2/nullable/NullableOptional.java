@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import javax.annotation.DefaultLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.concurrent.InterruptableConsumer;
 import io.github.solf.extra2.concurrent.InterruptableRunnable;
@@ -41,7 +41,7 @@ import lombok.ToString;
  * @author Sergey Olefir
  */
 // Exclude TYPE_ARGUMENT
-@ParametersAreNonnullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS}) 
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS}) 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(doNotUseGetters = true) // getters cause exceptions
 public class NullableOptional<T>

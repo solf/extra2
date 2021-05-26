@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.NavigableSet;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Extends {@link NavigableSet} with additiona methods from {@link SetExt}
@@ -26,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface NavigableSetExt<E> extends SortedSetExt<E>, NavigableSet<E>
 {
 	// no additional methods

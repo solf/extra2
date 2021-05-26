@@ -16,7 +16,7 @@
 package io.github.solf.extra2.cache.wbrb;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Interface for {@link WriteBehindResyncInBackgroundCache} that contains both
@@ -41,7 +41,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * 
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface IWriteBehindResyncInBackgroundCacheWithControlMethods<@Nonnull K, V, S, R, W, UExt, UInt>
 	extends IWriteBehindResyncInBackgroundCache<K, V, S, R, W, UExt, UInt>, IWriteBehindResyncInBackgroundCacheOnlyControlMethods<K, V, S, R, W, UExt, UInt>
 {

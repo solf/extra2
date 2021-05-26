@@ -18,7 +18,7 @@ package io.github.solf.extra2.lambda;
 import java.util.Objects;
 import java.util.function.Function;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Represents a function that accepts three arguments and produces a result.
@@ -35,7 +35,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * @author Sergey Olefir
  */
 @FunctionalInterface
-@ParametersAreNonnullByDefault({}) // this is to solve the problem of Eclipse warning 'interface doesn't appear to be designed with nullability in mind'
+@NonNullByDefault({}) // this is to solve the problem of Eclipse warning 'interface doesn't appear to be designed with nullability in mind'
 public interface TriFunction<A1, A2, A3, R>
 {
     /**

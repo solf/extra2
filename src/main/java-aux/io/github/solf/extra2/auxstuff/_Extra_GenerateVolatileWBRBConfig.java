@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.codehaus.plexus.util.StringUtils;
 
@@ -40,7 +40,7 @@ import io.github.solf.extra2.file.FileEditor;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class _Extra_GenerateVolatileWBRBConfig
 {
 	/**

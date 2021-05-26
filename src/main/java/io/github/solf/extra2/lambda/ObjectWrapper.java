@@ -16,7 +16,7 @@
 package io.github.solf.extra2.lambda;
 
 import javax.annotation.DefaultLocation;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import lombok.ToString;
 
@@ -29,7 +29,7 @@ import lombok.ToString;
  * @author Sergey Olefir
  */
 //Exclude TYPE_ARGUMENT as we will allow nullable type values.
-@ParametersAreNonnullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
 @ToString
 public class ObjectWrapper<T>
 {

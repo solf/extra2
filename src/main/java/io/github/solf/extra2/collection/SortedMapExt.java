@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.SortedMap;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Extends {@link SortedMap} with additional methods from {@link MapExt}
@@ -26,7 +26,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface SortedMapExt<K, V> extends MapExt<K, V>, SortedMap<K, V>
 {
 	// No additional methods

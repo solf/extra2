@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.cache.wbrb.example;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +26,7 @@ import lombok.Setter;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 /*package*/ class ExSignalStorage
 {
 	/**

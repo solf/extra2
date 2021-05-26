@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.concurrent.exception.WAExecutionException;
 import io.github.solf.extra2.concurrent.exception.WAInterruptedException;
@@ -45,7 +45,7 @@ import io.github.solf.extra2.util.TypeUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class WAExecutor
 {
 	/**

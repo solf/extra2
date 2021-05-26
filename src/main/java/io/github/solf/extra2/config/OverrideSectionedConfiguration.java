@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Sectioned configuration implementation that allows to override particular
@@ -31,7 +31,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class OverrideSectionedConfiguration implements SectionedConfiguration
 {
 	/**

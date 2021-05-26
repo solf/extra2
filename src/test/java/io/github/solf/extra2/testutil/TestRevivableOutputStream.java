@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 import org.testng.annotations.Test;
@@ -48,7 +48,7 @@ import io.github.solf.extra2.testutil.TestUtil.AsyncTestRunner;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class TestRevivableOutputStream
 {
 	/** self-documenting */

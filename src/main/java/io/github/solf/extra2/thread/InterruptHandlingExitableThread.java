@@ -16,7 +16,7 @@
 package io.github.solf.extra2.thread;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * This is an abstract implementation of {@link ExitableThread} that also provides
@@ -31,7 +31,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public abstract class InterruptHandlingExitableThread extends ExitableThread
 {
 	/**

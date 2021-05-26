@@ -16,7 +16,7 @@
 package io.github.solf.extra2.cache.wbrb;
 
 import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.exception.CacheControlStateException;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheControlState;
@@ -45,7 +45,7 @@ import io.github.solf.extra2.concurrent.exception.WAInterruptedException;
  * 
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public interface IWriteBehindResyncInBackgroundCacheOnlyControlMethods<@Nonnull K, V, S, R, W, UExt, UInt>
 {
 	

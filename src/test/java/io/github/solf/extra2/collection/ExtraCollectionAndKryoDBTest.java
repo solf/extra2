@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.testng.annotations.Test;
 
@@ -49,7 +49,7 @@ import io.github.solf.extra2.util.TypeUtil;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ExtraCollectionAndKryoDBTest
 {
 	/**
@@ -538,7 +538,7 @@ public class ExtraCollectionAndKryoDBTest
 	 * Tests contents of {@link ItemSampler}
 	 */
 	@SuppressWarnings("cast")
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private void testItemSamplerContents(@Nonnull ItemSampler<Integer> is, Integer @Nonnull... expectedItems)
 	{
 		List<Integer> items = is.getSampleList();
@@ -560,7 +560,7 @@ public class ExtraCollectionAndKryoDBTest
 	 * Gets field value via reflection.
 	 */
 	@SuppressWarnings("unused")
-	@ParametersAreNonnullByDefault({})
+	@NonNullByDefault({})
 	private <T> T reflectField(@Nonnull Object inst, @Nonnull String fieldName)
 	{
 		try

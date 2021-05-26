@@ -19,14 +19,14 @@ import static io.github.solf.extra2.util.NullUtil.nn;
 
 import java.util.Arrays;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Array utilities.
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class ArrayUtil
 {
 	/**

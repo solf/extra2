@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.exception;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate that an assertion has failed.
@@ -28,7 +28,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public class AssertionException extends RuntimeException
 {
 

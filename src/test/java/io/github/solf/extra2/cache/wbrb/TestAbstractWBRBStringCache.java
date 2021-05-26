@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.slf4j.Logger;
 
@@ -40,7 +40,7 @@ import lombok.ToString;
  *
  * @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 public abstract class TestAbstractWBRBStringCache extends WriteBehindResyncInBackgroundCache<String, String, StringBuilder, String, String, Character, Character>
 {
 	/**

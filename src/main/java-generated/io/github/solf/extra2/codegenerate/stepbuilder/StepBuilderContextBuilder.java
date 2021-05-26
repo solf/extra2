@@ -16,7 +16,7 @@
 package io.github.solf.extra2.codegenerate.stepbuilder;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
@@ -36,7 +36,7 @@ import lombok.Getter;
  *
  *  @author Sergey Olefir
  */
-@ParametersAreNonnullByDefault
+@NonNullByDefault
 @SuppressWarnings("unused")
 public class StepBuilderContextBuilder {
 

@@ -39,7 +39,7 @@ import java.util.function.Function;
 import javax.annotation.DefaultLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.NonNullByDefault;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.javatuples.Pair;
@@ -130,7 +130,7 @@ import lombok.ToString;
  * 		(converted from <UExt>)
  */
 // Exclude TYPE_ARGUMENT as we will allow null cache values.
-@ParametersAreNonnullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS}) 
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS}) 
 public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W, UExt, UInt>
 	implements IWriteBehindResyncInBackgroundCacheWithControlMethods<K, V, S, R, W, UExt, UInt>
 {
@@ -751,7 +751,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 *
 	 * @author Sergey Olefir
 	 */
-	@ParametersAreNonnullByDefault
+	@NonNullByDefault
 	protected static enum WBRBCacheEntryReadStatus
 	{
 		NOT_READ_YET,
@@ -779,7 +779,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 *
 	 * @author Sergey Olefir
 	 */
-	@ParametersAreNonnullByDefault
+	@NonNullByDefault
 	protected static enum WBRBCacheEntryWriteStatus
 	{
 		NO_WRITE_REQUESTED_YET,
