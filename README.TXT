@@ -13,19 +13,19 @@ here: https://github.com/solf/ext-eclipse-annotations
 Here's a brief overview of what's inside on a per-package basis
 
 
-- com.github.solf.extra2.beans
+- io.github.solf.extra2.beans
 FluentIntrospector that supports examining Java beans with fluent setters
 (those that return 'this' as opposed to void).
 
 
-- com.github.solf.extra2.cache.wbrb
+- io.github.solf.extra2.cache.wbrb
 Highly flexible yet easy to use write behind (write back) cache that also supports 
 background synchronization with the storage.
 
 See WriteBehindResyncInBackgroundCache section below for more details.
 
 
-- com.github.solf.extra2.codegenerate.stepbuilder
+- io.github.solf.extra2.codegenerate.stepbuilder
 'step builder' generator -- generates builder classes for complex constructors
 that require step-by-step specification of each constructor argument (i.e.
 it is not possible to 'miss' an argument, as it won't compile).
@@ -33,7 +33,7 @@ it is not possible to 'miss' an argument, as it won't compile).
 See _Extra_GenerateStepBuilders and WBRBStatusBuilder for examples
 
 
-- com.github.solf.extra2.collection
+- io.github.solf.extra2.collection
 Misc collections extensions, in particular ability to obtain value from set and 
 entry from map.
 
@@ -46,7 +46,7 @@ sources, such as ResultSet (so it is possible to for (an item : source) iterate)
 and some other functions.
 
 
-- com.github.solf.extra2.concurrent
+- io.github.solf.extra2.concurrent
 Helpful concurrency-related stuff.
 
 WAFuture & WAExecutor (and related classes) provide support for Futures that
@@ -70,7 +70,7 @@ RunnableWithException and Interruptable* interfaces provide useful signatures
 for writing concurrency-related code.
 
 
-- com.github.solf.extra2.config
+- io.github.solf.extra2.config
 Utilities for loading configuration values from plain property files & 
 sectioned configuration files (ini files).
 
@@ -80,7 +80,7 @@ adding custom value overrides on top of existing configurations.
 Often used together with 'options' package below.
 
 
-- com.github.solf.extra2.options
+- io.github.solf.extra2.options
 Support for the 'easy' way to read option values from configuration files.
 
 See ExampleDbOptions for a trivial example or WBRBConfig for a much more
@@ -88,34 +88,34 @@ advanced one (WBRBConfig also 'hides' underlying 'get value' methods from the
 public API).
 
 
-- com.github.solf.extra2.console
+- io.github.solf.extra2.console
 Support for easily executing external commands on Windows & Unix and interacting
 with them -- such as reading their output and sending input to them as required.
 
 
-- com.github.solf.extra2.email
+- io.github.solf.extra2.email
 Support for accessing IMAP E-mails.
 
 
-- com.github.solf.extra2.exception
+- io.github.solf.extra2.exception
 Some exceptions that seem very useful, e.g. IORuntimeException and
 AssertionException (for the cases when Error is undesirable).
 
 
-- com.github.solf.extra2.file
+- io.github.solf.extra2.file
 Utilities to simplify reading & editing of text files.
 
 
-- com.github.solf.extra2.io
+- io.github.solf.extra2.io
 Input/Output streams that support compression as well as ByteArrayInputStream
 that can read directly from ByteArrayOutputStream.
 
 
-- com.github.solf.extra2.jdbc
+- io.github.solf.extra2.jdbc
 Simplified way to work with jdbc/SQL.
 
 
-- com.github.solf.extra2.kryo
+- io.github.solf.extra2.kryo
 A simple way for a Java application to persist state between sessions via Kryo
 (de)serialization. This is useful for many apps and doesn't require any database
 support.
@@ -133,7 +133,7 @@ data model to make internal changes after the old version data is loaded (this
 uses objectgraph discussed later).
 
 
-- com.github.solf.extra2.lambda
+- io.github.solf.extra2.lambda
 Utility stuff that comes in handy when actively working with lambdas, e.g.
 various object wrappers (so that the lambda-code can modify something outside its
 own body), TriFunction, LambdaUtil with various predicates useful for e.g. streams
@@ -141,42 +141,42 @@ filtering, and various *Lazy implementations that can be used to lazily initiali
 something in different circumstances.
 
 
-- com.github.solf.extra2.log
+- io.github.solf.extra2.log
 Some SLF4J helpers.
 
 
-- com.github.solf.extra2.log4j
+- io.github.solf.extra2.log4j
 LOG4J extensions, sound-producing appender, filters that can work on exception
 text, etc.
 
 
-- com.github.solf.extra2.nullable
+- io.github.solf.extra2.nullable
 NullableOptional which is a version of Optional that can hold null value and
 exception information; NonNullOptional which is the same except value must
 be non-null.
 
 
-- com.github.solf.extra2.objectgraph
+- io.github.solf.extra2.objectgraph
 ObjectGraphUtil that is useful for walking object graphs -- can be used e.g. after
 deserialization in order to adjust post-serialization state on all objects in the
 graph.
 
 
-- com.github.solf.extra2.options
-Described above together with com.github.solf.extra2.config
+- io.github.solf.extra2.options
+Described above together with io.github.solf.extra2.config
 
 
-- com.github.solf.extra2.pool
+- io.github.solf.extra2.pool
 SimpleObjectPool -- simple objects pool with configurable min and max values with
 optional automatic objects expiration if they are not used.
 
 
-- com.github.solf.extra2.stacktrace
+- io.github.solf.extra2.stacktrace
 Support for producing condensed (one-line) stack traces & obtaining information
 about current Java file name / line number.
 
 
-- com.github.solf.extra2.storage
+- io.github.solf.extra2.storage
 A sort-of file system implementation that supports tree structure of 'items'
 where each item can have both 'contents' (i.e. bytes comprising the item) AND
 any number of named metadata entries (where each entry value may be a single 
@@ -187,7 +187,7 @@ and so for individual data pieces an additional metadata was stored to make
 some statistical information easy and fast to access.
 
 
-- com.github.solf.extra2.testutil
+- io.github.solf.extra2.testutil
 AssertExtra contains various useful asserts, such as assertContains*, 
 assertBetween*, assertGreater* etc; those throw exceptions rather than Errors
 (such as AssertError) for greater compatibility (e.g. JUnit)
@@ -202,7 +202,7 @@ can be intercepted). See TestExampleSocketsUsingService for an example of how
 to use TestUtil and MockSocketService.
 
 
-- com.github.solf.extra2.thread
+- io.github.solf.extra2.thread
 A couple of useful primitives for handling thread-related issues.
 
 ExitableThread is an abstract thread that can be externally commanded to exit.
@@ -211,7 +211,7 @@ InterruptHandlingExitableThread is an extension of ExitableThread that also
 provides for a handler to handle unexpected InterruptedException
 
 
-- com.github.solf.extra2.util
+- io.github.solf.extra2.util
 A collection of various utilities, some of which are described below.
 
 ASCIIUtil - utilities for working with ASCII-style strings, in particular

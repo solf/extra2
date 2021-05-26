@@ -4,7 +4,7 @@
 <suite name="ExtraSuite" verbose="1" parallel="methods" thread-count="4">
   <test name="Everything">
     <packages>
-      <package name="com.github.solf.extra2.*" />
+      <package name="io.github.solf.extra2.*" />
    </packages>
  </test>
 </suite>
