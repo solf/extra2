@@ -75,6 +75,7 @@
 			<groupId>io.github.solf</groupId>
 			<artifactId>nullanno</artifactId>
 			<version>0.1.0</version>
+			<optional>true</optional> <!-- Do not propagate these annotations to child projects -->
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
