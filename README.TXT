@@ -1,11 +1,32 @@
-This is a WORK-IN-PROGRESS to make a proper open-source project out of the
-collection of the various support code that I've written over the years.
+Collection of various Java support code to make Java programming more 'fun'.
+
+Project is intended for use with Maven:
+		<dependency>
+			<groupId>io.github.solf</groupId>
+			<artifactId>extra2</artifactId>
+			<version>${VERSION}</version>
+		</dependency>
+
+(replace version reference with any available versions from here:
+https://repo.maven.apache.org/maven2/io/github/solf/extra2/ )
+
+NOTE: there's an 'extended' version of this project that contains some
+additional stuff that is EPL-licensed, see here:
+https://github.com/solf/extra2-epl
+(extra2-epl also automatically includes nullanno dependency)
+
+Because all the code was originally in the single project, some of the
+descriptions below may refer to code that was actually moved to extra2-epl
 
 -------------------
 
 This project is developed using Eclipse's null-analysis using included 
 annotations in javax.annotation package and external annotations as available
 here: https://github.com/solf/ext-eclipse-annotations
+
+Uses null-annotations available here: https://github.com/solf/nullanno
+(but those are an 'optional' dependency and thus not included in dependencies
+by default)
 
 -------------------
 
