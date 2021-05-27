@@ -72,6 +72,11 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>io.github.solf</groupId>
+			<artifactId>nullanno</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.12</version>
@@ -172,6 +177,12 @@
 			<!-- If project wants to use javaparser stuff, e.g. StepBuilderGenerator, 
 				it should separately declare javaparser dependency - possibly with 'test' scope -->
 			<optional>true</optional>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.findbugs</groupId>
+					<artifactId>jsr305</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
