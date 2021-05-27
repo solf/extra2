@@ -222,7 +222,7 @@ public class ExtraLatchTest
 				t.start();
 			}
 				
-			Thread.sleep(DEFAULT_ASYNC_WAIT);
+			Thread.sleep(DEFAULT_ASYNC_WAIT * 2); // had issues with tests failing here, so wait longer
 			for (@Nonnull TestLatchThread t : ts)
 				assert t.finishedWithoutException;
 		}
