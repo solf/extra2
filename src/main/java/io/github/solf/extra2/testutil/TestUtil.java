@@ -21,8 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.lang.reflect.Field;
@@ -38,9 +36,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.NonNullByDefault;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 
 import org.javatuples.Pair;
 
@@ -324,32 +322,6 @@ public class TestUtil
 	}
 	
 	/**
-	 * Creates byte pipe (InputStream, OutputStream) that is very useful for 
-	 * sending/receiving data from methods that deal with streams.
-	 * <p>
-	 * This pipe is guaranteed to react to Thread.interrupt() unlike blocking
-	 * reads in some other cases in Java.
-	 * <p>
-	 * Additionally {@link RevivableInputStream} may be used to (temporarily)
-	 * signal 'end of file' to the reader by using {@link RevivableInputStream#kill()}
-	 * 
-	 * @param bufferSize buffer size for internal buffers -- note that there are
-	 * 		at least two different buffers + data that is in-flight, so the
-	 * 		actual size of data that can be 'in the pipes' might be roughly
-	 * 		3 times as much as this size
-	 */
-	@SuppressWarnings("resource")
-	public static Pair<RevivableInputStream, RevivableOutputStream> createKillableBytePipe(int bufferSize) throws IOException
-	{
-		PipedOutputStream pos = new PipedOutputStream();
-		PipedInputStream pis = new PipedInputStream(pos, bufferSize);
-		RevivableInputStream is = new RevivableInputStream(pis);
-		RevivableOutputStream os = new RevivableOutputStream(pos, bufferSize);
-		
-		return new Pair<RevivableInputStream, RevivableOutputStream>(is, os);
-	}
-	
-	/**
 	 * Creates character pipe (Reader, Writer) that is very useful for 
 	 * sending/receiving data from methods that deal with readers/writers.
 	 * <p>
@@ -368,19 +340,6 @@ public class TestUtil
 		return new Pair<>(reader, writer);
 	}
 
-	
-	/**
-	 * Factory for creating mock sockets.
-	 * 
-	 * @param bufferSize buffer size for internal buffers -- note that there are
-	 * 		at least two different buffers + data that is in-flight, so the
-	 * 		actual size of data that can be 'in the pipes' might be roughly
-	 * 		3 times as much as this size
-	 */
-	public static MockSocketData createMockSocket(int bufferSize) throws IOException
-	{
-		return MockSocketData.createSocket(bufferSize);
-	}
 	
 	/**
 	 * Clones a {@link Throwable} (via serializing + deserializing).
