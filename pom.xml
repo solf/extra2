@@ -251,6 +251,7 @@
 					<serverId>ossrh</serverId>
 					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
 					<!-- Controls whether non-SNAPSHOT versions are automatically released to Maven Central -->
+					<!-- If not auto-releasing, go to https://s01.oss.sonatype.org/#stagingRepositories  -->
 					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
