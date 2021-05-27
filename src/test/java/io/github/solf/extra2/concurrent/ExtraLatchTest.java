@@ -37,7 +37,7 @@ public class ExtraLatchTest
 	/**
 	 * How long to wait for async stuff to happen
 	 */
-	private static final long DEFAULT_ASYNC_WAIT = 250;
+	private static final long DEFAULT_ASYNC_WAIT = 350;
 	
 	/**
 	 * Thread for testing latches. 
