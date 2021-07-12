@@ -17,7 +17,7 @@ package io.github.solf.extra2.concurrent;
 
 import java.util.function.Supplier;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * {@link Supplier} that is allowed to throw {@link InterruptedException}

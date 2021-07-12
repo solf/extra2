@@ -17,7 +17,7 @@ package io.github.solf.extra2.util;
 
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * ASCII utilities.

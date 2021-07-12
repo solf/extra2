@@ -16,7 +16,8 @@
 package io.github.solf.extra2.cache.wbrb;
 
 import javax.annotation.Nonnull;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.exception.CacheControlStateException;
 import io.github.solf.extra2.cache.exception.CacheElementNotYetLoadedException;

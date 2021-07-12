@@ -18,7 +18,7 @@ package io.github.solf.extra2.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Some reflection-related utilities.

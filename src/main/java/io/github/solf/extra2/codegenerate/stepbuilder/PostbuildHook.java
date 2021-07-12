@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.codegenerate.stepbuilder;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * {@link StepBuilderGenerator} will invoke postbuild() method for classes

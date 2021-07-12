@@ -16,7 +16,8 @@
 package io.github.solf.extra2.kryo;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Wrapper for data stored by {@link KryoDB} -- contains any necessary metadata.

@@ -22,7 +22,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;

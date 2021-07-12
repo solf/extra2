@@ -17,7 +17,7 @@ package io.github.solf.extra2.config;
 
 import java.util.MissingResourceException;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Represents a sectioned configuration, that is configuration that:

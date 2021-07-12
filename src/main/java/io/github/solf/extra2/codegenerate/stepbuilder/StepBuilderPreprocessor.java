@@ -15,12 +15,12 @@
  */
 package io.github.solf.extra2.codegenerate.stepbuilder;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
-
-import javax.annotation.NonNullByDefault;
 
 /**
  * Defines processing hooks for adjusting the contents of the files generated

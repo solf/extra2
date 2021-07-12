@@ -16,7 +16,8 @@
 package io.github.solf.extra2.thread;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * This is an abstract implementation of {@link ExitableThread} that also provides

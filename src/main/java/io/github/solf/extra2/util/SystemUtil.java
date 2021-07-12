@@ -18,7 +18,7 @@ package io.github.solf.extra2.util;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Some system utilities.

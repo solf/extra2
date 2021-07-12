@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.storage;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Used to define 'already exist' modes.

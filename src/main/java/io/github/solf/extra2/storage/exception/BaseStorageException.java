@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.storage.exception;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Base class for storage exceptions.

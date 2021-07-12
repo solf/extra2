@@ -16,7 +16,8 @@
 package io.github.solf.extra2.codegenerate.stepbuilder;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;

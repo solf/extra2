@@ -29,8 +29,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.collection.IdentityHashSet;

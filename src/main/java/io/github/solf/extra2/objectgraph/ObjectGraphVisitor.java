@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * 'Visitor' for object graph -- for each processed relation in the object

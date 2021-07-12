@@ -18,7 +18,7 @@ package io.github.solf.extra2.concurrent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * This is an extension to {@link FutureTask} that also contains reference

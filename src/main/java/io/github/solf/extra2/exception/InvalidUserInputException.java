@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.exception;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate an invalid user input.

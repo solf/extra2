@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph2;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Another test object for object graph utils that is in different package

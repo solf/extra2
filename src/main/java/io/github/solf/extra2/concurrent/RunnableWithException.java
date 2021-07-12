@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.concurrent;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * {@link Runnable} that is allowed to throw exception.

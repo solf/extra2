@@ -37,8 +37,8 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.joda.time.LocalDate;
 
 import com.esotericsoftware.kryo.Kryo;

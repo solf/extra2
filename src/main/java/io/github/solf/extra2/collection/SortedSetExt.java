@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.SortedSet;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Extends {@link SortedSet} with additional methods from {@link SetExt}

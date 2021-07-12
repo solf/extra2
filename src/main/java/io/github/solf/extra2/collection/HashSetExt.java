@@ -19,7 +19,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * An extension to {@link HashSet}

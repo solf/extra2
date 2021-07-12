@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Possible relation types between the parent and the child/visitee object. 

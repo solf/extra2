@@ -22,10 +22,9 @@ import static io.github.solf.extra2.util.NullUtil.nullable;
 import java.util.MissingResourceException;
 import java.util.Set;
 
-import javax.annotation.NonNullByDefault;
-
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Apache commons-configuration based implementation.

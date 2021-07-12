@@ -18,7 +18,7 @@ package io.github.solf.extra2.lambda;
 import java.util.Objects;
 import java.util.function.Function;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Represents a function that accepts three arguments and produces a result.

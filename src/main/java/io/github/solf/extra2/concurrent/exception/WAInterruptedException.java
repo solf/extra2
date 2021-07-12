@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.concurrent.exception;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * This is wrapper class to rethrow {@link InterruptedException} as unchecked.

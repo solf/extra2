@@ -20,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 
 import io.github.solf.extra2.config.FlatConfiguration;

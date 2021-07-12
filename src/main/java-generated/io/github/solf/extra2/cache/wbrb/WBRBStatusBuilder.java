@@ -17,7 +17,8 @@ package io.github.solf.extra2.cache.wbrb;
 
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WBRBCacheMessage;
 import io.github.solf.extra2.cache.wbrb.WBRBCacheMessageSeverity;

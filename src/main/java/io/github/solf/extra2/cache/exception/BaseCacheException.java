@@ -16,7 +16,8 @@
 package io.github.solf.extra2.cache.exception;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Base exception to be thrown by cache issues.

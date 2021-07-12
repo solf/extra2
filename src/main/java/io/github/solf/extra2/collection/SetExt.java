@@ -18,7 +18,8 @@ package io.github.solf.extra2.collection;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Extension interface for {@link Set}

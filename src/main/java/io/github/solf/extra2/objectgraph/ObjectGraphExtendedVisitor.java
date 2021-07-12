@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * An extended version of the visitor that is also notified whenever object 

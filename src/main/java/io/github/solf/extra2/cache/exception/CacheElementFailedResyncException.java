@@ -18,7 +18,8 @@ package io.github.solf.extra2.cache.exception;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.util.TypeUtil;
 

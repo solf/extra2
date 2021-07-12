@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.NavigableMap;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Extends {@link NavigableMap} with additional methods from {@link MapExt}

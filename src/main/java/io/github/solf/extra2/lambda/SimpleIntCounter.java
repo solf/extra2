@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.lambda;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import lombok.ToString;
 

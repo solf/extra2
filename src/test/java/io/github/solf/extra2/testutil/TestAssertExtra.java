@@ -36,8 +36,8 @@ import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static org.testng.Assert.fail;
 
 import javax.annotation.Nonnull;
-import javax.annotation.NonNullByDefault;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 /**

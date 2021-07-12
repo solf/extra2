@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.SortedMap;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Extends {@link SortedMap} with additional methods from {@link MapExt}

@@ -18,7 +18,8 @@ package io.github.solf.extra2.log4j;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Support for inheritable logging context, see e.g. {@link PatternLayoutWithInheritableContext}

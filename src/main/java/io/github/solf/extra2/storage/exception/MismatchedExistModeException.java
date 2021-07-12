@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.storage.exception;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.storage.ExistMode;
 

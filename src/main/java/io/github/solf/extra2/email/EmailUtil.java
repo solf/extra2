@@ -25,7 +25,6 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
@@ -36,6 +35,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeUtility;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

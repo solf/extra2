@@ -20,7 +20,8 @@ import static io.github.solf.extra2.util.NullUtil.nn;
 import java.lang.reflect.Field;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Information about a relation within object graph.

@@ -17,7 +17,7 @@ package io.github.solf.extra2.cache.wbrb;
 
 import static io.github.solf.extra2.cache.wbrb.WBRBCacheMessageSeverity.*;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBMainQueueItemCacheRetainDecision;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBReturnQueueItemProcessingDecision;

@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.cache.exception;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Indicates that cache operation failed due to the invalid EXTERNAL cache state,

@@ -17,7 +17,7 @@ package io.github.solf.extra2.exception;
 
 import java.io.EOFException;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate end-of-file or stream.

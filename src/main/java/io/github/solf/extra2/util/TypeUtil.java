@@ -17,7 +17,8 @@ package io.github.solf.extra2.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Utilities for working with classes / types.

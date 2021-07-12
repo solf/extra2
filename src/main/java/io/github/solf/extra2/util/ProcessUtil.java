@@ -18,7 +18,8 @@ package io.github.solf.extra2.util;
 import java.lang.management.ManagementFactory;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Utility for (system)process-related stuff.

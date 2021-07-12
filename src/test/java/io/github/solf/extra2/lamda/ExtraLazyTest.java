@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.lambda.LocalLazy;

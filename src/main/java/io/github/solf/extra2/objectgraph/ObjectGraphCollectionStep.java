@@ -18,7 +18,8 @@ package io.github.solf.extra2.objectgraph;
 import static io.github.solf.extra2.util.NullUtil.nn;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Step (reference) inside a collection.

@@ -25,7 +25,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Configuration options for object graph walking.

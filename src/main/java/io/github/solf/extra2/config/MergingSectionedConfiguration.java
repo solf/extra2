@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.MissingResourceException;
 import java.util.Set;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Implementation of {@link SectionedConfiguration} that 'merges' two other

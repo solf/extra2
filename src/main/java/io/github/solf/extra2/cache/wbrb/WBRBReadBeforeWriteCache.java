@@ -21,10 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import javax.annotation.DefaultLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.exception.CacheElementFailedWriteException;
 import io.github.solf.extra2.cache.exception.CacheInternalException;

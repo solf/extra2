@@ -25,10 +25,9 @@ import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-import javax.annotation.NonNullByDefault;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalINIConfiguration;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Factory class for creating configuration (options) objects.

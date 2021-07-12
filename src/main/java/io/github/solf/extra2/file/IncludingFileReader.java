@@ -17,7 +17,7 @@ package io.github.solf.extra2.file;
 
 import java.io.File;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Provides an interface to read file line-by-line and provides support for

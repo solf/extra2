@@ -21,7 +21,7 @@ import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.config.RBFlatConfiguration;
 

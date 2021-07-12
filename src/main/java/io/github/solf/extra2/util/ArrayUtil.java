@@ -19,7 +19,7 @@ import static io.github.solf.extra2.util.NullUtil.nn;
 
 import java.util.Arrays;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Array utilities.

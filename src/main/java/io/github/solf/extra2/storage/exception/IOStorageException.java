@@ -17,7 +17,7 @@ package io.github.solf.extra2.storage.exception;
 
 import java.io.IOException;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate general IO problem.

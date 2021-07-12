@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.options;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Possible option constraints for methods that support it, e.g. 

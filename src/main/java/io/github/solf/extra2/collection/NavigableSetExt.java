@@ -17,7 +17,7 @@ package io.github.solf.extra2.collection;
 
 import java.util.NavigableSet;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Extends {@link NavigableSet} with additiona methods from {@link SetExt}

@@ -20,7 +20,7 @@ import static io.github.solf.extra2.util.NullUtil.nullable;
 import java.util.Collections;
 import java.util.MissingResourceException;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * 'Empty' configuration -- doesn't contain any properties.

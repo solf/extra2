@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.cache.exception;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate that cache operation cannot be performed because cache

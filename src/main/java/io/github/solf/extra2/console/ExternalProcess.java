@@ -26,7 +26,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.concurrent.exception.WAInterruptedException;
 import io.github.solf.extra2.concurrent.exception.WATimeoutException;

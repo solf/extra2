@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.storage.exception;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate that data (e.g. data file or metadata) is absent when

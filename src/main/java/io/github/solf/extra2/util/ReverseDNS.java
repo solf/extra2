@@ -25,12 +25,13 @@ import java.net.Socket;
 import java.util.Hashtable;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 import javax.naming.Context;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * An attempt at reverse DNS in java.

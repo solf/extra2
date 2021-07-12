@@ -21,7 +21,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Extension for {@link TreeSet}

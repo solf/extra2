@@ -32,7 +32,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.collection.IdentityHashSet;
 import io.github.solf.extra2.objectgraph.ObjectGraphUnhandledTypeException.VisiteeClassClassification;

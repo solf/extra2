@@ -34,7 +34,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Concurrent weak identity hash map that is taken from ehcache3:

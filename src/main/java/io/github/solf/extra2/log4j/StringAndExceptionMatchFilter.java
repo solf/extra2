@@ -17,11 +17,10 @@ package io.github.solf.extra2.log4j;
 
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 
-import javax.annotation.NonNullByDefault;
-
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.varia.StringMatchFilter;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -18,7 +18,8 @@ package io.github.solf.extra2.objectgraph;
 import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.objectgraph.ObjectGraphRelation;
 import io.github.solf.extra2.objectgraph.ObjectGraphVisitor;

@@ -22,7 +22,7 @@ import static io.github.solf.extra2.util.NullUtil.nullable;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * ResourceBundle-based implementation.

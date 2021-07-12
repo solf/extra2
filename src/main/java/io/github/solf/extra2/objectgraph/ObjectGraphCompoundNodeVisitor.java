@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Interface for visiting nodes on the graph that are compound (i.e. not primitive

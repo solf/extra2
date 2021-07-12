@@ -16,7 +16,8 @@
 package io.github.solf.extra2.cache.exception;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Indicates that element has not been loaded (possibly 'yet' or loading has

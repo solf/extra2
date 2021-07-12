@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Sectioned configuration implementation that allows to override particular

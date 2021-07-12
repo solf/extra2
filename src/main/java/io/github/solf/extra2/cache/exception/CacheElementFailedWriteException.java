@@ -17,7 +17,8 @@ package io.github.solf.extra2.cache.exception;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache;
 import io.github.solf.extra2.util.TypeUtil;

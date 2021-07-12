@@ -28,8 +28,8 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jvnet.winp.WinProcess;
 
 import io.github.solf.extra2.exception.EOFRuntimeException;

@@ -62,10 +62,10 @@ import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.slf4j.Logger;

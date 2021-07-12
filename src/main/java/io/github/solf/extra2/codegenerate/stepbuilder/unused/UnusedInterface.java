@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.codegenerate.stepbuilder.unused;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Unused interface.

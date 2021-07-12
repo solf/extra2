@@ -17,10 +17,9 @@ package io.github.solf.extra2.log4j;
 
 import java.util.function.Supplier;
 
-import javax.annotation.NonNullByDefault;
-
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Log4j extension that also logs {@link LoggingInheritableContext} at the end of the string.

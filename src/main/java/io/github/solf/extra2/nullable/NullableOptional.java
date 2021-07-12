@@ -21,10 +21,11 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import javax.annotation.DefaultLocation;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.DefaultLocation;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.concurrent.InterruptableConsumer;
 import io.github.solf.extra2.concurrent.InterruptableRunnable;

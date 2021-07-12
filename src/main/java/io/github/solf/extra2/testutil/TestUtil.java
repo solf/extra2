@@ -36,10 +36,10 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.NonNullByDefault;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.javatuples.Pair;
 
 import io.github.solf.extra2.concurrent.RunnableWithException;

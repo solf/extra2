@@ -23,7 +23,8 @@ import java.net.URLConnection;
 import java.util.Base64;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Web-related utilities, e.g. for reading content from URL and such.

@@ -26,8 +26,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import javax.annotation.NonNullByDefault;
-
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.testutil.TestUtil;

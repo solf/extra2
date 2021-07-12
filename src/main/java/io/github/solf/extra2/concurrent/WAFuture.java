@@ -18,7 +18,7 @@ package io.github.solf.extra2.concurrent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Extension to {@link Future} interface that has reference to {@link Callable} 

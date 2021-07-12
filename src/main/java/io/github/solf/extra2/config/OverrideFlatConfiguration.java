@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Flat configuration implementation that allows overriding particular items.

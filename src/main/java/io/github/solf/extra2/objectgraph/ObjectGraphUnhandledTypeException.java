@@ -20,7 +20,8 @@ import static io.github.solf.extra2.util.NullUtil.nn;
 import java.util.Arrays;
 
 import javax.annotation.Nullable;
-import javax.annotation.NonNullByDefault;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Thrown to indicate failure to determine proper handling for the field.
