@@ -19,11 +19,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Provides certain utilities for call stack trace investigation. 
  *
  * @author Sergey Olefir
  */
+@NonNullByDefault
 public class StackTrace
 {
 	/**
@@ -72,7 +77,7 @@ public class StackTrace
 	 * 		show stack trace until it crosses your own class boundary, e.g. in
 	 * 		constructor
 	 */
-	public static void dumpShortInvocationTraceIfEnabled(Class<?> skipClass)
+	public static void dumpShortInvocationTraceIfEnabled(@Nullable Class<?> skipClass)
 	{
 		if (isShowInvocationTrace())
 			dumpShortInvocationTrace(skipClass);
@@ -90,7 +95,7 @@ public class StackTrace
 	 * 		show stack trace until it crosses your own class boundary, e.g. in
 	 * 		constructor
 	 */
-	public static void dumpShortInvocationTrace(Class<?> skipClass)
+	public static void dumpShortInvocationTrace(@Nullable Class<?> skipClass)
 	{
 		System.out.println(getShortExceptionStackTrace(null, skipClass, true));
 	}
@@ -107,7 +112,7 @@ public class StackTrace
 	 * 		show stack trace until it crosses your own class boundary, e.g. in
 	 * 		constructor
 	 */
-	public static String getShortInvocationTrace(Class<?> skipClass)
+	public static String getShortInvocationTrace(@Nullable Class<?> skipClass)
 	{
 		return getShortExceptionStackTrace(null, skipClass, true);
 	}
@@ -149,8 +154,8 @@ public class StackTrace
 	 * 
 	 * @return short exception stack trace
 	 */
-	public static String getShortExceptionStackTrace(final Throwable e, 
-		final Class<?> skipClass, final boolean skipCommonClasses)
+	public static String getShortExceptionStackTrace(@Nullable final Throwable e, 
+		final @Nullable Class<?> skipClass, final boolean skipCommonClasses)
 			throws IllegalArgumentException, NullPointerException
 	{
 		return getShortExceptionStackTrace(e, skipClass == null ? null : skipClass.getName(), skipCommonClasses);
@@ -175,8 +180,8 @@ public class StackTrace
 	 * 
 	 * @return short exception stack trace
 	 */
-	public static String getShortExceptionStackTrace(final Throwable e, 
-		final String skipClass, final boolean skipCommonClasses)
+	public static String getShortExceptionStackTrace(@Nullable final Throwable e, 
+		final @Nullable String skipClass, final boolean skipCommonClasses)
 			throws IllegalArgumentException, NullPointerException
 	{
 		StringBuilder sb = new StringBuilder(2048);
