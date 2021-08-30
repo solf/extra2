@@ -2018,7 +2018,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	{
 		final WBRBCacheMessageSeverity severity = msg.getSeverity(); 
 		
-		switch(msg.getSeverity())
+		switch(severity)
 		{
 //			case TRACE:
 //				if (!log.isTraceEnabled())
