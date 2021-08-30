@@ -25,7 +25,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public enum LogMessageSeverity
 {
-	// aaa add trace?
+	TRACE,
 	DEBUG,
 	INFO,
 	/**

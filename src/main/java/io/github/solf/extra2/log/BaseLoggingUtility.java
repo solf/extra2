@@ -289,10 +289,10 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		
 		switch(severity)
 		{
-//			case TRACE:
-//				if (!log.isTraceEnabled())
-//					return;
-//				break;
+			case TRACE:
+				if (!log.isTraceEnabled())
+					return;
+				break;
 			case DEBUG:
 				if (!log.isDebugEnabled())
 					return;
@@ -318,14 +318,15 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		
 		String formattedMsg = spiLogMessage_FormatAndTrackMessage(log, msg, exception, args);
 		
+		// aaa separate into method that can be overridden (i.e. to execute code when it is known 100% that we'll be logging stuff)
 		switch(severity)
 		{
-//			case TRACE:
-//				if (e != null)
-//					log.trace(formattedMsg, e);
-//				else
-//					log.trace(formattedMsg);
-//				break;
+			case TRACE:
+				if (exception != null)
+					log.trace(formattedMsg, exception);
+				else
+					log.trace(formattedMsg);
+				break;
 			case DEBUG:
 				if (exception != null)
 					log.debug(formattedMsg, exception);
@@ -426,7 +427,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	protected final AtomicReference<LogMessageTypeLoggingCounter>[] messageTypeCountersArray;
 	
 	/**
-	 * Used to track message stats via classificators in {@link #logNonStandardMessage(LogMessageSeverity, String, Throwable, Object...)}
+	 * Used to track message stats via classificators in {@link #logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)}
 	 */
 	protected final ConcurrentHashMap<String, AtomicReference<LogMessageTypeLoggingCounter>> messageClassificatorCountersMap = 
 		new ConcurrentHashMap<String, AtomicReference<LogMessageTypeLoggingCounter>>();
@@ -463,7 +464,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		else
 		{
 			final AtomicReference<LogMessageTypeLoggingCounter> reference;
-			if (isStandardMessage(msg))
+			if (isThrottledByMessageOrdinal(msg))
 			{
 				reference = messageTypeCountersArray[getMessageOrdinal(msg)];
 				msgId = msg.toString();
@@ -572,6 +573,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				
 				switch (severity)
 				{
+					case TRACE:
 					case DEBUG:
 					case INFO:
 					case EXTERNAL_INFO:
@@ -640,7 +642,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * @param classifier non-null string used for message classification, e.g.
 	 * 		for message throttling
 	 */
-	protected void logNonStandardMessage(LogMessageSeverity severity, @NonNull String classifier, @Nullable Throwable exception, Object... args)
+	public void logNonClassifiedMessage(LogMessageSeverity severity, @NonNull String classifier, @Nullable Throwable exception, Object... args)
 	{
 		LogMessageType msg = getStandardMessageForNonStandardMessage(severity, classifier, exception, args);
 		
@@ -778,13 +780,14 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	protected abstract int getMessageOrdinal(LogMessageType msg);
 	
 	/**
-	 * Returns whether the given message is 'standard' or not (if your 
-	 * implementation supports {@link #logNonStandardMessage(LogMessageSeverity, String, Throwable, Object...)})
+	 * Returns whether the given message is throttled by the message ordinal (if your 
+	 * implementation supports {@link #logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)},
+	 * then those messages likely will not be throttled by the message ordinal)
 	 * <p>
-	 * This affects how throttling is evaluated, for non-standard messages
-	 * it is based on classificators rather than on message types.
+	 * This affects how throttling is evaluated, for messages not throttled by
+	 * ordinal it is based on classificator + severity instead.
 	 */
-	protected abstract boolean isStandardMessage(LogMessageType msg);
+	protected abstract boolean isThrottledByMessageOrdinal(LogMessageType msg);
 	
 	/**
 	 * Returns whether the given message can be throttled.
@@ -843,7 +846,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	protected abstract boolean isUpdateStatsForMessage(LogMessageType msg, @Nullable Throwable exception, Object... args);
 
 	/**
-	 * If you're supporting {@link #logNonStandardMessage(LogMessageSeverity, String, Throwable, Object...)},
+	 * If you're supporting {@link #logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)},
 	 * then this should return an appropriate standard message type that will
 	 * be used to log the particular non-standard message.
 	 */

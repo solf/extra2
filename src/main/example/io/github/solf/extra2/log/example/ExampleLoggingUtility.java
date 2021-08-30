@@ -54,8 +54,7 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	}
 
 	@Override
-	protected LogMessageSeverity getMessageSeverity(
-		ExampleLogMessage msg)
+	protected LogMessageSeverity getMessageSeverity(ExampleLogMessage msg)
 	{
 		return msg.getSeverity();
 	}
@@ -86,9 +85,9 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	}
 
 	@Override
-	protected boolean isStandardMessage(ExampleLogMessage msg)
+	protected boolean isThrottledByMessageOrdinal(ExampleLogMessage msg)
 	{
-		return msg.isStandardMessage();
+		return msg.isThrottledByMessageOrdinal();
 	}
 
 	@Override
@@ -112,24 +111,26 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	{
 		switch (severity)
 		{
+			case TRACE:
+				return ExampleLogMessage.NON_CLASSIFIED_TRACE;
 			case DEBUG:
-				return ExampleLogMessage.NON_STANDARD_DEBUG;
+				return ExampleLogMessage.NON_CLASSIFIED_DEBUG;
 			case ERROR:
-				return ExampleLogMessage.NON_STANDARD_ERROR;
+				return ExampleLogMessage.NON_CLASSIFIED_ERROR;
 			case EXTERNAL_DATA_LOSS:
-				return ExampleLogMessage.NON_STANDARD_EXTERNAL_DATA_LOSS;
+				return ExampleLogMessage.NON_CLASSIFIED_EXTERNAL_DATA_LOSS;
 			case EXTERNAL_ERROR:
-				return ExampleLogMessage.NON_STANDARD_EXTERNAL_ERROR;
+				return ExampleLogMessage.NON_CLASSIFIED_EXTERNAL_ERROR;
 			case EXTERNAL_INFO:
-				return ExampleLogMessage.NON_STANDARD_EXTERNAL_INFO;
+				return ExampleLogMessage.NON_CLASSIFIED_EXTERNAL_INFO;
 			case EXTERNAL_WARN:
-				return ExampleLogMessage.NON_STANDARD_EXTERNAL_WARN;
+				return ExampleLogMessage.NON_CLASSIFIED_EXTERNAL_WARN;
 			case CRITICAL:
-				return ExampleLogMessage.NON_STANDARD_FATAL;
+				return ExampleLogMessage.NON_CLASSIFIED_FATAL;
 			case INFO:
-				return ExampleLogMessage.NON_STANDARD_INFO;
+				return ExampleLogMessage.NON_CLASSIFIED_INFO;
 			case WARN:
-				return ExampleLogMessage.NON_STANDARD_WARN;
+				return ExampleLogMessage.NON_CLASSIFIED_WARN;
 		}
 		
 		throw new AssertionException("This code should not be reacheable!");
