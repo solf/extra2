@@ -2583,7 +2583,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	{
 		try
 		{
-			haveNoLock_РЎheckCache(key, true, true, Boolean.TRUE);
+			haveNoLock_CheckCache(key, true, true, Boolean.TRUE);
 		} catch (InterruptedException e)
 		{
 			throw new WAInterruptedException("Cache preload interrupted for [" + key + "]: " + e, e);
@@ -2609,7 +2609,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * 		is full (so no additional element may be added)
 	 */
 	@Nullable
-	protected WBRBCacheEntry haveNoLock_РЎheckCache(K key, 
+	protected WBRBCacheEntry haveNoLock_CheckCache(K key, 
 		boolean addIfMissing, boolean returnNullIfAdded, final @Nullable Boolean isPreload) 
 		throws IllegalArgumentException, CacheFullException, InterruptedException
 	{
@@ -5594,7 +5594,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			for (int removedFromCacheResultCounter = 0; removedFromCacheResultCounter < retries; removedFromCacheResultCounter++)
 			{
 				// Figure out cache entry
-				final WBRBCacheEntry cacheEntry = haveNoLock_РЎheckCache(
+				final WBRBCacheEntry cacheEntry = haveNoLock_CheckCache(
 					key, 
 					(maxWaitVirtualMsec >= 0)/*whether to add if missing*/,
 					(maxWaitVirtualMsec == 0)/*when no-waiting, just-added item should return null*/,
