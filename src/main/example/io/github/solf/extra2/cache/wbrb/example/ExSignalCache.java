@@ -15,7 +15,7 @@
  */
 package io.github.solf.extra2.cache.wbrb.example;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

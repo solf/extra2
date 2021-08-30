@@ -17,7 +17,7 @@ package io.github.solf.extra2.options;
 
 import java.util.MissingResourceException;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.config.Configuration;
 import io.github.solf.extra2.config.FlatConfiguration;

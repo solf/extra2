@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
 import java.util.MissingResourceException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WBRBConfig;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache;
