@@ -22,9 +22,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.NonNullByDefault;
-
 import org.codehaus.plexus.util.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import com.google.common.io.Files;
 

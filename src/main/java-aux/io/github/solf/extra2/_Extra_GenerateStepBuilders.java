@@ -17,7 +17,7 @@ package io.github.solf.extra2;
 
 import java.io.IOException;
 
-import javax.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.cache.wbrb.WBRBStatus;
 import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext;
