@@ -221,7 +221,10 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	public BaseLoggingUtility(LoggingConfig config) 
 	{
 		this.config = config;
-		this.commonNamingPrefix = config.getCommonNamingPrefix();
+		{
+			String p = config.getCommonNamingPrefix();
+			this.commonNamingPrefix = p.isEmpty() ? "" : p + " ";
+		}
 		
 		
 		// Initialize logging stuff
@@ -274,16 +277,16 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	protected void spiLogMessage_Plain(LogMessageType msg, @Nullable Throwable exception, Object... args)
 		throws InterruptedException
 	{
-		Logger log = spiGetLogger(msg, exception, args);
+		Logger theLog = spiGetLogger(msg, exception, args);
 		
-		spiLogMessage_Plain(log, msg, exception, args);
+		spiLogMessage_Plain(theLog, msg, exception, args);
 	}
 	
 	/**
 	 * Implementation of event logging that just logs the event to the given logger
 	 * without any additional processing or checking.
 	 */
-	protected void spiLogMessage_Plain(Logger log, LogMessageType msg, @Nullable Throwable exception, Object... args)
+	protected void spiLogMessage_Plain(Logger theLog, LogMessageType msg, @Nullable Throwable exception, Object... args)
 		throws InterruptedException
 	{
 		final LogMessageSeverity severity = getMessageSeverity(msg);
@@ -291,33 +294,33 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		switch(severity)
 		{
 			case TRACE:
-				if (!log.isTraceEnabled())
+				if (!theLog.isTraceEnabled())
 					return;
 				break;
 			case DEBUG:
-				if (!log.isDebugEnabled())
+				if (!theLog.isDebugEnabled())
 					return;
 				break;
 			case INFO:
 			case EXTERNAL_INFO:
-				if (!log.isInfoEnabled())
+				if (!theLog.isInfoEnabled())
 					return;
 				break;
 			case WARN:
 			case EXTERNAL_WARN:
-				if (!log.isWarnEnabled())
+				if (!theLog.isWarnEnabled())
 					return;
 				break;
 			case ERROR:
 			case EXTERNAL_DATA_LOSS:
 			case EXTERNAL_ERROR:
 			case CRITICAL:
-				if (!log.isErrorEnabled())
+				if (!theLog.isErrorEnabled())
 					return;
 				break;
 		}
 		
-		spiLogMessage_FinalFormatAndLogMessage(log, msg, exception, args);
+		spiLogMessage_FinalFormatAndLogMessage(theLog, msg, exception, args);
 	}
 
 	/**
@@ -325,20 +328,20 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * it performs the final formatting of the message and the actually logs it.
 	 */
 	protected void spiLogMessage_FinalFormatAndLogMessage(
-		Logger log, LogMessageType msg, @Nullable Throwable exception,
+		Logger theLog, LogMessageType msg, @Nullable Throwable exception,
 		Object... args)
 		throws InterruptedException
 	{
-		String formattedMsg = spiLogMessage_FormatAndTrackMessage(log, msg, exception, args);
+		String formattedMsg = spiLogMessage_FormatAndTrackMessage(theLog, msg, exception, args);
 		
-		spiLogMessage_FinalLogMessage(log, formattedMsg, msg, exception);
+		spiLogMessage_FinalLogMessage(theLog, formattedMsg, msg, exception);
 	}
 
 	/**
 	 * This is invoked to finally log the message (after message text was already
 	 * formatted).
 	 */
-	protected void spiLogMessage_FinalLogMessage(Logger log,
+	protected void spiLogMessage_FinalLogMessage(Logger theLog,
 		String formattedMsg, LogMessageType msg, @Nullable Throwable exception,
 		@SuppressWarnings("unused") Object... args)
 	{
@@ -346,43 +349,43 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		{
 			case TRACE:
 				if (exception != null)
-					log.trace(formattedMsg, exception);
+					theLog.trace(formattedMsg, exception);
 				else
-					log.trace(formattedMsg);
+					theLog.trace(formattedMsg);
 				break;
 			case DEBUG:
 				if (exception != null)
-					log.debug(formattedMsg, exception);
+					theLog.debug(formattedMsg, exception);
 				else
-					log.debug(formattedMsg);
+					theLog.debug(formattedMsg);
 				break;
 			case INFO:
 			case EXTERNAL_INFO:
 				if (exception != null)
-					log.info(formattedMsg, exception);
+					theLog.info(formattedMsg, exception);
 				else
-					log.info(formattedMsg);
+					theLog.info(formattedMsg);
 				break;
 			case WARN:
 			case EXTERNAL_WARN:
 				if (exception != null)
-					log.warn(formattedMsg, exception);
+					theLog.warn(formattedMsg, exception);
 				else
-					log.warn(formattedMsg);
+					theLog.warn(formattedMsg);
 				break;
 			case ERROR:
 			case EXTERNAL_DATA_LOSS:
 			case EXTERNAL_ERROR:
 				if (exception != null)
-					log.error(formattedMsg, exception);
+					theLog.error(formattedMsg, exception);
 				else
-					log.error(formattedMsg);
+					theLog.error(formattedMsg);
 				break;
 			case CRITICAL:
 				if (exception != null)
-					log.error(criticalMarker, formattedMsg, exception);
+					theLog.error(criticalMarker, formattedMsg, exception);
 				else
-					log.error(criticalMarker, formattedMsg);
+					theLog.error(criticalMarker, formattedMsg);
 				break;
 		}
 	}
@@ -396,7 +399,6 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	{
 		StringBuilder sb = new StringBuilder(100);
 		sb.append(commonNamingPrefix);
-		sb.append(' ');
 		sb.append(msg.toString());
 		
 		final String formattedMsg;

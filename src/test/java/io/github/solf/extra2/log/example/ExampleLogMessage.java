@@ -213,12 +213,16 @@ public enum ExampleLogMessage
 	// =========================================================================
 	
 	
-	
-	/**
-	 * Since there are no other messages with WARN severity (yet?) -- create this
-	 * one to be able to test them.
-	 */
+	TEST_TRACE(TRACE),
+	TEST_DEBUG(DEBUG),
+	TEST_INFO(INFO),
 	TEST_WARN(WARN),
+	TEST_EXTERNAL_INFO(EXTERNAL_INFO),
+	TEST_EXTERNAL_WARN(EXTERNAL_WARN),
+	TEST_EXTERNAL_ERROR(EXTERNAL_ERROR),
+	TEST_EXTERNAL_DATA_LOSS(EXTERNAL_DATA_LOSS),
+	TEST_ERROR(ERROR),
+	TEST_CRITICAL(CRITICAL),
 	
 	
 	/**
