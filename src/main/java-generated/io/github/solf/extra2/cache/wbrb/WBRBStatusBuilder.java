@@ -17,19 +17,13 @@ package io.github.solf.extra2.cache.wbrb;
 
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
-
-import io.github.solf.extra2.cache.wbrb.WBRBCacheMessage;
-import io.github.solf.extra2.cache.wbrb.WBRBCacheMessageSeverity;
-import io.github.solf.extra2.cache.wbrb.WBRBStatus;
-import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheControlState;
 import io.github.solf.extra2.cache.wbrb.WriteBehindResyncInBackgroundCache.WBRBCacheEntry;
-import io.github.solf.extra2.codegenerate.stepbuilder.unused.UnusedInterface;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import io.github.solf.extra2.codegenerate.stepbuilder.unused.UnusedInterface;
 
 /**
  *  Step Builder class for {@link WBRBStatus}

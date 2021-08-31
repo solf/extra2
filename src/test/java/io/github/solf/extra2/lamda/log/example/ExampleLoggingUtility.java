@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.log.example;
+package io.github.solf.extra2.lamda.log.example;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,10 +22,12 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.exception.AssertionException;
 import io.github.solf.extra2.log.BaseLoggingUtility;
-import io.github.solf.extra2.log.LogConfig;
+import io.github.solf.extra2.log.LoggingConfig;
 import io.github.solf.extra2.log.LogMessageSeverity;
 
 /**
+ * aaa - add MDC with stack trace or similar
+ * aaa - add logger selection
  * aaa - class description and otherwise fix comments and stuff
  *
  * @author Sergey Olefir
@@ -36,7 +38,7 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	/**
 	 * @param config
 	 */
-	public ExampleLoggingUtility(LogConfig config)
+	public ExampleLoggingUtility(LoggingConfig config)
 	{
 		super(config);
 	}

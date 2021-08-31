@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.log.example;
+package io.github.solf.extra2.lamda.log.example;
 
 import static io.github.solf.extra2.log.LogMessageSeverity.CRITICAL;
 import static io.github.solf.extra2.log.LogMessageSeverity.DEBUG;

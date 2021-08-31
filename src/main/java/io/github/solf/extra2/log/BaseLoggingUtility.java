@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
+import io.github.solf.extra2.exception.AssertionException;
 import io.github.solf.extra2.util.TypeUtil;
 import lombok.Getter;
 import lombok.NonNull;
@@ -56,7 +57,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	/**
 	 * Config for this logging utility.
 	 */
-	protected final LogConfig config;
+	protected final LoggingConfig config;
 	
 	/**
 	 * Pre-prepared common naming prefix for all logging messages.
@@ -68,7 +69,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * Cached status of the logging if previously calculated.
 	 */
 	@Nullable
-	protected volatile LogStats cachedStatus;
+	protected volatile LoggingStatus cachedStatus;
 	
 	/**
 	 * Stats for this logging utility.
@@ -217,7 +218,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * Constructor.
 	 * aaa fix comment
 	 */
-	public BaseLoggingUtility(LogConfig config) 
+	public BaseLoggingUtility(LoggingConfig config) 
 	{
 		this.config = config;
 		this.commonNamingPrefix = config.getCommonNamingPrefix();
@@ -316,10 +317,32 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				break;
 		}
 		
+		spiLogMessage_FinalFormatAndLogMessage(log, msg, exception, args);
+	}
+
+	/**
+	 * This is invoked when the decision was made that message should be logged;
+	 * it performs the final formatting of the message and the actually logs it.
+	 */
+	protected void spiLogMessage_FinalFormatAndLogMessage(
+		Logger log, LogMessageType msg, @Nullable Throwable exception,
+		Object... args)
+		throws InterruptedException
+	{
 		String formattedMsg = spiLogMessage_FormatAndTrackMessage(log, msg, exception, args);
 		
-		// aaa separate into method that can be overridden (i.e. to execute code when it is known 100% that we'll be logging stuff)
-		switch(severity)
+		spiLogMessage_FinalLogMessage(log, formattedMsg, msg, exception);
+	}
+
+	/**
+	 * This is invoked to finally log the message (after message text was already
+	 * formatted).
+	 */
+	protected void spiLogMessage_FinalLogMessage(Logger log,
+		String formattedMsg, LogMessageType msg, @Nullable Throwable exception,
+		@SuppressWarnings("unused") Object... args)
+	{
+		switch(getMessageSeverity(msg))
 		{
 			case TRACE:
 				if (exception != null)
@@ -851,4 +874,153 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * be used to log the particular non-standard message.
 	 */
 	protected abstract LogMessageType getStandardMessageForNonStandardMessage(LogMessageSeverity severity, String classifier, @Nullable Throwable exception, Object... args);
+	
+	
+	/**
+	 * Gets cache status (e.g. for monitoring).
+	 * 
+	 * @param maximum age for the retrieved status -- previously calculated status
+	 * 		is cached so it can be re-used if it is not older that the given
+	 * 		maximum age; this age is in 'virtual' ms, i.e. affected by {@link #timeFactor()};
+	 * 		use 0 to disable caching
+	 * 
+	 * @throws IllegalArgumentException if maximum age is negative
+	 */
+	public LoggingStatus getStatus(final long maximumAgeMsVirtual)
+		throws IllegalArgumentException
+	{
+		if (maximumAgeMsVirtual < 0)
+			throw new IllegalArgumentException("Maximum age must be non-negative, got: " + maximumAgeMsVirtual);
+		
+		final long now = timeNow();
+		if (maximumAgeMsVirtual > 0)
+		{
+			LoggingStatus status = cachedStatus;
+			if (status != null)
+			{
+				long validUntil = timeAddVirtualIntervalToRealWorldTime(
+					status.getStatusCreatedAt(), maximumAgeMsVirtual);
+				
+				if (validUntil >= now)
+					return status; 
+			}
+		}
+		
+		// Need new status; 
+		// given that building status accesses a lot of contended stuff, 
+		// synchronize to make sure this is not duplicated
+		LogStats cacheStats = getStats();
+		synchronized (cacheStats)
+		{
+			// Double-check if status was updated concurrently and is maybe valid now
+			if (maximumAgeMsVirtual > 0)
+			{
+				LoggingStatus status = cachedStatus;
+				if (status != null)
+				{
+					long validUntil = timeAddVirtualIntervalToRealWorldTime(
+						status.getStatusCreatedAt(), maximumAgeMsVirtual);
+					
+					if (validUntil >= now)
+						return status; 
+				}
+			}
+			
+			// Need to build a new status
+			long msgWarnCount = cacheStats.msgWarnCount.get();
+			long msgExternalWarnCount = cacheStats.msgExternalWarnCount.get();
+			long msgExternalErrorCount = cacheStats.msgExternalErrorCount.get();
+			long msgExternalDataLossCount = cacheStats.msgExternalDataLossCount.get();
+			long msgErrorCount = cacheStats.msgErrorCount.get();
+			long msgCriticalCount = cacheStats.msgCriticalCount.get();
+			
+			long[] lastTimestampMsgPerSeverityOrdinal = new long[cacheStats.lastTimestampMsgPerSeverityOrdinal.length];
+			@Nullable String[] lastLoggedTextMsgPerSeverityOrdinal = new @Nullable String[lastTimestampMsgPerSeverityOrdinal.length];
+			for (int i = 0; i < lastTimestampMsgPerSeverityOrdinal.length; i++)
+			{
+				lastTimestampMsgPerSeverityOrdinal[i] = cacheStats.lastTimestampMsgPerSeverityOrdinal[i].get();
+				lastLoggedTextMsgPerSeverityOrdinal[i] = cacheStats.lastLoggedTextMsgPerSeverityOrdinal[i].get();
+			}
+			
+			long lastWarnMsgTimestamp = 0;
+			@Nullable String lastWarnLoggedMsgText = null;
+			long lastErrorMsgTimestamp = 0;
+			@Nullable String lastErrorLoggedMsgText = null;
+			long lastCriticalMsgTimestamp = 0;
+			@Nullable String lastCriticalLoggedMsgText = null;
+			for (LogMessageSeverity severity : LogMessageSeverity.values())
+			{
+				int index = severity.ordinal();
+				switch (severity)
+				{
+					case TRACE:
+					case DEBUG:
+					case EXTERNAL_INFO:
+					case INFO:
+						continue;
+					case EXTERNAL_WARN:
+					case WARN:
+						{
+							long ts = lastTimestampMsgPerSeverityOrdinal[index];
+							if (ts > lastWarnMsgTimestamp)
+							{
+								lastWarnMsgTimestamp = ts;
+								lastWarnLoggedMsgText = lastLoggedTextMsgPerSeverityOrdinal[index];
+							}
+						}
+						continue;
+					case ERROR:
+					case EXTERNAL_DATA_LOSS:
+					case EXTERNAL_ERROR:
+						{
+							long ts = lastTimestampMsgPerSeverityOrdinal[index];
+							if (ts > lastErrorMsgTimestamp)
+							{
+								lastErrorMsgTimestamp = ts;
+								lastErrorLoggedMsgText = lastLoggedTextMsgPerSeverityOrdinal[index];
+							}
+						}
+						continue;
+					case CRITICAL:
+						{
+							long ts = lastTimestampMsgPerSeverityOrdinal[index];
+							if (ts > lastCriticalMsgTimestamp)
+							{
+								lastCriticalMsgTimestamp = ts;
+								lastCriticalLoggedMsgText = lastLoggedTextMsgPerSeverityOrdinal[index];
+							}
+						}
+						continue;
+				}
+				
+				throw new AssertionException("code should not be reachable");
+			}
+			
+			LoggingStatus status = LoggingStatusBuilder
+				.statusCreatedAt(now)
+				.loggedWarnCount(msgWarnCount)
+				.loggedExternalWarnCount(msgExternalWarnCount)
+				.loggedExternalErrorCount(msgExternalErrorCount)
+				.loggedExternalDataLossCount(msgExternalDataLossCount)
+				.loggedErrorCount(msgErrorCount)
+				.loggedCriticalCount(msgCriticalCount)
+				.loggedTotalWarnOrHigherCount(msgWarnCount + msgExternalWarnCount + msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgCriticalCount)
+				.loggedTotalErrorOrHigherCount(msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgCriticalCount)
+				
+				.lastLoggedTimestampPerSeverityOrdinal(lastTimestampMsgPerSeverityOrdinal)
+				.lastLoggedTextPerSeverityOrdinal(lastLoggedTextMsgPerSeverityOrdinal)
+				.lastLoggedWarnTimestamp(lastWarnMsgTimestamp)
+				.lastLoggedWarnText(lastWarnLoggedMsgText)
+				.lastLoggedErrorTimestamp(lastErrorMsgTimestamp)
+				.lastLoggedErrorText(lastErrorLoggedMsgText)
+				.lastLoggedCriticalTimestamp(lastCriticalMsgTimestamp)
+				.lastLoggedCriticalText(lastCriticalLoggedMsgText)
+				
+				.buildLoggingStatus()
+				;
+			
+			cachedStatus = status; // cache status
+			return status;
+		}
+	}
 }

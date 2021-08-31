@@ -16,20 +16,14 @@
 package io.github.solf.extra2.codegenerate.stepbuilder;
 
 import javax.annotation.Nullable;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.Parameter;
-
-import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext;
-import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderGenerator;
-import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderPreprocessor;
-import io.github.solf.extra2.codegenerate.stepbuilder.unused.UnusedInterface;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import io.github.solf.extra2.codegenerate.stepbuilder.unused.UnusedInterface;
 
 /**
  *  Step Builder class for {@link StepBuilderContext}

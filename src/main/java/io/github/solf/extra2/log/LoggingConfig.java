@@ -30,7 +30,7 @@ import lombok.Getter;
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public class LogConfig extends BaseDelegatingOptions
+public class LoggingConfig extends BaseDelegatingOptions
 {
 	/** Common naming prefix to be used for all messages, can be empty */
 	@Getter
@@ -50,7 +50,7 @@ public class LogConfig extends BaseDelegatingOptions
 	 * @throws MissingResourceException
 	 * @throws NumberFormatException
 	 */
-	public LogConfig(BaseOptions initializeFrom)
+	public LoggingConfig(BaseOptions initializeFrom)
 		throws MissingResourceException,
 		NumberFormatException
 	{
@@ -62,7 +62,7 @@ public class LogConfig extends BaseDelegatingOptions
 	 * @throws MissingResourceException
 	 * @throws NumberFormatException
 	 */
-	public LogConfig(FlatConfiguration configuration)
+	public LoggingConfig(FlatConfiguration configuration)
 		throws MissingResourceException,
 		NumberFormatException
 	{

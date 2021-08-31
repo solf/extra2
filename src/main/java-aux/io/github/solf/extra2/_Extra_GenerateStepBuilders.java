@@ -22,6 +22,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import io.github.solf.extra2.cache.wbrb.WBRBStatus;
 import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext;
 import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderGenerator;
+import io.github.solf.extra2.log.LoggingStatus;
 
 /**
  * Generates step builders via {@link StepBuilderGenerator}
@@ -45,6 +46,7 @@ public class _Extra_GenerateStepBuilders
 		stepBuilderSuppressUnused.generateBuilderFileForAllFields(StepBuilderContext.class);
 		
 		stepBuilderSuppressUnusedAndAllOnFinalBuild.generateBuilderFileForAllFields(WBRBStatus.class);
+		stepBuilderSuppressUnusedAndAllOnFinalBuild.generateBuilderFileForAllFields(LoggingStatus.class);
 		
 		System.out.println("Code generation done.");
 	}
