@@ -60,7 +60,7 @@ public class DefaultStepBuilderPreprocessor implements StepBuilderPreprocessor
 	 */
 	@Getter
 	private static final Set<String> defaultWhitelistedClassAnnotations = Collections.unmodifiableSet(new HashSet<>(
-		Arrays.asList("ParametersAreNonnullByDefault")));
+		Arrays.asList("ParametersAreNonnullByDefault", "NonNullByDefault")));
 	
 	/**
 	 * Class annotations that are whitelisted for this instance.
