@@ -15,7 +15,10 @@
  */
 package io.github.solf.extra2.log;
 
+import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
+import static io.github.solf.extra2.testutil.AssertExtra.assertContains;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 import java.util.ArrayList;
 
@@ -27,6 +30,7 @@ import org.testng.annotations.Test;
 import io.github.solf.extra2.config.Configuration;
 import io.github.solf.extra2.config.OverrideFlatConfiguration;
 import io.github.solf.extra2.log.example.ExampleLogMessage;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Tests for {@link BaseLoggingUtility}
@@ -34,11 +38,14 @@ import io.github.solf.extra2.log.example.ExampleLogMessage;
  * @author Sergey Olefir
  */
 @NonNullByDefault
+@Slf4j
 public class TestLoggingUtilitity
 {
 	@Test
-	public void testLogging()
+	public void testLogging() throws InterruptedException
 	{
+		long start = System.currentTimeMillis();
+		
 		TestLog logger = new TestLog(
 			new LoggingConfig(Configuration.fromPropertiesFile("logging/logutil.properties")));
 	
@@ -82,7 +89,147 @@ public class TestLoggingUtilitity
 			assertLoggerContainsAndClear(logger2, 1, "namingPrefix TEST_INFO [arg1]", 1);
 		}
 		
-		// aaa test monitoring
+		// Test throttling
+		// new logger instance to reset any throttling
+		logger = new TestLog(new LoggingConfig(Configuration.fromPropertiesFile("logging/logutil.properties")));
+		for (int i = 0; i < 15; i++)
+			logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		for (int i = 0; i < 20; i++)
+			logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+		assertLoggerContains(logger, 22, "TEST_ERROR", 11); // 11th is the throttling message
+		assertLoggerContains(logger, 22, "TEST_INFO", 11); // 11th is the throttling message
+		assertLoggerContains(logger, 22, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [TEST_ERROR,", 1);
+		assertLoggerContainsAndClear(logger, 22, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [TEST_INFO,", 1);
+		logger.setTimeFactor(100);
+		Thread.sleep(200); // should reset throttling window
+		logger.logMessage(ExampleLogMessage.TEST_ERROR, null); // should produce 2 messages
+		logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+		logger.setTimeFactor(Float.NaN);
+		for (int i = 0; i < 14; i++)
+			logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+		assertLoggerContains(logger, 12 + 2, "TEST_INFO", 12); // 11th is the throttling message, 12th is the 'skipped X' msg
+		assertLoggerContains(logger, 12 + 2, "LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED [TEST_INFO, 10]", 1);
+		assertLoggerContainsAndClear(logger, 12 + 2, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [TEST_INFO,", 1);
+		logger.setTimeFactor(100);
+		Thread.sleep(200); // should reset throttling window
+		logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+		logger.setTimeFactor(Float.NaN);
+		assertLoggerContains(logger, 2, "TEST_INFO", 2); // 2nd is the 'skipped X' msg
+		assertLoggerContainsAndClear(logger, 2, "LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED [TEST_INFO, 5]", 1);
+		
+		// Log more stuff for monitoring testing
+		Thread.sleep(3); // advance time
+		logger.logMessage(ExampleLogMessage.TEST_WARN, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_WARN", 1);
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
+		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
+
+		Thread.sleep(3); // advance time
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
+		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
+
+		Thread.sleep(3); // advance time
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
+		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
+
+		Thread.sleep(3); // advance time
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
+		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
+
+		Thread.sleep(3); // advance time
+		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
+		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
+		
+		Thread.sleep(3); // advance time
+		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
+		
+		LoggingStatus status = logger.getStatus(10000);
+		long afterFirstStatus = System.currentTimeMillis(); 
+		log.info("First status: {}", status);
+		
+		assertBetweenInclusive(status.getStatusCreatedAt(), start, afterFirstStatus);
+		assertBetweenInclusive(status.getLastLoggedWarnTimestamp(), start, afterFirstStatus);
+		assertBetweenInclusive(status.getLastLoggedErrorTimestamp(), start, afterFirstStatus);
+		assertBetweenInclusive(status.getLastLoggedCriticalTimestamp(), start, afterFirstStatus);
+		
+		assertContains(status.getLastLoggedWarnText(), "TEST_EXTERNAL_WARN");
+		assertContains(status.getLastLoggedErrorText(), "TEST_ERROR");
+		assertContains(status.getLastLoggedCriticalText(), "TEST_CRITICAL");
+		
+		assertEquals(status.getLoggedWarnCount(), 1);
+		assertEquals(status.getLoggedExternalWarnCount(), 2);
+		assertEquals(status.getLoggedExternalErrorCount(), 3);
+		assertEquals(status.getLoggedExternalDataLossCount(), 4);
+		assertEquals(status.getLoggedErrorCount(), 21); // 5 + 15 in a loop + 1 to reset throttling
+		assertEquals(status.getLoggedCriticalCount(), 6);
+		assertEquals(status.getLoggedTotalWarnOrHigherCount(), 37);
+		assertEquals(status.getLoggedTotalErrorOrHigherCount(), 34);
+		
+		Thread.sleep(5);
+		long start2 = System.currentTimeMillis();
+		
+		logger.logMessage(ExampleLogMessage.TEST_WARN, null);
+		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		logger.logMessage(ExampleLogMessage.ASSERTION_FAILED, null);
+		
+		{
+			LoggingStatus status2 = logger.getStatus(10000); // must hit status cache
+			assertEquals(status2, status);
+		}
+		
+		logger.setTimeFactor(200);
+		Thread.sleep(100);
+		LoggingStatus status2 = logger.getStatus(10000); // this should be a new status
+		assertNotEquals(status2, status);
+		long afterSecondStatus = System.currentTimeMillis();
+		log.info("Second status: {}", status2);
+		
+		assertBetweenInclusive(status2.getStatusCreatedAt(), start2, afterSecondStatus);
+		assertBetweenInclusive(status2.getLastLoggedWarnTimestamp(), start2, afterSecondStatus);
+		assertBetweenInclusive(status2.getLastLoggedErrorTimestamp(), start2, afterSecondStatus);
+		assertBetweenInclusive(status2.getLastLoggedCriticalTimestamp(), start2, afterSecondStatus);
+		
+		assertContains(status2.getLastLoggedWarnText(), "TEST_WARN");
+		assertContains(status2.getLastLoggedErrorText(), "TEST_EXTERNAL_DATA_LOSS");
+		assertContains(status2.getLastLoggedCriticalText(), "ASSERTION_FAILED");
+		
+		assertEquals(status2.getLoggedWarnCount(), 2);
+		assertEquals(status2.getLoggedExternalWarnCount(), 2);
+		assertEquals(status2.getLoggedExternalErrorCount(), 3);
+		assertEquals(status2.getLoggedExternalDataLossCount(), 5);
+		assertEquals(status2.getLoggedErrorCount(), 21); // 5 + 15 in a loop + 1 to reset throttling
+		assertEquals(status2.getLoggedCriticalCount(), 7);
+		assertEquals(status2.getLoggedTotalWarnOrHigherCount(), 40);
+		assertEquals(status2.getLoggedTotalErrorOrHigherCount(), 36);
 	}
 	
 	

@@ -213,6 +213,7 @@ public enum ExampleLogMessage
 	// =========================================================================
 	
 	
+	// These are purely to support logging subsystem testing
 	TEST_TRACE(TRACE),
 	TEST_DEBUG(DEBUG),
 	TEST_INFO(INFO),

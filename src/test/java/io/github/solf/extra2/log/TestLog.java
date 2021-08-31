@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import io.github.solf.extra2.log.example.ExampleLogMessage;
 import io.github.solf.extra2.log.example.ExampleLoggingUtility;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,6 +43,12 @@ public class TestLog extends ExampleLoggingUtility
 	 */
 	@Getter
 	private final ArrayList<String> loggedMessages = new ArrayList<>(10);
+	
+	/**
+	 * Time factor (compression factor) for this instance.
+	 */
+	@Getter @Setter
+	private float timeFactor = Float.NaN; 
 	
 	/**
 	 * @param config
@@ -71,6 +78,13 @@ public class TestLog extends ExampleLoggingUtility
 		
 		super.spiLogMessage_FinalLogMessage(theLog, formattedMsg, msg, exception, args);
 	}
+
+	@Override
+	protected float timeFactor()
+	{
+		return timeFactor;
+	}
+	
 	
 	
 }
