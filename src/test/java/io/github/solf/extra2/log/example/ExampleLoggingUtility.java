@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.lamda.log.example;
+package io.github.solf.extra2.log.example;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

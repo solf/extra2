@@ -17,7 +17,6 @@ package io.github.solf.extra2.log.example;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import io.github.solf.extra2.lamda.log.example.ExampleLoggingUtility;
 import io.github.solf.extra2.log.BaseLoggingUtility;
 
 /**

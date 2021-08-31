@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.lamda.log;
+package io.github.solf.extra2.log;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.config.Configuration;
-import io.github.solf.extra2.lamda.log.example.ExampleLogMessage;
-import io.github.solf.extra2.lamda.log.example.ExampleLoggingUtility;
 import io.github.solf.extra2.log.BaseLoggingUtility;
 import io.github.solf.extra2.log.LoggingConfig;
+import io.github.solf.extra2.log.example.ExampleLogMessage;
+import io.github.solf.extra2.log.example.ExampleLoggingUtility;
 
 /**
  * Tests for {@link BaseLoggingUtility}
