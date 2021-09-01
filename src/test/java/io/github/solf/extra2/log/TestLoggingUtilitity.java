@@ -231,7 +231,42 @@ public class TestLoggingUtilitity
 		assertEquals(status2.getLoggedTotalWarnOrHigherCount(), 40);
 		assertEquals(status2.getLoggedTotalErrorOrHigherCount(), 36);
 		
-		// aaa test logging non-classified
+		// ====================== TEST NON-CLASSIFIED LOGGING BELOW ===================
+		
+		// Test throttling
+		// new logger instance to reset any throttling
+		logger = new TestLog(new LoggingConfig(Configuration.fromPropertiesFile("logging/logutil.properties")));
+		for (int i = 0; i < 15; i++)
+			logger.logNonClassified(LogMessageSeverity.INFO, "typeA", null);
+		for (int i = 0; i < 20; i++)
+			logger.logNonClassified(LogMessageSeverity.INFO, "typeB", null);
+		assertLoggerContains(logger, 22, "typeA", 11); // 11th is the throttling message
+		assertLoggerContains(logger, 22, "typeB", 11); // 11th is the throttling message
+		assertLoggerContains(logger, 22, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [typeA_INFO,", 1);
+		assertLoggerContainsAndClear(logger, 22, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [typeB_INFO,", 1);
+		for (int i = 0; i < 13; i++)
+			logger.logNonClassified(LogMessageSeverity.WARN, "typeA", null);
+		assertLoggerContains(logger, 11, "typeA", 11); // 11th is the throttling message
+		assertLoggerContainsAndClear(logger, 11, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [typeA_WARN,", 1);
+		
+		
+		logger.setTimeFactor(100);
+		Thread.sleep(200); // should reset throttling window
+		logger.logNonClassified(LogMessageSeverity.INFO, "typeB", null); // should produce 2 messages
+		logger.logNonClassified(LogMessageSeverity.INFO, "typeA", null);
+		logger.setTimeFactor(Float.NaN);
+		for (int i = 0; i < 14; i++)
+			logger.logNonClassified(LogMessageSeverity.INFO, "typeA", null);
+		assertLoggerContains(logger, 12 + 2, "typeA", 12); // 11th is the throttling message, 12th is the 'skipped X' msg
+		assertLoggerContains(logger, 12 + 2, "LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED [typeA_INFO, 5]", 1);
+		assertLoggerContainsAndClear(logger, 12 + 2, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [typeA_INFO,", 1);
+		logger.setTimeFactor(100);
+		Thread.sleep(200); // should reset throttling window
+		logger.logNonClassified(LogMessageSeverity.INFO, "typeA", null);
+		logger.setTimeFactor(Float.NaN);
+		assertLoggerContains(logger, 2, "typeA", 2); // 2nd is the 'skipped X' msg
+		assertLoggerContainsAndClear(logger, 2, "LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED [typeA_INFO, 5]", 1);
+		
 	}
 	
 	
