@@ -306,7 +306,7 @@ public enum ExampleLogMessage
 	 * expected to be a non-null String classifier that is used to distinguish 
 	 * between message types for throttling.
 	 * 
-	 * @see BaseLoggingUtility#logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)
+	 * @see BaseLoggingUtility#logNonClassified(LogMessageSeverity, String, Throwable, Object...)
 	 */
 	@Getter
 	private final boolean throttledByMessageOrdinal;

@@ -40,11 +40,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.ToString;
 
-// aaa make sure monitoring works / add a test for that?
-// aaa fix comment for this file
-// aaa convert from protected to private?
-
 /**
+ * A base implementation of logging/error reporting for applications that 
+ * supports message throttling and monitoring (i.e. counts of warnings/errors/etc).
+ * <p>
+ * By far the easiest way to use this should be to copy paste example files
+ * (under 'test') -- ExampleLogMessage and ExampleLoggingUtility
+ * <p> 
+ * Generally speaking you subclass this, implement required methods, and then
+ * you have option to override other methods to further customize the behavior.
+ * <p>
+ * Typical targets for overrides are:
+ * <p>
+ * {@link #spiGetLogger(Object, Throwable, Object...)} -- to specify logger for
+ * messages rather than using the default one (which is {@link BaseLoggingUtility})
+ * <p>
+ * {@link #logNonClassified(LogMessageSeverity, String, Throwable, Object...)} --
+ * override and make public if you want to allow logging of non-classified
+ * (non-typeized) messages
  *
  * @author Sergey Olefir
  * 
@@ -61,7 +74,6 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	
 	/**
 	 * Pre-prepared common naming prefix for all logging messages.
-	 * aaa fix to work properly with empty/null prefix?
 	 */
 	protected final String commonNamingPrefix;
 	
@@ -92,7 +104,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * Logged used by default implementation in {@link #spiGetLogger(LogMessageType, Throwable, Object...)}
 	 * AND as final fallback if logging fails repeatedly.
 	 */
-	private static final Logger defaultWBRBlog = LoggerFactory.getLogger(BaseLoggingUtility.class);		
+	private static final Logger defaultLog = LoggerFactory.getLogger(BaseLoggingUtility.class);		
 	
 	/**
 	 * Stats collected by this logging utility
@@ -216,7 +228,6 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 
 	/**
 	 * Constructor.
-	 * aaa fix comment
 	 */
 	public BaseLoggingUtility(LoggingConfig config) 
 	{
@@ -246,14 +257,14 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	/**
 	 * Returns logger used by this instance for this particular event logging
 	 * <p>
-	 * Default implementation just returns {@link #defaultWBRBlog} which is
+	 * Default implementation just returns {@link #defaultLog} which is
 	 * based of our own class name. 
 	 */
 	@SuppressWarnings("unused")
 	protected Logger spiGetLogger(LogMessageType msg, @Nullable Throwable exception, Object... args)
 		throws InterruptedException
 	{
-		return defaultWBRBlog;
+		return defaultLog;
 	}
 
 	/**
@@ -452,7 +463,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	protected final AtomicReference<LogMessageTypeLoggingCounter>[] messageTypeCountersArray;
 	
 	/**
-	 * Used to track message stats via classificators in {@link #logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)}
+	 * Used to track message stats via classificators in {@link #logNonClassified(LogMessageSeverity, String, Throwable, Object...)}
 	 */
 	protected final ConcurrentHashMap<String, AtomicReference<LogMessageTypeLoggingCounter>> messageClassificatorCountersMap = 
 		new ConcurrentHashMap<String, AtomicReference<LogMessageTypeLoggingCounter>>();
@@ -586,7 +597,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * {@link SneakyThrows}
 	 */
 	@SneakyThrows(InterruptedException.class) // see comment above
-	public void logMessage(@NonNull LogMessageType msg, @Nullable Throwable exception, Object... args)
+	public void log(@NonNull LogMessageType msg, @Nullable Throwable exception, Object... args)
 	{
 		try
 		{
@@ -646,7 +657,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				getStats().msgErrorCount.incrementAndGet();
 				try
 				{
-					defaultWBRBlog.error("LOGGING FAILED for: " + msg + ": " + loggingException, loggingException);
+					defaultLog.error("LOGGING FAILED for: " + msg + ": " + loggingException, loggingException);
 				} catch (Exception e3)
 				{
 					// ignore this
@@ -667,7 +678,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	 * @param classifier non-null string used for message classification, e.g.
 	 * 		for message throttling
 	 */
-	public void logNonClassifiedMessage(LogMessageSeverity severity, @NonNull String classifier, @Nullable Throwable exception, Object... args)
+	protected void logNonClassified(LogMessageSeverity severity, @NonNull String classifier, @Nullable Throwable exception, Object... args)
 	{
 		LogMessageType msg = getStandardMessageForNonStandardMessage(severity, classifier, exception, args);
 		
@@ -676,7 +687,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		if (args.length > 0)
 			System.arraycopy(args, 0, newArgs, 1, args.length);
 		
-		logMessage(msg, exception, newArgs);
+		log(msg, exception, newArgs);
 	}
 	
 	
@@ -806,7 +817,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	
 	/**
 	 * Returns whether the given message is throttled by the message ordinal (if your 
-	 * implementation supports {@link #logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)},
+	 * implementation supports {@link #logNonClassified(LogMessageSeverity, String, Throwable, Object...)},
 	 * then those messages likely will not be throttled by the message ordinal)
 	 * <p>
 	 * This affects how throttling is evaluated, for messages not throttled by
@@ -871,7 +882,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	protected abstract boolean isUpdateStatsForMessage(LogMessageType msg, @Nullable Throwable exception, Object... args);
 
 	/**
-	 * If you're supporting {@link #logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)},
+	 * If you're supporting {@link #logNonClassified(LogMessageSeverity, String, Throwable, Object...)},
 	 * then this should return an appropriate standard message type that will
 	 * be used to log the particular non-standard message.
 	 */
@@ -879,7 +890,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 	
 	
 	/**
-	 * Gets cache status (e.g. for monitoring).
+	 * Gets logging status (e.g. for monitoring).
 	 * 
 	 * @param maximum age for the retrieved status -- previously calculated status
 	 * 		is cached so it can be re-used if it is not older that the given

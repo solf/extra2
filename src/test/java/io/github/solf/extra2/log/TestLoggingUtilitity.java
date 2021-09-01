@@ -50,33 +50,33 @@ public class TestLoggingUtilitity
 			new LoggingConfig(Configuration.fromPropertiesFile("logging/logutil.properties")));
 	
 		// Test basic logging and thresholds
-		logger.logMessage(ExampleLogMessage.TEST_TRACE, null);
+		logger.log(ExampleLogMessage.TEST_TRACE, null);
 		assertLoggerContainsAndClear(logger, 0, "msgSubstring", 0); // TRACE is not logged
-		logger.logMessage(ExampleLogMessage.TEST_DEBUG, null);
+		logger.log(ExampleLogMessage.TEST_DEBUG, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_DEBUG", 1);
-		logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+		logger.log(ExampleLogMessage.TEST_INFO, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_INFO", 1);
-		logger.logMessage(ExampleLogMessage.TEST_WARN, null);
+		logger.log(ExampleLogMessage.TEST_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_WARN", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_INFO, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_INFO, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_INFO", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 	
 		// Test logging arguments
-		logger.logMessage(ExampleLogMessage.TEST_INFO, null, "testarg1", new Exception("testexc2"), "testarg2");
+		logger.log(ExampleLogMessage.TEST_INFO, null, "testarg1", new Exception("testexc2"), "testarg2");
 		assertLoggerContainsAndClear(logger, 1, "TEST_INFO [testarg1, java.lang.Exception: testexc2, testarg2]", 1);
 		
 		// Test exception stack trace logging
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, new Exception("test failure"), "errarg1", "errarg2");
+		logger.log(ExampleLogMessage.TEST_ERROR, new Exception("test failure"), "errarg1", "errarg2");
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR [errarg1, errarg2] EXCLOG: java.lang.Exception: test failure", 1);
 		
 		{
@@ -85,7 +85,7 @@ public class TestLoggingUtilitity
 			config.override("commonNamingPrefix", "namingPrefix");
 			TestLog logger2 = new TestLog(new LoggingConfig(config));
 			
-			logger2.logMessage(ExampleLogMessage.TEST_INFO, null, "arg1");
+			logger2.log(ExampleLogMessage.TEST_INFO, null, "arg1");
 			assertLoggerContainsAndClear(logger2, 1, "namingPrefix TEST_INFO [arg1]", 1);
 		}
 		
@@ -93,83 +93,83 @@ public class TestLoggingUtilitity
 		// new logger instance to reset any throttling
 		logger = new TestLog(new LoggingConfig(Configuration.fromPropertiesFile("logging/logutil.properties")));
 		for (int i = 0; i < 15; i++)
-			logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+			logger.log(ExampleLogMessage.TEST_ERROR, null);
 		for (int i = 0; i < 20; i++)
-			logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+			logger.log(ExampleLogMessage.TEST_INFO, null);
 		assertLoggerContains(logger, 22, "TEST_ERROR", 11); // 11th is the throttling message
 		assertLoggerContains(logger, 22, "TEST_INFO", 11); // 11th is the throttling message
 		assertLoggerContains(logger, 22, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [TEST_ERROR,", 1);
 		assertLoggerContainsAndClear(logger, 22, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [TEST_INFO,", 1);
 		logger.setTimeFactor(100);
 		Thread.sleep(200); // should reset throttling window
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, null); // should produce 2 messages
-		logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+		logger.log(ExampleLogMessage.TEST_ERROR, null); // should produce 2 messages
+		logger.log(ExampleLogMessage.TEST_INFO, null);
 		logger.setTimeFactor(Float.NaN);
 		for (int i = 0; i < 14; i++)
-			logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+			logger.log(ExampleLogMessage.TEST_INFO, null);
 		assertLoggerContains(logger, 12 + 2, "TEST_INFO", 12); // 11th is the throttling message, 12th is the 'skipped X' msg
 		assertLoggerContains(logger, 12 + 2, "LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED [TEST_INFO, 10]", 1);
 		assertLoggerContainsAndClear(logger, 12 + 2, "LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR [TEST_INFO,", 1);
 		logger.setTimeFactor(100);
 		Thread.sleep(200); // should reset throttling window
-		logger.logMessage(ExampleLogMessage.TEST_INFO, null);
+		logger.log(ExampleLogMessage.TEST_INFO, null);
 		logger.setTimeFactor(Float.NaN);
 		assertLoggerContains(logger, 2, "TEST_INFO", 2); // 2nd is the 'skipped X' msg
 		assertLoggerContainsAndClear(logger, 2, "LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED [TEST_INFO, 5]", 1);
 		
 		// Log more stuff for monitoring testing
 		Thread.sleep(3); // advance time
-		logger.logMessage(ExampleLogMessage.TEST_WARN, null);
+		logger.log(ExampleLogMessage.TEST_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_WARN", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 
 		Thread.sleep(3); // advance time
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 
 		Thread.sleep(3); // advance time
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 
 		Thread.sleep(3); // advance time
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 
 		Thread.sleep(3); // advance time
-		logger.logMessage(ExampleLogMessage.TEST_ERROR, null);
+		logger.log(ExampleLogMessage.TEST_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
-		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 		
 		Thread.sleep(3); // advance time
-		logger.logMessage(ExampleLogMessage.TEST_CRITICAL, null);
+		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 		
 		LoggingStatus status = logger.getStatus(10000);
@@ -197,9 +197,9 @@ public class TestLoggingUtilitity
 		Thread.sleep(5);
 		long start2 = System.currentTimeMillis();
 		
-		logger.logMessage(ExampleLogMessage.TEST_WARN, null);
-		logger.logMessage(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
-		logger.logMessage(ExampleLogMessage.ASSERTION_FAILED, null);
+		logger.log(ExampleLogMessage.TEST_WARN, null);
+		logger.log(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
+		logger.log(ExampleLogMessage.ASSERTION_FAILED, null);
 		
 		{
 			LoggingStatus status2 = logger.getStatus(10000); // must hit status cache
@@ -230,6 +230,8 @@ public class TestLoggingUtilitity
 		assertEquals(status2.getLoggedCriticalCount(), 7);
 		assertEquals(status2.getLoggedTotalWarnOrHigherCount(), 40);
 		assertEquals(status2.getLoggedTotalErrorOrHigherCount(), 36);
+		
+		// aaa test logging non-classified
 	}
 	
 	

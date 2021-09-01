@@ -70,20 +70,20 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	@Override
 	protected void logThrottledMessagesWereSkipped(String msgId, int approximateCount)
 	{
-		logMessage(ExampleLogMessage.LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED, null, msgId, approximateCount);
+		log(ExampleLogMessage.LOG_MESSAGE_TYPE_PREVIOUS_MESSAGES_SKIPPED, null, msgId, approximateCount);
 	}
 	
 	@Override
 	protected void logThrottledMessagesMayBeSkipped(@Nonnull String msgId,
 		long timeIntervalMs)
 	{
-		logMessage(ExampleLogMessage.LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR, null, msgId, timeIntervalMs);
+		log(ExampleLogMessage.LOG_MESSAGE_TYPE_MESSAGES_MAY_BE_SKIPPED_FOR, null, msgId, timeIntervalMs);
 	}
 	
 	@Override
 	protected void logMessageLoggingFailed(@Nonnull Throwable loggingException)
 	{
-		logMessage(ExampleLogMessage.LOG_MESSAGE_FAILED, loggingException);
+		log(ExampleLogMessage.LOG_MESSAGE_FAILED, loggingException);
 	}
 
 	@Override
