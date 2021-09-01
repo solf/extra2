@@ -33,6 +33,7 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import io.github.solf.extra2.exception.AssertionException;
+import io.github.solf.extra2.stacktrace.StackTrace;
 import io.github.solf.extra2.util.TypeUtil;
 import lombok.Getter;
 import lombok.NonNull;
@@ -643,25 +644,45 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 			if (loggingException instanceof InterruptedException) // this may be used to indicate that thread should exit 
 				throw loggingException;
 			
+			Throwable excToLog = loggingException;
+			
 			getStats().msgErrorCount.incrementAndGet();
-
+			
 			// Logging failed, try to log that fact, but it may well fail itself
 			// TO-DO monitor
-			try
+			boolean useFallbackLogging = false;
+			String exStack = StackTrace.getShortExceptionStackTrace(excToLog);
+			if (exStack.contains(".logMessageLoggingFailed("))
 			{
-				logMessageLoggingFailed(loggingException);
-			} catch (Exception e2)
+				// This means we are in the recursive failure, abort.
+				useFallbackLogging = true;
+				excToLog = new IllegalStateException("Recursive failure of logMessageLoggingFailed() method: " + excToLog, excToLog);
+			}
+			
+			if (!useFallbackLogging)
 			{
-				// This is a problem, we can't use standard logging mechanism here because it just failed
+				try
+				{
+					logMessageLoggingFailed(excToLog);
+				} catch (Exception e2)
+				{
+					useFallbackLogging = true; 
+				}
+			}
+			
+			if (useFallbackLogging)
+			{
+				// We can't use standard logging mechanism here because it just failed
 				// so just log it directly
 				getStats().msgErrorCount.incrementAndGet();
 				try
 				{
-					defaultLog.error("LOGGING FAILED for: " + msg + ": " + loggingException, loggingException);
+					defaultLog.error("LOGGING FAILED for: " + msg + ": " + excToLog, excToLog);
 				} catch (Exception e3)
 				{
 					// ignore this
 				}
+				
 			}
 		}
 	}
