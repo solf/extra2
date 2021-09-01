@@ -19,20 +19,28 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.slf4j.Logger;
+import org.slf4j.MDC;
+import org.slf4j.MDC.MDCCloseable;
 
 import io.github.solf.extra2.exception.AssertionException;
 import io.github.solf.extra2.log.BaseLoggingUtility;
 import io.github.solf.extra2.log.LoggingConfig;
+import io.github.solf.extra2.stacktrace.StackTrace;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import io.github.solf.extra2.log.LogMessageSeverity;
 
 /**
- * aaa - add MDC with stack trace or similar
- * aaa - add logger selection
- * aaa - class description and otherwise fix comments and stuff
+ * Example of how to use {@link BaseLoggingUtility} with {@link ExampleLogMessage}
+ * enum holding all the possible messages.
+ * <p>
+ * See the end of the file for the demonstration of some of the optional overrides.
  *
  * @author Sergey Olefir
  */
 @NonNullByDefault
+@Slf4j
 public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 {
 	/**
@@ -138,6 +146,43 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 		throw new AssertionException("This code should not be reacheable!");
 	}
 
+	
+	// =======================================================================
+	// ==================   BELOW IS OPTIONAL OVERRIDE METHODS  ==============
+	// =======================================================================
+	
+
+	// Override this to use specific logger, rather than the default one for BaseLoggingUtility
+	@Override
+	protected Logger spiGetLogger(ExampleLogMessage msg,
+		@Nullable Throwable exception, @Nonnull Object @Nonnull... args)
+		throws InterruptedException
+	{
+		return log;
+	}
+
+	// Override this and make public to allow access to non-classified logging
+	@Override
+	public void logNonClassified(LogMessageSeverity severity,
+		@NonNull String classifier, @Nullable Throwable exception,
+		@Nonnull Object @Nonnull... args)
+	{
+		super.logNonClassified(severity, classifier, exception, args);
+	}
+
+	// Example of how you can add context (MDC) information to messages when it is known that they will be logged
+	@Override
+	protected void spiLogMessage_FinalFormatAndLogMessage(Logger theLog,
+		ExampleLogMessage msg, @Nullable Throwable exception,
+		@Nonnull Object @Nonnull... args)
+		throws InterruptedException
+	{
+		// Need to skip both self and the parent logging class in stack trace!
+		try (MDCCloseable mdc1 = MDC.putCloseable("stackTrace", StackTrace.getShortInvocationTrace(BaseLoggingUtility.class, ExampleLoggingUtility.class)))
+		{
+			super.spiLogMessage_FinalFormatAndLogMessage(theLog, msg, exception, args);
+		}
+	}
 	
 	
 }

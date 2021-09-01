@@ -34,8 +34,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Possible cache messages.
- * TO-DO check if they are all used?
+ * Example file for handling messages logged via {@link BaseLoggingUtility}
+ * as enums.
+ * 
+ * @see ExampleLoggingUtility
  *
  * @author Sergey Olefir
  */
