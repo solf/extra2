@@ -16,9 +16,11 @@
 package io.github.solf.extra2.stacktrace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -41,6 +43,7 @@ public class StackTrace
 		ArrayList<String> list = new ArrayList<String>();
 		list.add("java.");
 		list.add("javax.");
+		list.add("jdk.");
 		list.add("sun.");
 		list.add("org.testng.");
 		list.add("org.junit.");
@@ -72,15 +75,16 @@ public class StackTrace
 	 * 
 	 * @see #getShortExceptionStackTrace(Throwable, int, boolean)
 	 * 
-	 * @param skipClass if not null, then initial stack frames up and including
-	 * 		this class appearance will be skipped -- useful if e.g. you want to
+	 * @param skipClasses if not null, then initial stack frames up and including
+	 * 		these class(es) appearance will be skipped -- useful if e.g. you want to
 	 * 		show stack trace until it crosses your own class boundary, e.g. in
-	 * 		constructor
+	 * 		a logging method; multiple classes are supported to cover the case
+	 * 		when both 'class' and 'superclass' methods are used in the stack trace
 	 */
-	public static void dumpShortInvocationTraceIfEnabled(@Nullable Class<?> skipClass)
+	public static void dumpShortInvocationTraceIfEnabled(Class<?>... skipClasses)
 	{
 		if (isShowInvocationTrace())
-			dumpShortInvocationTrace(skipClass);
+			dumpShortInvocationTrace(skipClasses);
 	}
 	
 	/**
@@ -90,14 +94,15 @@ public class StackTrace
 	 * 
 	 * @see #getShortExceptionStackTrace(Throwable, int, boolean)
 	 * 
-	 * @param skipClass if not null, then initial stack frames up and including
-	 * 		this class appearance will be skipped -- useful if e.g. you want to
+	 * @param skipClasses if not null, then initial stack frames up and including
+	 * 		these class(es) appearance will be skipped -- useful if e.g. you want to
 	 * 		show stack trace until it crosses your own class boundary, e.g. in
-	 * 		constructor
+	 * 		a logging method; multiple classes are supported to cover the case
+	 * 		when both 'class' and 'superclass' methods are used in the stack trace
 	 */
-	public static void dumpShortInvocationTrace(@Nullable Class<?> skipClass)
+	public static void dumpShortInvocationTrace(Class<?>... skipClasses)
 	{
-		System.out.println(getShortExceptionStackTrace(null, skipClass, true));
+		System.out.println(getShortExceptionStackTrace(null, true, skipClasses));
 	}
 	
 	/**
@@ -107,14 +112,15 @@ public class StackTrace
 	 * 
 	 * @see #getShortExceptionStackTrace(Throwable, int, boolean)
 	 * 
-	 * @param skipClass if not null, then initial stack frames up and including
-	 * 		this class appearance will be skipped -- useful if e.g. you want to
+	 * @param skipClasses if not null, then initial stack frames up and including
+	 * 		these class(es) appearance will be skipped -- useful if e.g. you want to
 	 * 		show stack trace until it crosses your own class boundary, e.g. in
-	 * 		constructor
+	 * 		a logging method; multiple classes are supported to cover the case
+	 * 		when both 'class' and 'superclass' methods are used in the stack trace
 	 */
-	public static String getShortInvocationTrace(@Nullable Class<?> skipClass)
+	public static String getShortInvocationTrace(Class<?>... skipClasses)
 	{
-		return getShortExceptionStackTrace(null, skipClass, true);
+		return getShortExceptionStackTrace(null, true, skipClasses);
 	}
 	
 	/**
@@ -131,34 +137,31 @@ public class StackTrace
 		Throwable e = new Throwable(); 
 		String callerClassName = e.getStackTrace()[1].getClassName();
 		
-		return getShortExceptionStackTrace(null, callerClassName, true);
+		return getShortExceptionStackTrace(null, true, callerClassName);
 	}
 
+	
+	/**
+	 * Empty string array for reuse.
+	 */
+	private static String[] EMPTY_STRING_ARRAY = {};
 	
 	/**
 	 * Gets condensed (one-line) stack trace for the exception.
 	 * Format is something like:
 	 * io.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; io.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
 	 * (i.e. it only lists line numbers while they are in the same class).
+	 * <p>
+	 * This skips common classes.
 	 * 
-	 * @param e exception to prepare stack trace for, if null, it'll create new
-	 * 		exception internally and such stack trace will skip initial frames
-	 * 		that are inside this ({@link StackTrace}) class
-	 * @param skipClass if not null, then initial stack frames up and including
-	 * 		this class appearance will be skipped -- useful if e.g. you want to
-	 * 		show stack trace until it crosses your own class boundary, e.g. in
-	 * 		constructor
-	 * @param skipCommonClasses if true, stack trace will silently exclude 'common'
-	 * 		classes, particularly java.*, javax.*, sun.*, org.testng.*, org.junit.*,
-	 * 		org.apache.*, org.restlet.*
+	 * @param e exception to prepare stack trace for
 	 * 
 	 * @return short exception stack trace
 	 */
-	public static String getShortExceptionStackTrace(@Nullable final Throwable e, 
-		final @Nullable Class<?> skipClass, final boolean skipCommonClasses)
+	public static String getShortExceptionStackTrace(final Throwable e)
 			throws IllegalArgumentException, NullPointerException
 	{
-		return getShortExceptionStackTrace(e, skipClass == null ? null : skipClass.getName(), skipCommonClasses);
+		return getShortExceptionStackTrace(e, true, EMPTY_STRING_ARRAY);
 	}	
 	
 	/**
@@ -170,18 +173,54 @@ public class StackTrace
 	 * @param e exception to prepare stack trace for, if null, it'll create new
 	 * 		exception internally and such stack trace will skip initial frames
 	 * 		that are inside this ({@link StackTrace}) class
-	 * @param skipClass if not null, then initial stack frames up and including
-	 * 		this class appearance will be skipped -- useful if e.g. you want to
-	 * 		show stack trace until it crosses your own class boundary, e.g. in
-	 * 		constructor
 	 * @param skipCommonClasses if true, stack trace will silently exclude 'common'
-	 * 		classes, particularly java.*, javax.*, sun.*, org.testng.*, org.junit.*,
-	 * 		org.apache.*, org.restlet.*
+	 * 		classes, particularly java.*, javax.*, jdk.*, sun.*, org.testng.*, 
+	 * 		org.junit.*, org.apache.*, org.restlet.*, org.eclipse.*
+	 * @param skipClasses if not null, then initial stack frames up and including
+	 * 		these class(es) appearance will be skipped -- useful if e.g. you want to
+	 * 		show stack trace until it crosses your own class boundary, e.g. in
+	 * 		a logging method; multiple classes are supported to cover the case
+	 * 		when both 'class' and 'superclass' methods are used in the stack trace
 	 * 
 	 * @return short exception stack trace
 	 */
 	public static String getShortExceptionStackTrace(@Nullable final Throwable e, 
-		final @Nullable String skipClass, final boolean skipCommonClasses)
+		final boolean skipCommonClasses, final Class<?>... skipClasses)
+			throws IllegalArgumentException, NullPointerException
+	{
+		String[] skipClassNames = EMPTY_STRING_ARRAY;
+		if (skipClasses.length > 0)
+		{
+			skipClassNames = new @Nonnull String[skipClasses.length];
+			for (int i = 0; i < skipClasses.length; i++)
+				skipClassNames[i] = skipClasses[i].getName();
+		}
+		
+		return getShortExceptionStackTrace(e, skipCommonClasses, skipClassNames);
+	}	
+	
+	/**
+	 * Gets condensed (one-line) stack trace for the exception.
+	 * Format is something like:
+	 * io.github.solf.extra2.tests.SomeTest.innerTest(SomeTest.java:268), 321, 4; io.github.solf.extra2.tests.SomeTest.test(SomeTest.java:22)
+	 * (i.e. it only lists line numbers while they are in the same class).
+	 * 
+	 * @param e exception to prepare stack trace for, if null, it'll create new
+	 * 		exception internally and such stack trace will skip initial frames
+	 * 		that are inside this ({@link StackTrace}) class
+	 * @param skipCommonClasses if true, stack trace will silently exclude 'common'
+	 * 		classes, particularly java.*, javax.*, jdk.*, sun.*, org.testng.*, 
+	 * 		org.junit.*, org.apache.*, org.restlet.*, org.eclipse.*
+	 * @param skipClasses if not null, then initial stack frames up and including
+	 * 		these class(es) appearance will be skipped -- useful if e.g. you want to
+	 * 		show stack trace until it crosses your own class boundary, e.g. in
+	 * 		a logging method; multiple classes are supported to cover the case
+	 * 		when both 'class' and 'superclass' methods are used in the stack trace
+	 * 
+	 * @return short exception stack trace
+	 */
+	public static String getShortExceptionStackTrace(@Nullable final Throwable e, 
+		final boolean skipCommonClasses, final String... skipClasses)
 			throws IllegalArgumentException, NullPointerException
 	{
 		StringBuilder sb = new StringBuilder(2048);
@@ -196,7 +235,7 @@ public class StackTrace
 		
 		StackTraceElement[] stack = exception.getStackTrace();
 		
-		String skipClassName = skipClass;
+		String[] skipClassNames = skipClasses.length == 0 ? null : skipClasses;
 		boolean foundSkipClass = false;
 		String currentClassName = null;
 		frameCycle:
@@ -214,18 +253,21 @@ public class StackTrace
 					skipSelf = false; // Only skip own initial frames.
 			}
 			
-			if (skipClassName != null)
+			if (skipClassNames != null)
 			{
-				if (className.equals(skipClassName))
+				for (String skipName : skipClassNames)
 				{
-					foundSkipClass = true;
-					continue;
+					if (className.equals(skipName))
+					{
+						foundSkipClass = true;
+						continue frameCycle;
+					}
 				}
 				
 				// Class doesn't match skip class name.
 				if (foundSkipClass)
 				{
-					skipClassName = null; // Skipped enough, stop skipping.
+					skipClassNames = null; // Skipped enough, stop skipping.
 				}
 				else
 				{
@@ -261,9 +303,9 @@ public class StackTrace
 		if (sb.length() == 0)
 		{
 			if (e == null)
-				throw new IllegalArgumentException("Empty short stack trace for arguments: exception=null, skipClass=" + skipClass + ", skipCommonClasses=" + skipCommonClasses);
+				throw new IllegalArgumentException("Empty short stack trace for arguments: exception=null, skipClass=" + Arrays.toString(skipClasses) + ", skipCommonClasses=" + skipCommonClasses);
 			else
-				throw new IllegalArgumentException("Empty short stack trace for arguments: exception=<see cause>, skipClass=" + skipClass + ", skipCommonClasses=" + skipCommonClasses, e);
+				throw new IllegalArgumentException("Empty short stack trace for arguments: exception=<see cause>, skipClass=" + Arrays.toString(skipClasses) + ", skipCommonClasses=" + skipCommonClasses, e);
 		}
 		
 		return sb.toString();
