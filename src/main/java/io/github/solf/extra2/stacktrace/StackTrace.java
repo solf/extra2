@@ -15,6 +15,8 @@
  */
 package io.github.solf.extra2.stacktrace;
 
+import static io.github.solf.extra2.util.NullUtil.nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -189,7 +191,7 @@ public class StackTrace
 			throws IllegalArgumentException, NullPointerException
 	{
 		String[] skipClassNames = EMPTY_STRING_ARRAY;
-		if (skipClasses.length > 0)
+		if ((nullable(skipClasses) != null) && (skipClasses.length > 0))
 		{
 			skipClassNames = new @Nonnull String[skipClasses.length];
 			for (int i = 0; i < skipClasses.length; i++)
@@ -235,7 +237,7 @@ public class StackTrace
 		
 		StackTraceElement[] stack = exception.getStackTrace();
 		
-		String[] skipClassNames = skipClasses.length == 0 ? null : skipClasses;
+		String[] skipClassNames = nullable(skipClasses) == null ? null : skipClasses.length == 0 ? null : skipClasses; 
 		boolean foundSkipClass = false;
 		String currentClassName = null;
 		frameCycle:
