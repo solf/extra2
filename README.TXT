@@ -163,7 +163,11 @@ something in different circumstances.
 
 
 - io.github.solf.extra2.log
-Some SLF4J helpers.
+BaseLoggingUtility that it is intended to provide basis for implementing
+application-specific logging with support for message throttling & monitoring.
+See ExampleLoggingUtility.
+
+Also some SLF4J helpers.
 
 
 - io.github.solf.extra2.log4j

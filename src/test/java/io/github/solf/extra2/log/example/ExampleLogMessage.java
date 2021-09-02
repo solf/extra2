@@ -272,21 +272,21 @@ public enum ExampleLogMessage
 	
 	
 	/**
-	 * Cache was started
+	 * Application was started
 	 * <p>
 	 * Arguments: none
 	 */
 	STARTED(INFO),
 
 	/**
-	 * Cache shutdown requested
+	 * Application shutdown requested
 	 * <p>
 	 * Arguments: none
 	 */
 	SHUTDOWN_REQUESTED(INFO),
 	
 	/**
-	 * Cache was shutdown
+	 * Application was shutdown
 	 * <p>
 	 * Arguments: remaining items in the inflight queue
 	 */
