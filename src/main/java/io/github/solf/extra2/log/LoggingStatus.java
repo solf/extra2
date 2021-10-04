@@ -89,6 +89,17 @@ public class LoggingStatus
 	private final long loggedErrorCount;
 	
 	/**
+	 * Indicates an error (which is not likely caused by external factors) that
+	 * is likely to cause data loss.
+	 * <p>
+	 * This is used when data loss is highly likely, e.g. when there's a
+	 * state in the program that cannot be resolved while ensuring all data
+	 * is preserved. 
+	 */
+	@Getter
+	private final long loggedDataLossCount;
+	
+	/**
 	 * Indicates a critical error (that might well be fatal), meaning the
 	 * software may well become unusable after this happens. 
 	 */
@@ -106,6 +117,12 @@ public class LoggingStatus
 	 */
 	@Getter
 	private final long loggedTotalErrorOrHigherCount;
+	
+	/**
+	 * Total count of messages with severity 'data loss' or higher.
+	 */
+	@Getter
+	private final long loggedTotalDataLossOrHigherCount;
 	
 	
 	/**
@@ -166,6 +183,21 @@ public class LoggingStatus
 	 */
 	@Getter
 	private final @Nullable String lastLoggedErrorText;
+	
+	/**
+	 * Timestamp for the last message (regardless of whether it was logged)
+	 * of the DATA_LOSS-type severity, 0 if no such messages were logged.
+	 */
+	@Getter
+	private final long lastLoggedDataLossTimestamp;
+	
+	/**
+	 * Last logged message text of the DATA_LOSS-type severity, null if no
+	 * such messages were logged (this does not track messages that were not
+	 * logged due to low severity or throttling).
+	 */
+	@Getter
+	private final @Nullable String lastLoggedDataLossText;
 	
 	/**
 	 * Timestamp for the last message (regardless of whether it was logged)

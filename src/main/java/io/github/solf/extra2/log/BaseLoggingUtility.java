@@ -182,6 +182,16 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		public AtomicLong msgErrorCount = new AtomicLong(0);
 		
 		/**
+		 * Indicates an error (which is not likely caused by external factors) that
+		 * is likely to cause data loss.
+		 * <p>
+		 * This is used when data loss is highly likely, e.g. when there's a
+		 * state in the program that cannot be resolved while ensuring all data
+		 * is preserved. 
+		 */
+		public AtomicLong msgDataLossCount = new AtomicLong(0);
+		
+		/**
 		 * Indicates a critical error (that might well be fatal), meaning the
 		 * software may well become unusable after this happens. 
 		 */
@@ -248,6 +258,11 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				messageTypeCountersArray[i] = new AtomicReference<>(new LogMessageTypeLoggingCounter(0));
 		}
 	}
+	
+	/**
+	 * DATA LOSS marker -- used when there was a loss of data.
+	 */
+	protected static final Marker datalossMarker = MarkerFactory.getMarker("DATALOSS");
 	
 	/**
 	 * CRITICAL marker -- used in preference to FATAL because FATAL originally
@@ -324,6 +339,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 					return;
 				break;
 			case ERROR:
+			case DATA_LOSS:
 			case EXTERNAL_DATA_LOSS:
 			case EXTERNAL_ERROR:
 			case CRITICAL:
@@ -386,12 +402,18 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 					theLog.warn(formattedMsg);
 				break;
 			case ERROR:
-			case EXTERNAL_DATA_LOSS:
 			case EXTERNAL_ERROR:
 				if (exception != null)
 					theLog.error(formattedMsg, exception);
 				else
 					theLog.error(formattedMsg);
+				break;
+			case DATA_LOSS:
+			case EXTERNAL_DATA_LOSS:
+				if (exception != null)
+					theLog.error(datalossMarker, formattedMsg, exception);
+				else
+					theLog.error(datalossMarker, formattedMsg);
 				break;
 			case CRITICAL:
 				if (exception != null)
@@ -629,6 +651,9 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 						break;
 					case ERROR:
 						getStats().msgErrorCount.incrementAndGet();
+						break;
+					case DATA_LOSS:
+						getStats().msgDataLossCount.incrementAndGet();
 						break;
 					case CRITICAL:
 						getStats().msgCriticalCount.incrementAndGet();
@@ -965,6 +990,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 			long msgExternalWarnCount = cacheStats.msgExternalWarnCount.get();
 			long msgExternalErrorCount = cacheStats.msgExternalErrorCount.get();
 			long msgExternalDataLossCount = cacheStats.msgExternalDataLossCount.get();
+			long msgDataLossCount = cacheStats.msgDataLossCount.get();
 			long msgErrorCount = cacheStats.msgErrorCount.get();
 			long msgCriticalCount = cacheStats.msgCriticalCount.get();
 			
@@ -980,6 +1006,8 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 			@Nullable String lastWarnLoggedMsgText = null;
 			long lastErrorMsgTimestamp = 0;
 			@Nullable String lastErrorLoggedMsgText = null;
+			long lastDataLossMsgTimestamp = 0;
+			@Nullable String lastDataLossLoggedMsgText = null;
 			long lastCriticalMsgTimestamp = 0;
 			@Nullable String lastCriticalLoggedMsgText = null;
 			for (LogMessageSeverity severity : LogMessageSeverity.values())
@@ -1004,7 +1032,6 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 						}
 						continue;
 					case ERROR:
-					case EXTERNAL_DATA_LOSS:
 					case EXTERNAL_ERROR:
 						{
 							long ts = lastTimestampMsgPerSeverityOrdinal[index];
@@ -1015,6 +1042,17 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 							}
 						}
 						continue;
+					case DATA_LOSS:
+					case EXTERNAL_DATA_LOSS:
+					{
+						long ts = lastTimestampMsgPerSeverityOrdinal[index];
+						if (ts > lastDataLossMsgTimestamp)
+						{
+							lastDataLossMsgTimestamp = ts;
+							lastDataLossLoggedMsgText = lastLoggedTextMsgPerSeverityOrdinal[index];
+						}
+					}
+					continue;
 					case CRITICAL:
 						{
 							long ts = lastTimestampMsgPerSeverityOrdinal[index];
@@ -1037,9 +1075,11 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				.loggedExternalErrorCount(msgExternalErrorCount)
 				.loggedExternalDataLossCount(msgExternalDataLossCount)
 				.loggedErrorCount(msgErrorCount)
+				.loggedDataLossCount(msgDataLossCount)
 				.loggedCriticalCount(msgCriticalCount)
-				.loggedTotalWarnOrHigherCount(msgWarnCount + msgExternalWarnCount + msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgCriticalCount)
-				.loggedTotalErrorOrHigherCount(msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgCriticalCount)
+				.loggedTotalWarnOrHigherCount(msgWarnCount + msgExternalWarnCount + msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgDataLossCount + msgCriticalCount)
+				.loggedTotalErrorOrHigherCount(msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgDataLossCount + msgCriticalCount)
+				.loggedTotalDataLossOrHigherCount(msgExternalDataLossCount + msgDataLossCount + msgCriticalCount)
 				
 				.lastLoggedTimestampPerSeverityOrdinal(lastTimestampMsgPerSeverityOrdinal)
 				.lastLoggedTextPerSeverityOrdinal(lastLoggedTextMsgPerSeverityOrdinal)
@@ -1047,6 +1087,8 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				.lastLoggedWarnText(lastWarnLoggedMsgText)
 				.lastLoggedErrorTimestamp(lastErrorMsgTimestamp)
 				.lastLoggedErrorText(lastErrorLoggedMsgText)
+				.lastLoggedDataLossTimestamp(lastDataLossMsgTimestamp)
+				.lastLoggedDataLossText(lastDataLossLoggedMsgText)
 				.lastLoggedCriticalTimestamp(lastCriticalMsgTimestamp)
 				.lastLoggedCriticalText(lastCriticalLoggedMsgText)
 				

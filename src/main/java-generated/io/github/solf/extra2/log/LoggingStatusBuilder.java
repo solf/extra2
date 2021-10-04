@@ -39,7 +39,7 @@ public class LoggingStatusBuilder {
         public LoggingStatus buildLoggingStatus();
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg21 {
 
         /**
          * Last logged message text of the CRITICAL-type severity, null if no
@@ -49,54 +49,73 @@ public class LoggingStatusBuilder {
         public ZBSI_LoggingStatusBuilder_statusCreatedAt_builder lastLoggedCriticalText(@Nullable String lastLoggedCriticalText);
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg20 {
 
         /**
          * Timestamp for the last message (regardless of whether it was logged)
          * of the CRITICAL-type severity, 0 if no such messages were logged.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17 lastLoggedCriticalTimestamp(long lastLoggedCriticalTimestamp);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg21 lastLoggedCriticalTimestamp(long lastLoggedCriticalTimestamp);
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg19 {
+
+        /**
+         * Last logged message text of the DATA_LOSS-type severity, null if no
+         * such messages were logged (this does not track messages that were not
+         * logged due to low severity or throttling).
+         */
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg20 lastLoggedDataLossText(@Nullable String lastLoggedDataLossText);
+    }
+
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg18 {
+
+        /**
+         * Timestamp for the last message (regardless of whether it was logged)
+         * of the DATA_LOSS-type severity, 0 if no such messages were logged.
+         */
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg19 lastLoggedDataLossTimestamp(long lastLoggedDataLossTimestamp);
+    }
+
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17 {
 
         /**
          * Last logged message text of the ERROR-type severity, null if no
          * such messages were logged (this does not track messages that were not
          * logged due to low severity or throttling).
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16 lastLoggedErrorText(@Nullable String lastLoggedErrorText);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg18 lastLoggedErrorText(@Nullable String lastLoggedErrorText);
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16 {
 
         /**
          * Timestamp for the last message (regardless of whether it was logged)
          * of the ERROR-type severity, 0 if no such messages were logged.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15 lastLoggedErrorTimestamp(long lastLoggedErrorTimestamp);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17 lastLoggedErrorTimestamp(long lastLoggedErrorTimestamp);
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15 {
 
         /**
          * Last logged message text of the WARN-type severity, null if no
          * such messages were logged (this does not track messages that were not
          * logged due to low severity or throttling).
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14 lastLoggedWarnText(@Nullable String lastLoggedWarnText);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16 lastLoggedWarnText(@Nullable String lastLoggedWarnText);
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14 {
 
         /**
          * Timestamp for the last message (regardless of whether it was logged)
          * of the WARN-type severity, 0 if no such messages were logged.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13 lastLoggedWarnTimestamp(long lastLoggedWarnTimestamp);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15 lastLoggedWarnTimestamp(long lastLoggedWarnTimestamp);
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13 {
 
         /**
          * Collects last message text per each severity in {@link LogMessageSeverity}
@@ -109,10 +128,10 @@ public class LoggingStatusBuilder {
          * NOTE2: those are not 'atomic' with {@link #getLastTimestampMsgPerSeverityOrdinal()}
          * there can be discrepancies.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12 lastLoggedTextPerSeverityOrdinal(@Nullable String[] lastLoggedTextPerSeverityOrdinal);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14 lastLoggedTextPerSeverityOrdinal(@Nullable String[] lastLoggedTextPerSeverityOrdinal);
     }
 
-    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10 {
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12 {
 
         /**
          * Collects last message timestamps per each severity in {@link LogMessageSeverity}
@@ -125,32 +144,53 @@ public class LoggingStatusBuilder {
          * NOTE2: those are not 'atomic' with {@link #getLastLoggedTextMsgPerSeverityOrdinal()}
          * there can be discrepancies.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11 lastLoggedTimestampPerSeverityOrdinal(long[] lastLoggedTimestampPerSeverityOrdinal);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13 lastLoggedTimestampPerSeverityOrdinal(long[] lastLoggedTimestampPerSeverityOrdinal);
+    }
+
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11 {
+
+        /**
+         * Total count of messages with severity 'data loss' or higher.
+         */
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12 loggedTotalDataLossOrHigherCount(long loggedTotalDataLossOrHigherCount);
+    }
+
+    public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10 {
+
+        /**
+         * Total count of messages with severity 'error' or higher.
+         */
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11 loggedTotalErrorOrHigherCount(long loggedTotalErrorOrHigherCount);
     }
 
     public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg9 {
 
         /**
-         * Total count of messages with severity 'error' or higher.
+         * Total count of messages with severity 'warn' or higher.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10 loggedTotalErrorOrHigherCount(long loggedTotalErrorOrHigherCount);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10 loggedTotalWarnOrHigherCount(long loggedTotalWarnOrHigherCount);
     }
 
     public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg8 {
 
         /**
-         * Total count of messages with severity 'warn' or higher.
+         * Indicates a critical error (that might well be fatal), meaning the
+         * software may well become unusable after this happens.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg9 loggedTotalWarnOrHigherCount(long loggedTotalWarnOrHigherCount);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg9 loggedCriticalCount(long loggedCriticalCount);
     }
 
     public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg7 {
 
         /**
-         * Indicates a critical error (that might well be fatal), meaning the
-         * software may well become unusable after this happens.
+         * Indicates an error (which is not likely caused by external factors) that
+         * is likely to cause data loss.
+         * <p>
+         * This is used when data loss is highly likely, e.g. when there's a
+         * state in the program that cannot be resolved while ensuring all data
+         * is preserved.
          */
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg8 loggedCriticalCount(long loggedCriticalCount);
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg8 loggedDataLossCount(long loggedDataLossCount);
     }
 
     public interface ZBSI_LoggingStatusBuilder_statusCreatedAt_arg6 {
@@ -217,7 +257,7 @@ public class LoggingStatusBuilder {
         public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg2 statusCreatedAt(long statusCreatedAt);
     }
 
-    private static final class ZBSI_LoggingStatusBuilder_statusCreatedAt_builderClass implements ZBSI_LoggingStatusBuilder_statusCreatedAt_builder, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg9, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg8, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg7, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg6, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg5, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg4, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg3, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg2, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg1 {
+    private static final class ZBSI_LoggingStatusBuilder_statusCreatedAt_builderClass implements ZBSI_LoggingStatusBuilder_statusCreatedAt_builder, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg21, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg20, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg19, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg18, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg9, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg8, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg7, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg6, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg5, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg4, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg3, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg2, ZBSI_LoggingStatusBuilder_statusCreatedAt_arg1 {
 
         @Nullable
         @SuppressWarnings("all")
@@ -225,6 +265,13 @@ public class LoggingStatusBuilder {
 
         @SuppressWarnings("all")
         private long lastLoggedCriticalTimestamp;
+
+        @Nullable
+        @SuppressWarnings("all")
+        private String lastLoggedDataLossText;
+
+        @SuppressWarnings("all")
+        private long lastLoggedDataLossTimestamp;
 
         @Nullable
         @SuppressWarnings("all")
@@ -248,6 +295,9 @@ public class LoggingStatusBuilder {
         private long[] lastLoggedTimestampPerSeverityOrdinal;
 
         @SuppressWarnings("all")
+        private long loggedTotalDataLossOrHigherCount;
+
+        @SuppressWarnings("all")
         private long loggedTotalErrorOrHigherCount;
 
         @SuppressWarnings("all")
@@ -255,6 +305,9 @@ public class LoggingStatusBuilder {
 
         @SuppressWarnings("all")
         private long loggedCriticalCount;
+
+        @SuppressWarnings("all")
+        private long loggedDataLossCount;
 
         @SuppressWarnings("all")
         private long loggedErrorCount;
@@ -292,8 +345,31 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17 lastLoggedCriticalTimestamp(long lastLoggedCriticalTimestamp) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg21 lastLoggedCriticalTimestamp(long lastLoggedCriticalTimestamp) {
             this.lastLoggedCriticalTimestamp = lastLoggedCriticalTimestamp;
+            return this;
+        }
+
+        /**
+         * Last logged message text of the DATA_LOSS-type severity, null if no
+         * such messages were logged (this does not track messages that were not
+         * logged due to low severity or throttling).
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg20 lastLoggedDataLossText(@Nullable String lastLoggedDataLossText) {
+            this.lastLoggedDataLossText = lastLoggedDataLossText;
+            return this;
+        }
+
+        /**
+         * Timestamp for the last message (regardless of whether it was logged)
+         * of the DATA_LOSS-type severity, 0 if no such messages were logged.
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg19 lastLoggedDataLossTimestamp(long lastLoggedDataLossTimestamp) {
+            this.lastLoggedDataLossTimestamp = lastLoggedDataLossTimestamp;
             return this;
         }
 
@@ -304,7 +380,7 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16 lastLoggedErrorText(@Nullable String lastLoggedErrorText) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg18 lastLoggedErrorText(@Nullable String lastLoggedErrorText) {
             this.lastLoggedErrorText = lastLoggedErrorText;
             return this;
         }
@@ -315,7 +391,7 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15 lastLoggedErrorTimestamp(long lastLoggedErrorTimestamp) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg17 lastLoggedErrorTimestamp(long lastLoggedErrorTimestamp) {
             this.lastLoggedErrorTimestamp = lastLoggedErrorTimestamp;
             return this;
         }
@@ -327,7 +403,7 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14 lastLoggedWarnText(@Nullable String lastLoggedWarnText) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg16 lastLoggedWarnText(@Nullable String lastLoggedWarnText) {
             this.lastLoggedWarnText = lastLoggedWarnText;
             return this;
         }
@@ -338,7 +414,7 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13 lastLoggedWarnTimestamp(long lastLoggedWarnTimestamp) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg15 lastLoggedWarnTimestamp(long lastLoggedWarnTimestamp) {
             this.lastLoggedWarnTimestamp = lastLoggedWarnTimestamp;
             return this;
         }
@@ -356,7 +432,7 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12 lastLoggedTextPerSeverityOrdinal(@Nullable String[] lastLoggedTextPerSeverityOrdinal) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg14 lastLoggedTextPerSeverityOrdinal(@Nullable String[] lastLoggedTextPerSeverityOrdinal) {
             this.lastLoggedTextPerSeverityOrdinal = lastLoggedTextPerSeverityOrdinal;
             return this;
         }
@@ -374,8 +450,18 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11 lastLoggedTimestampPerSeverityOrdinal(long[] lastLoggedTimestampPerSeverityOrdinal) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg13 lastLoggedTimestampPerSeverityOrdinal(long[] lastLoggedTimestampPerSeverityOrdinal) {
             this.lastLoggedTimestampPerSeverityOrdinal = lastLoggedTimestampPerSeverityOrdinal;
+            return this;
+        }
+
+        /**
+         * Total count of messages with severity 'data loss' or higher.
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg12 loggedTotalDataLossOrHigherCount(long loggedTotalDataLossOrHigherCount) {
+            this.loggedTotalDataLossOrHigherCount = loggedTotalDataLossOrHigherCount;
             return this;
         }
 
@@ -384,7 +470,7 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10 loggedTotalErrorOrHigherCount(long loggedTotalErrorOrHigherCount) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg11 loggedTotalErrorOrHigherCount(long loggedTotalErrorOrHigherCount) {
             this.loggedTotalErrorOrHigherCount = loggedTotalErrorOrHigherCount;
             return this;
         }
@@ -394,7 +480,7 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg9 loggedTotalWarnOrHigherCount(long loggedTotalWarnOrHigherCount) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg10 loggedTotalWarnOrHigherCount(long loggedTotalWarnOrHigherCount) {
             this.loggedTotalWarnOrHigherCount = loggedTotalWarnOrHigherCount;
             return this;
         }
@@ -405,8 +491,23 @@ public class LoggingStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg8 loggedCriticalCount(long loggedCriticalCount) {
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg9 loggedCriticalCount(long loggedCriticalCount) {
             this.loggedCriticalCount = loggedCriticalCount;
+            return this;
+        }
+
+        /**
+         * Indicates an error (which is not likely caused by external factors) that
+         * is likely to cause data loss.
+         * <p>
+         * This is used when data loss is highly likely, e.g. when there's a
+         * state in the program that cannot be resolved while ensuring all data
+         * is preserved.
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_LoggingStatusBuilder_statusCreatedAt_arg8 loggedDataLossCount(long loggedDataLossCount) {
+            this.loggedDataLossCount = loggedDataLossCount;
             return this;
         }
 
@@ -489,7 +590,7 @@ public class LoggingStatusBuilder {
         @Override
         @SuppressWarnings("all")
         public LoggingStatus buildLoggingStatus() {
-            return new LoggingStatus(statusCreatedAt, loggedWarnCount, loggedExternalWarnCount, loggedExternalErrorCount, loggedExternalDataLossCount, loggedErrorCount, loggedCriticalCount, loggedTotalWarnOrHigherCount, loggedTotalErrorOrHigherCount, lastLoggedTimestampPerSeverityOrdinal, lastLoggedTextPerSeverityOrdinal, lastLoggedWarnTimestamp, lastLoggedWarnText, lastLoggedErrorTimestamp, lastLoggedErrorText, lastLoggedCriticalTimestamp, lastLoggedCriticalText);
+            return new LoggingStatus(statusCreatedAt, loggedWarnCount, loggedExternalWarnCount, loggedExternalErrorCount, loggedExternalDataLossCount, loggedErrorCount, loggedDataLossCount, loggedCriticalCount, loggedTotalWarnOrHigherCount, loggedTotalErrorOrHigherCount, loggedTotalDataLossOrHigherCount, lastLoggedTimestampPerSeverityOrdinal, lastLoggedTextPerSeverityOrdinal, lastLoggedWarnTimestamp, lastLoggedWarnText, lastLoggedErrorTimestamp, lastLoggedErrorText, lastLoggedDataLossTimestamp, lastLoggedDataLossText, lastLoggedCriticalTimestamp, lastLoggedCriticalText);
         }
     }
 

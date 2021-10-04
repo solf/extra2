@@ -123,6 +123,8 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 		{
 			case TRACE:
 				return ExampleLogMessage.NON_CLASSIFIED_TRACE;
+			case DATA_LOSS:
+				return ExampleLogMessage.NON_CLASSIFIED_DATA_LOSS;
 			case DEBUG:
 				return ExampleLogMessage.NON_CLASSIFIED_DEBUG;
 			case ERROR:

@@ -17,6 +17,8 @@ package io.github.solf.extra2.log;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import lombok.Getter;
+
 /**
  * Possible message severities supported by the {@link BaseLoggingUtility}
  *
@@ -25,9 +27,22 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public enum LogMessageSeverity
 {
-	TRACE,
-	DEBUG,
-	INFO,
+	TRACE(170),
+	DEBUG(270),
+	/**
+	 * Indicates an info message probably caused by external factors, such
+	 * as read retry executing.
+	 * <p>
+	 * These messages usually indicate that there was no data loss (yet).
+	 */
+	EXTERNAL_INFO(340),
+	INFO(370),
+	/**
+	 * Indicates an externally-caused warning.
+	 * <p>
+	 * These messages usually indicate that there was no data loss (yet).
+	 */
+	EXTERNAL_WARN(440),
 	/**
 	 * Indicates problem that is probably caused by internal somewhat-known
 	 * factors, such as potential concurrency/race conditions (which normally
@@ -35,27 +50,21 @@ public enum LogMessageSeverity
 	 * <p>
 	 * These usually should not result in data loss.
 	 */
-	WARN,
-	/**
-	 * Indicates an info message probably caused by external factors, such
-	 * as read retry executing.
-	 * <p>
-	 * These messages usually indicate that there was no data loss (yet).
-	 */
-	EXTERNAL_INFO,
-	/**
-	 * Indicates an externally-caused warning.
-	 * <p>
-	 * These messages usually indicate that there was no data loss (yet).
-	 */
-	EXTERNAL_WARN,
+	WARN(470),
 	/**
 	 * Indicates an error probably caused by external factors, such
 	 * as underlying storage failing.
 	 * <p>
 	 * These messages usually indicate that there was no data loss (yet).
 	 */
-	EXTERNAL_ERROR,
+	EXTERNAL_ERROR(540),
+	/**
+	 * Indicates an error which is likely to be caused by the 
+	 * problems and/or unexpected behavior in the program code itself.
+	 * <p>
+	 * Data loss is likely although this should not be fatal.
+	 */
+	ERROR(570),
 	/**
 	 * Indicates an error probably caused by external factors, such
 	 * as underlying storage failing.
@@ -63,18 +72,35 @@ public enum LogMessageSeverity
 	 * This is used when data loss is highly likely, e.g. when implementation
 	 * gives up on writing piece of data to the underlying storage.
 	 */
-	EXTERNAL_DATA_LOSS,
+	EXTERNAL_DATA_LOSS(640),
 	/**
-	 * Indicates an error which is likely to be caused by the 
-	 * problems and/or unexpected behavior in the program code itself.
+	 * Indicates an error (which is not likely caused by external factors) that
+	 * is likely to cause data loss.
 	 * <p>
-	 * Data loss is likely although this should not be fatal.
+	 * This is used when data loss is highly likely, e.g. when there's a
+	 * state in the program that cannot be resolved while ensuring all data
+	 * is preserved. 
 	 */
-	ERROR,
+	DATA_LOSS(670),
 	/**
 	 * Indicates a critical error (that might well be fatal), meaning the
 	 * software may well become unusable after this happens. 
 	 */
-	CRITICAL,
+	CRITICAL(770),
 	;
+	
+	/**
+	 * Ascending severity index for messages (e.g. TRACE has lower index than
+	 * INFO).
+	 */
+	@Getter
+	private final int severityIndex;
+	
+	/**
+	 * Constructor.
+	 */
+	private LogMessageSeverity(int severityIndex)
+	{
+		this.severityIndex = severityIndex;
+	}
 }

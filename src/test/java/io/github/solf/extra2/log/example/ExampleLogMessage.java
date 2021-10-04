@@ -16,6 +16,7 @@
 package io.github.solf.extra2.log.example;
 
 import static io.github.solf.extra2.log.LogMessageSeverity.CRITICAL;
+import static io.github.solf.extra2.log.LogMessageSeverity.DATA_LOSS;
 import static io.github.solf.extra2.log.LogMessageSeverity.DEBUG;
 import static io.github.solf.extra2.log.LogMessageSeverity.ERROR;
 import static io.github.solf.extra2.log.LogMessageSeverity.EXTERNAL_DATA_LOSS;
@@ -197,6 +198,19 @@ public enum ExampleLogMessage
 	 * 		{@link BaseLoggingUtility#logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)}
 	 */
 	@Deprecated
+	NON_CLASSIFIED_DATA_LOSS(DATA_LOSS, false),
+	
+	/**
+	 * Used to log non-classified messages (usually not a good idea) with the given
+	 * severity.
+	 * <p>
+	 * Non-classified messages are supposed to specify their own String classifiers 
+	 * (e.g. for throttling).
+	 * 
+	 * @deprecated these aren't supposed to be used directly, instead look into
+	 * 		{@link BaseLoggingUtility#logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)}
+	 */
+	@Deprecated
 	NON_CLASSIFIED_FATAL(CRITICAL, false),
 	
 	
@@ -225,6 +239,7 @@ public enum ExampleLogMessage
 	TEST_EXTERNAL_ERROR(EXTERNAL_ERROR),
 	TEST_EXTERNAL_DATA_LOSS(EXTERNAL_DATA_LOSS),
 	TEST_ERROR(ERROR),
+	TEST_DATA_LOSS(DATA_LOSS),
 	TEST_CRITICAL(CRITICAL),
 	
 	
