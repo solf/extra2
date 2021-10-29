@@ -32,6 +32,8 @@ public class Slf4jHelper
 	/**
 	 * Wrapper around {@link MessageFormatter#arrayFormat(String, Object[])}
 	 * that has compatible behavior across SLF4J versions.
+	 * <p>
+	 * NOTE: this will return null if messagePattern is null! 
 	 */
 	@Nullable
 	public static String messageArrayFormat(final String messagePattern,

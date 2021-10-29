@@ -58,4 +58,22 @@ public class ExceptionUtil
 			throw new RuntimeException(e);
 		}
 	}
+	
+	/**
+	 * Gets the root cause of the given {@link Throwable} -- i.e. it goes
+	 * up the {@link Throwable#getCause()} chain until it reaches the very
+	 * first exception (the one that has no other cause) and returns that exception.
+	 */
+	public static Throwable getRootCause(final Throwable throwable)
+	{
+		Throwable result = throwable;
+		while (true)
+		{
+			Throwable cause = result.getCause();
+			if (cause == null)
+				return result;
+			
+			result = cause;
+		}
+	}
 }
