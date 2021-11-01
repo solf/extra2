@@ -53,6 +53,20 @@ it is not possible to 'miss' an argument, as it won't compile).
 
 See _Extra_GenerateStepBuilders and WBRBStatusBuilder for examples
 
+To use this generator it is necessary to specify addtional dependency (possibly 
+in a custom Maven profile in order to do not pollute the main build):
+		<dependency>
+		    <groupId>com.github.javaparser</groupId>
+		    <artifactId>javaparser-symbol-solver-core</artifactId>
+		    <version>3.15.14</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.findbugs</groupId>
+					<artifactId>jsr305</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 
 - io.github.solf.extra2.collection
 Misc collections extensions, in particular ability to obtain value from set and 

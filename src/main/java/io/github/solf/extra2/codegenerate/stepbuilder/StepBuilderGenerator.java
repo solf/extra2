@@ -55,6 +55,7 @@ import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithTypeArguments;
 import com.github.javaparser.ast.nodeTypes.NodeWithTypeParameters;
+import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
@@ -546,6 +547,8 @@ public class StepBuilderGenerator
 				// Build field for storing the value
 				{
 					Type fieldType = srcParam.getType();
+					if (srcParam.isVarArgs())
+						fieldType = new ArrayType(fieldType); // for varargs need to declare array-type field
 					FieldDeclaration field = new FieldDeclaration(
 						NodeList.nodeList(Modifier.privateModifier()), 
 						fieldType, 
