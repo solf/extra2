@@ -15,11 +15,14 @@
  */
 package io.github.solf.extra2.log;
 
+import static io.github.solf.extra2.util.NullUtil.nnChecked;
+
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.helpers.MessageFormatter;
+
+import lombok.NonNull;
 
 /**
  * Helper methods for SLF4J.
@@ -32,12 +35,11 @@ public class Slf4jHelper
 	/**
 	 * Wrapper around {@link MessageFormatter#arrayFormat(String, Object[])}
 	 * that has compatible behavior across SLF4J versions.
-	 * <p>
-	 * NOTE: this will return null if messagePattern is null! 
 	 */
-	@Nullable
-	public static String messageArrayFormat(final String messagePattern,
-	      final Object[] args)
+	@NonNullByDefault({})
+	@Nonnull
+	public static String messageArrayFormat(final @Nonnull @NonNull String messagePattern,
+	      final Object @Nonnull [] args)
 	{
 		// Format message.
 		Object[] finalArgs = args;
@@ -52,6 +54,6 @@ public class Slf4jHelper
 			finalArgs[args.length] = "{}";
 		}
 			
-		return MessageFormatter.arrayFormat(messagePattern, finalArgs).getMessage();
+		return nnChecked(MessageFormatter.arrayFormat(messagePattern, finalArgs).getMessage());
 	}
 }
