@@ -42,6 +42,7 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
@@ -406,18 +407,61 @@ public class StepBuilderGenerator
 					}
 				}
 				
-				for (FieldDeclaration field : srcClass.findAll(FieldDeclaration.class))
 				{
-					Optional<Javadoc> oJavadoc = field.getJavadoc();
-					if (oJavadoc.isPresent())
+					// Here we iterate over current class and all of its parents
+					// that can be loaded from the source folder in order to
+					// collect as many of field comments as possible (so we can
+					// create best possible javadocs).
+					
+					Optional<PackageDeclaration> pdec = srcCompilationUnit.getPackageDeclaration();
+					String packageStr = pdec.isPresent() ? pdec.get().getNameAsString() + "." : "";
+					String fullClassName = packageStr + srcClassName;
+					Class<?> currentClazz; // figure proper Java Class so we can easily access parents
+					try
 					{
-						Javadoc javadoc = oJavadoc.get();
-						for (VariableDeclarator var : field.getVariables())
-						{
-							argToJavadocMap.put(var.getNameAsString(), javadoc);
-							fieldToJavadocMap.put(var.getNameAsString(), javadoc);
-						}
+						currentClazz = Class.forName(fullClassName);
+					} catch (ClassNotFoundException e)
+					{
+						throw new IllegalStateException("Failed to load Java class for [" + fullClassName + "]:" + e, e);
 					}
+					ClassOrInterfaceDeclaration currentClass = srcClass;
+					while (true) // loop over current class and available parents
+					{
+						for (FieldDeclaration field : currentClass.findAll(FieldDeclaration.class))
+						{
+							Optional<Javadoc> oJavadoc = field.getJavadoc();
+							if (oJavadoc.isPresent())
+							{
+								Javadoc javadoc = oJavadoc.get();
+								for (VariableDeclarator var : field.getVariables())
+								{
+									fieldToJavadocMap.putIfAbsent(var.getNameAsString(), javadoc);
+								}
+							}
+						}
+						
+						currentClazz = currentClazz.getSuperclass();
+						if (currentClazz == null)
+							break;
+						
+						try
+						{
+							currentClass = parseSourceJavaFile(currentClazz).getValue0().getClassByName(currentClazz.getSimpleName()).get();
+						} catch (Exception e)
+						{
+							if (String.valueOf(e.getMessage()).contains("Not a file"))
+							{
+								// this means file doesn't exist (e.g. JVM/library class), so we are done
+								break;
+							}
+							
+							throw new IllegalStateException("Failed to parse Java file for [" + currentClazz.getName() + "]: " + e, e);
+						}
+					} // end loop over current class and available parents
+					
+					// 2021-11-02 not sure why preference is given to field comments over args (they replace args comments); 
+					// maybe cuz args comments auto-generated empty?
+					argToJavadocMap.putAll(fieldToJavadocMap);
 				}
 				
 			}
@@ -775,6 +819,31 @@ public class StepBuilderGenerator
     }
 
     /**
+     * Tries to load and parse given Java file from the source folder.
+     * 
+     * @return pair of parsed java file and java package path (as string) that
+     * 		can be used directly to identify the sub-folder the java file was
+     * 		loaded from (e.g. it is used to determine destination location)
+     */
+    private Pair<CompilationUnit, String> parseSourceJavaFile(Class<?> srcClass)
+    		throws IllegalStateException, IOException
+    {
+    	final String fullPackageName = srcClass.getPackage().getName();
+    	final String srcClassName = srcClass.getSimpleName();
+    	
+    	final String javaPackagePath = fullPackageName.replaceAll("\\.", "/");
+    	
+    	File srcFile = new File(new File(srcDir, javaPackagePath), srcClassName + ".java");
+    	if (!srcFile.isFile())
+    		throw new IllegalStateException("Not a file (src): " + srcFile);
+
+		CompilationUnit srcCompilationUnit = handleResult(instanceJavaParser.parse(srcFile));
+		
+		return new Pair<CompilationUnit, String>(srcCompilationUnit, javaPackagePath);
+    }
+    
+    
+    /**
      * Generates Step Builder Java file for the specific class.
      * <p>
      * Source files is read from source directory, generated file is written
@@ -790,21 +859,14 @@ public class StepBuilderGenerator
      * 		for more details about suffixes
      */
     public CompilationUnit generateBuilderFile(Class<?> srcClass, @Nullable String builderClassName,
-    	Function<ClassOrInterfaceDeclaration, Collection<Pair<ConstructorDeclaration, @Nullable String>>> constructorsSelector
-    )
-    throws IllegalStateException, IOException
+    	Function<ClassOrInterfaceDeclaration, Collection<Pair<ConstructorDeclaration, @Nullable String>>> constructorsSelector)
+    		throws IllegalStateException, IOException
     {
-    	final String fullPackageName = srcClass.getPackage().getName();
+    	Pair<CompilationUnit, String> parseResult = parseSourceJavaFile(srcClass);
+    	final CompilationUnit srcCompilationUnit = parseResult.getValue0(); 
+    	final String javaPackagePath = parseResult.getValue1();
+    	
     	final String srcClassName = srcClass.getSimpleName();
-    	
-    	final String javaPackagePath = fullPackageName.replaceAll("\\.", "/");
-    	
-    	File srcFile = new File(new File(srcDir, javaPackagePath), srcClassName + ".java");
-    	if (!srcFile.isFile())
-    		throw new IllegalStateException("Not a file (src): " + srcFile);
-
-		CompilationUnit srcCompilationUnit = handleResult(instanceJavaParser.parse(srcFile));
-    	
 		ClassOrInterfaceDeclaration srcClazz = srcCompilationUnit.getClassByName(srcClassName).get();
     	
 		final String finalBuilderClassName = builderClassName != null ? builderClassName : srcClassName + "Builder";
