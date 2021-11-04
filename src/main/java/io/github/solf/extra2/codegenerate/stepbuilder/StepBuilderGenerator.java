@@ -64,11 +64,11 @@ import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.javaparser.javadoc.description.JavadocDescription;
 
-import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContextBuilder;
 import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContextBuilder.ZBSI_StepBuilderContextBuilder_srcCompilationUnit_arg5;
 import io.github.solf.extra2.codegenerate.stepbuilder.unused.UnusedInterface;
 import io.github.solf.extra2.util.TypeUtil;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -156,6 +156,22 @@ public class StepBuilderGenerator
 	@Nullable
 	private final String finalBuildMethodAdditionalMarkerAnnotation;
 
+	/**
+	 * Marks this builder instance as 'exception builder' -- these builders
+	 * generate special instantiation code that cuts out last element of the
+	 * stack trace (so that exceptions last stack trace element is the line
+	 * calling the .buildXXX(..) method, not the line inside the builder itself).
+	 * <p>
+	 * Default is false
+	 */
+	@Getter
+	private volatile boolean isExceptionBuilder = false;
+	public StepBuilderGenerator setIsExceptionBuilder(boolean value)
+	{
+		this.isExceptionBuilder = value;
+		return this;
+	}
+	
 	/**
 	 * Constructor.
 	 * <p>
@@ -676,7 +692,14 @@ public class StepBuilderGenerator
 					}
 					
 					StringBuilder sb = new StringBuilder(256);
-					sb.append("{ return ");
+					if (isExceptionBuilder)
+					{
+						sb.append("{");
+						sb.append(finalReturnType);sb.append(" _zbsi_result_t = ");
+					}
+					else
+						sb.append("{ return ");
+					
 					if (postbuildHook)
 						sb.append("(" + srcClassName + ")"); // Need to cast since the method itself returns Object
 					sb.append("new ");
@@ -696,8 +719,23 @@ public class StepBuilderGenerator
 					sb.append(")");
 					if (postbuildHook)
 						sb.append(".postbuild()");
-					sb.append("; }");
-
+					
+					if (isExceptionBuilder)
+					{
+						sb.append(";");
+						sb.append("StackTraceElement[] _zbsi_origStackTrace = _zbsi_result_t.getStackTrace();");
+						sb.append("int _zbsi_length = _zbsi_origStackTrace.length - 1;");
+						// Simply creating an array may run into issues with nullability warnings, so use horrible hack
+						//sb.append("StackTraceElement[] _zbsi_newStackTrace = new StackTraceElement[_zbsi_length];");
+						sb.append("@SuppressWarnings(\"cast\") StackTraceElement[] _zbsi_newStackTrace = (StackTraceElement[])((Object)new StackTraceElement[_zbsi_length]);");
+						sb.append("System.arraycopy(_zbsi_origStackTrace, 1, _zbsi_newStackTrace, 0, _zbsi_length);");
+						sb.append("_zbsi_result_t.setStackTrace(_zbsi_newStackTrace);");
+						sb.append("return _zbsi_result_t;");
+						sb.append("}");
+					}
+					else
+						sb.append("; }");
+					
 					methodDeclaration.setBody(handleResult(javaParser.parseBlock(sb.toString())));
 					
 					preprocessor.processBuilderBuildMethod(context, methodDeclaration);
