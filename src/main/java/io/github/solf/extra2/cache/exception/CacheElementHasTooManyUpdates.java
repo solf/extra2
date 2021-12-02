@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.cache.exception;
 
+import static io.github.solf.extra2.util.NullUtil.nn;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import javax.annotation.Nonnull;
@@ -71,7 +72,7 @@ public class CacheElementHasTooManyUpdates extends CacheIllegalStateException
 	@Override
 	public String getMessage()
 	{
-		return super.getMessage().replace("{{==}}", key.toString());
+		return nn(super.getMessage()).replace("{{==}}", key.toString());
 	}
 	
 	

@@ -15,6 +15,8 @@
  */
 package io.github.solf.extra2.cache.exception;
 
+import static io.github.solf.extra2.util.NullUtil.nn;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -77,7 +79,7 @@ public class CacheElementFailedWriteException extends CacheIllegalExternalStateE
 	@Override
 	public String getMessage()
 	{
-		return super.getMessage().replace("{{==}}", key.toString());
+		return nn(super.getMessage()).replace("{{==}}", key.toString());
 	}
 	
 	

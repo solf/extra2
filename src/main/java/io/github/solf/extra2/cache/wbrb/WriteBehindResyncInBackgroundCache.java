@@ -3135,6 +3135,8 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	/**
 	 * Calculates real-world interval from the given virtual interval (taking 
 	 * into account {@link #timeFactor()})
+	 * <p>
+	 * This never returns zero unless given virtual interval is zero.
 	 */
 	protected long timeRealWorldInterval(long virtualInterval)
 	{

@@ -17,6 +17,7 @@ package io.github.solf.extra2.config;
 
 import static io.github.solf.extra2.testutil.AssertExtra.assertFails;
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
+import static io.github.solf.extra2.util.NullUtil.nn;
 import static io.github.solf.extra2.util.NullUtil.nnc;
 import static io.github.solf.extra2.util.NullUtil.nonNull;
 import static org.testng.Assert.assertEquals;
@@ -1659,7 +1660,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [letters]: failed to parse [asd] as long in: [asd]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [letters]: failed to parse [asd] as long in: [asd]") : e.getMessage();
 			}
 		}
 		
@@ -1671,7 +1672,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [float]: failed to parse [1.34] as long in: [1.34]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [float]: failed to parse [1.34] as long in: [1.34]") : e.getMessage();
 			}
 		}
 		
@@ -1683,7 +1684,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [emptyListItem]: failed to parse [] as long in: [123, , 456]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [emptyListItem]: failed to parse [] as long in: [123, , 456]") : e.getMessage();
 			}
 		}
 		
@@ -1695,7 +1696,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Collection is empty in option: empty") : e.getMessage();
+				assert nn(e.getMessage()).contains("Collection is empty in option: empty") : e.getMessage();
 			}
 		}
 		
@@ -1723,7 +1724,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [singleZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [singleZero] value [0] violates constraint: POSITIVE") : e.getMessage();
 			}
 		}
 		
@@ -1736,7 +1737,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withZero] value [0] violates constraint: POSITIVE") : e.getMessage();
 			}
 		}
 		
@@ -1757,7 +1758,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withMinusOne] value [-1] violates constraint: NON_NEGATIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withMinusOne] value [-1] violates constraint: NON_NEGATIVE") : e.getMessage();
 			}
 		}
 		
@@ -1778,7 +1779,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withNegative] value [-7] violates constraint: NEGATIVE_ONE_OR_MORE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withNegative] value [-7] violates constraint: NEGATIVE_ONE_OR_MORE") : e.getMessage();
 			}
 		}
 		
@@ -1790,7 +1791,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
 			}
 		}
 		
@@ -1802,7 +1803,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
 			}
 		}
 		
@@ -1814,7 +1815,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (MissingResourceException e)
 			{
-				assert e.getMessage().contains("Missing option: missing") : e.getMessage();
+				assert nn(e.getMessage()).contains("Missing option: missing") : e.getMessage();
 			}
 		}
 		
@@ -1842,7 +1843,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Duplicate value [1234567890123456]: in option: duplicates") : e.getMessage();
+				assert nn(e.getMessage()).contains("Duplicate value [1234567890123456]: in option: duplicates") : e.getMessage();
 			}
 		}
 	}
@@ -1938,7 +1939,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [letters]: failed to parse [asd] as long in: [asd]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [letters]: failed to parse [asd] as long in: [asd]") : e.getMessage();
 			}
 		}
 		
@@ -1950,7 +1951,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [float]: failed to parse [1.34s] as long in: [1.34s]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [float]: failed to parse [1.34s] as long in: [1.34s]") : e.getMessage();
 			}
 		}
 		
@@ -1962,7 +1963,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [emptyListItem]: failed to parse [] as long in: [123h, , 456m]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [emptyListItem]: failed to parse [] as long in: [123h, , 456m]") : e.getMessage();
 			}
 		}
 		
@@ -1974,7 +1975,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Collection is empty in option: empty") : e.getMessage();
+				assert nn(e.getMessage()).contains("Collection is empty in option: empty") : e.getMessage();
 			}
 		}
 		
@@ -2002,7 +2003,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [singleZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [singleZero] value [0] violates constraint: POSITIVE") : e.getMessage();
 			}
 		}
 		
@@ -2015,7 +2016,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withZero] value [0] violates constraint: POSITIVE") : e.getMessage();
 			}
 		}
 		
@@ -2036,7 +2037,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Cannot parse value as time interval (must not be negative): -1d") : e.getMessage();
+				assert nn(e.getMessage()).contains("Cannot parse value as time interval (must not be negative): -1d") : e.getMessage();
 			}
 		}
 		
@@ -2049,7 +2050,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Cannot parse value as time interval (must not be negative): -7s") : e.getMessage();
+				assert nn(e.getMessage()).contains("Cannot parse value as time interval (must not be negative): -7s") : e.getMessage();
 			}
 		}
 		
@@ -2061,7 +2062,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [singleZero] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [singleZero] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
 			}
 		}
 	}
@@ -2082,7 +2083,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [oneLong]: failed to parse [1234567890123456] as int in: [1234567890123456]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [oneLong]: failed to parse [1234567890123456] as int in: [1234567890123456]") : e.getMessage();
 			}
 		}
 		
@@ -2171,7 +2172,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [letters]: failed to parse [asd] as int in: [asd]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [letters]: failed to parse [asd] as int in: [asd]") : e.getMessage();
 			}
 		}
 		
@@ -2183,7 +2184,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (NumberFormatException e)
 			{
-				assert e.getMessage().contains("Problem with option [float]: failed to parse [1.34] as int in: [1.34]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [float]: failed to parse [1.34] as int in: [1.34]") : e.getMessage();
 			}
 		}
 		
@@ -2196,7 +2197,7 @@ public class ExtraConfigTest
 			} catch (NumberFormatException e)
 			{
 				// Yes, there appears to be a bug in array formatting in Java?
-				assert e.getMessage().contains("Problem with option [emptyListItem]: failed to parse [] as int in: [123, , 456]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Problem with option [emptyListItem]: failed to parse [] as int in: [123, , 456]") : e.getMessage();
 			}
 		}
 		
@@ -2208,7 +2209,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Collection is empty in option: empty") : e.getMessage();
+				assert nn(e.getMessage()).contains("Collection is empty in option: empty") : e.getMessage();
 			}
 		}
 		
@@ -2236,7 +2237,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [singleZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [singleZero] value [0] violates constraint: POSITIVE") : e.getMessage();
 			}
 		}
 		
@@ -2249,7 +2250,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withZero] value [0] violates constraint: POSITIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withZero] value [0] violates constraint: POSITIVE") : e.getMessage();
 			}
 		}
 		
@@ -2270,7 +2271,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withMinusOne] value [-1] violates constraint: NON_NEGATIVE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withMinusOne] value [-1] violates constraint: NON_NEGATIVE") : e.getMessage();
 			}
 		}
 		
@@ -2291,7 +2292,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withNegative] value [-7] violates constraint: NEGATIVE_ONE_OR_MORE") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withNegative] value [-7] violates constraint: NEGATIVE_ONE_OR_MORE") : e.getMessage();
 			}
 		}
 		
@@ -2303,7 +2304,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
 			}
 		}
 		
@@ -2315,7 +2316,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [withNegative] constraint type not applicable to number collection: NON_EMPTY_ELEMENT") : e.getMessage();
 			}
 		}
 		
@@ -2327,7 +2328,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (MissingResourceException e)
 			{
-				assert e.getMessage().contains("Missing option: missing") : e.getMessage();
+				assert nn(e.getMessage()).contains("Missing option: missing") : e.getMessage();
 			}
 		}
 		
@@ -2355,7 +2356,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Duplicate value [123]: in option: duplicates") : e.getMessage();
+				assert nn(e.getMessage()).contains("Duplicate value [123]: in option: duplicates") : e.getMessage();
 			}
 		}
 	}	
@@ -2454,7 +2455,7 @@ public class ExtraConfigTest
 			} catch (IllegalStateException e)
 			{
 				// Yes, there appears to be a bug in array formatting in Java?
-				assert e.getMessage().contains("Option [emptyListItem] contains empty value: [123, , 456]") : e.getMessage();
+				assert nn(e.getMessage()).contains("Option [emptyListItem] contains empty value: [123, , 456]") : e.getMessage();
 			}
 		}
 		
@@ -2466,7 +2467,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Collection is empty in option: empty") : e.getMessage();
+				assert nn(e.getMessage()).contains("Collection is empty in option: empty") : e.getMessage();
 			}
 		}
 		
@@ -2492,7 +2493,7 @@ public class ExtraConfigTest
 							assert false;
 						} catch (IllegalStateException e)
 						{
-							assert e.getMessage().contains("Option [withNegative] constraint type not applicable to string collection: " + constraint.name()) : e.getMessage();
+							assert nn(e.getMessage()).contains("Option [withNegative] constraint type not applicable to string collection: " + constraint.name()) : e.getMessage();
 						}
 						break;
 					case NON_EMPTY_COLLECTION:
@@ -2517,7 +2518,7 @@ public class ExtraConfigTest
 							assert false;
 						} catch (IllegalStateException e)
 						{
-							assert e.getMessage().contains("Option [withNegative] constraint type not applicable to string collection: " + constraint.name()) : e.getMessage();
+							assert nn(e.getMessage()).contains("Option [withNegative] constraint type not applicable to string collection: " + constraint.name()) : e.getMessage();
 						}
 						break;
 					case NON_EMPTY_COLLECTION:
@@ -2535,7 +2536,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (MissingResourceException e)
 			{
-				assert e.getMessage().contains("Missing option: missing") : e.getMessage();
+				assert nn(e.getMessage()).contains("Missing option: missing") : e.getMessage();
 			}
 		}
 		
@@ -2563,7 +2564,7 @@ public class ExtraConfigTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Duplicate value [123]: in option: duplicates") : e.getMessage();
+				assert nn(e.getMessage()).contains("Duplicate value [123]: in option: duplicates") : e.getMessage();
 			}
 		}
 	}	
@@ -2585,7 +2586,7 @@ public class ExtraConfigTest
 			assert false;
 		} catch (IllegalStateException e)
 		{
-			assert e.getMessage().contains("value must be a positive integer or zero") : e.getMessage();
+			assert nn(e.getMessage()).contains("value must be a positive integer or zero") : e.getMessage();
 		}
 		try
 		{
@@ -2593,7 +2594,7 @@ public class ExtraConfigTest
 			assert false;
 		} catch (IllegalStateException e)
 		{
-			assert e.getMessage().contains("value must be a positive integer or zero") : e.getMessage();
+			assert nn(e.getMessage()).contains("value must be a positive integer or zero") : e.getMessage();
 		}
 		
 		assert options.getLongNonNegative("0") == 0;
@@ -2605,7 +2606,7 @@ public class ExtraConfigTest
 			assert false;
 		} catch (IllegalStateException e)
 		{
-			assert e.getMessage().contains("value must be a positive long or zero") : e.getMessage();
+			assert nn(e.getMessage()).contains("value must be a positive long or zero") : e.getMessage();
 		}
 		try
 		{
@@ -2613,7 +2614,7 @@ public class ExtraConfigTest
 			assert false;
 		} catch (IllegalStateException e)
 		{
-			assert e.getMessage().contains("value must be a positive long or zero") : e.getMessage();
+			assert nn(e.getMessage()).contains("value must be a positive long or zero") : e.getMessage();
 		}
 		
 		long bigLong = ((long)Integer.MAX_VALUE) + 1000000;

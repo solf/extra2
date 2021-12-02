@@ -16,6 +16,7 @@
 package io.github.solf.extra2.pool;
 
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
+import static io.github.solf.extra2.util.NullUtil.nn;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -459,7 +460,7 @@ public class ExtraSimpleObjectPoolTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Factory fail on purpose") : e.getMessage();
+				assert nn(e.getMessage()).contains("Factory fail on purpose") : e.getMessage();
 			}
 		}
 		
@@ -482,7 +483,7 @@ public class ExtraSimpleObjectPoolTest
 				assert false;
 			} catch (IllegalStateException e)
 			{
-				assert e.getMessage().contains("Factory fail on purpose") : e.getMessage();
+				assert nn(e.getMessage()).contains("Factory fail on purpose") : e.getMessage();
 			}
 		}
 		
@@ -545,7 +546,7 @@ public class ExtraSimpleObjectPoolTest
 			assert false;
 		} catch (IllegalArgumentException e)
 		{
-			assert e.getMessage().contains("poolName must not be null") : e.getMessage();
+			assert nn(e.getMessage()).contains("poolName must not be null") : e.getMessage();
 		}
 		
 		try
@@ -555,7 +556,7 @@ public class ExtraSimpleObjectPoolTest
 			assert false;
 		} catch (IllegalArgumentException e)
 		{
-			assert e.getMessage().contains("poolName must not be empty") : e.getMessage();
+			assert nn(e.getMessage()).contains("poolName must not be empty") : e.getMessage();
 		}
 		
 		try
@@ -565,7 +566,7 @@ public class ExtraSimpleObjectPoolTest
 			assert false;
 		} catch (IllegalArgumentException e)
 		{
-			assert e.getMessage().contains("minIdle must be positive or 0") : e.getMessage();
+			assert nn(e.getMessage()).contains("minIdle must be positive or 0") : e.getMessage();
 		}
 		
 		try
@@ -575,7 +576,7 @@ public class ExtraSimpleObjectPoolTest
 			assert false;
 		} catch (IllegalArgumentException e)
 		{
-			assert e.getMessage().contains("maxIdle must be positive or 0") : e.getMessage();
+			assert nn(e.getMessage()).contains("maxIdle must be positive or 0") : e.getMessage();
 		}
 		
 		try
@@ -585,7 +586,7 @@ public class ExtraSimpleObjectPoolTest
 			assert false;
 		} catch (IllegalArgumentException e)
 		{
-			assert e.getMessage().contains("validationIntervalSeconds must be positive or 0") : e.getMessage();
+			assert nn(e.getMessage()).contains("validationIntervalSeconds must be positive or 0") : e.getMessage();
 		}
 		
 		try
@@ -595,7 +596,7 @@ public class ExtraSimpleObjectPoolTest
 			assert false;
 		} catch (IllegalArgumentException e)
 		{
-			assert e.getMessage().contains("When maxIdle is 0, validationIntervalSeconds must be 0 too") : e.getMessage();
+			assert nn(e.getMessage()).contains("When maxIdle is 0, validationIntervalSeconds must be 0 too") : e.getMessage();
 		}
 		
 		try
@@ -605,7 +606,7 @@ public class ExtraSimpleObjectPoolTest
 			assert false;
 		} catch (IllegalArgumentException e)
 		{
-			assert e.getMessage().contains("When validationIntervalSeconds is 0, maxIdle must be 0 too") : e.getMessage();
+			assert nn(e.getMessage()).contains("When validationIntervalSeconds is 0, maxIdle must be 0 too") : e.getMessage();
 		}
 	}
 }
