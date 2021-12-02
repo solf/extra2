@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * Thread implementation that can be signalled to exit via {@link #exitAsap()}
+ * Thread implementation that can be signaled to exit via {@link #exitAsap()}
  *
  * @author Sergey Olefir
  */

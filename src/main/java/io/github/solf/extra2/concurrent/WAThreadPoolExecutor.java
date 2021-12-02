@@ -199,11 +199,61 @@ public class WAThreadPoolExecutor extends ThreadPoolExecutor implements WAExecut
 	public WAThreadPoolExecutor(int maxThreads, String groupName, boolean daemon, int priority,
 		@Nullable ThreadGroup parentThreadGroup)
 	{
-		super(0, maxThreads,
-            60L, TimeUnit.SECONDS,
-            new WAExecutorQueue<Runnable>(),
-			new WAThreadFactory(groupName, daemon, priority, parentThreadGroup));
-		setRejectedExecutionHandler(new WARejectionHandler((WAExecutorQueue<Runnable>)getQueue()));
+		this(0, maxThreads, 60L, TimeUnit.SECONDS, groupName, daemon, priority, parentThreadGroup);
+	}
+	
+	/**
+	 * Constructor with limits on min/max thread pool sizes.
+	 * <p>
+	 * Idle threads timeout & shut down after 1 minute. 
+	 * 
+     * @param corePoolSize the number of threads to keep in the pool, even
+     *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+     * @param maximumPoolSize the maximum number of threads to allow in the
+     *        pool; pass {@link Integer#MAX_VALUE} if pool should be unbounded
+	 * @param groupName group name to be used for threads and also prefix for every thread name
+	 * @param daemon whether threads should be daemon
+	 * @param priority what priority threads should have, e.g. {@link Thread#NORM_PRIORITY}
+	 * @param parentThreadGroup if not null, then this thread group is used as
+	 * 		a parent for this executor's thread group (executor always creates
+	 * 		new threads in its own {@link ThreadGroup})
+	 */
+	public WAThreadPoolExecutor(int corePoolSize, int maximumPoolSize, String groupName, boolean daemon, int priority,
+		@Nullable ThreadGroup parentThreadGroup)
+	{
+		this(corePoolSize, maximumPoolSize, 60L, TimeUnit.SECONDS, groupName, daemon, priority, parentThreadGroup);
+	}
+	
+	/**
+	 * Full constructor that allows to specify everything.
+	 * 
+     * @param corePoolSize the number of threads to keep in the pool, even
+     *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+     * @param maximumPoolSize the maximum number of threads to allow in the
+     *        pool; pass {@link Integer#MAX_VALUE} if pool should be unbounded
+     * @param keepAliveTime when the number of threads is greater than
+     *        the core, this is the maximum time that excess idle threads
+     *        will wait for new tasks before terminating.
+     * @param unit the time unit for the {@code keepAliveTime} argument
+	 * @param groupName group name to be used for threads and also prefix for every thread name
+	 * @param daemon whether threads should be daemon
+	 * @param priority what priority threads should have, e.g. {@link Thread#NORM_PRIORITY}
+	 * @param parentThreadGroup if not null, then this thread group is used as
+	 * 		a parent for this executor's thread group (executor always creates
+	 * 		new threads in its own {@link ThreadGroup})
+	 */
+	public WAThreadPoolExecutor(int corePoolSize, int maximumPoolSize,
+		long keepAliveTime, TimeUnit unit, String groupName, boolean daemon, int priority,
+		@Nullable ThreadGroup parentThreadGroup)
+	{
+		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, 
+			maximumPoolSize == Integer.MAX_VALUE ? 
+				new SynchronousQueue<Runnable>() : 
+				new WAExecutorQueue<Runnable>()	,
+				new WAThreadFactory(groupName, daemon, priority, parentThreadGroup));
+		
+		if (maximumPoolSize != Integer.MAX_VALUE)
+			setRejectedExecutionHandler(new WARejectionHandler((WAExecutorQueue<Runnable>)getQueue()));
 	}
 	
 

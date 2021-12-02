@@ -13,39 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.concurrent.exception;
+package io.github.solf.extra2.concurrent.retry;
+
+import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * ATTN: strongly consider using {@link InterruptedRuntimeException} instead!
- * This class is retained for backward-compatibility purposes and for naming
- * schema with other WA* classes.
- * <p>
- * This is wrapper class to rethrow {@link InterruptedException} as unchecked.
- * <p>
- * There should always be a 'cause' and it should be of {@link InterruptedException}
- * type.
+ * Used by {@link RetryAndRateLimitService} to indicate in {@link RRLFuture}
+ * that processing was aborted due to 'final failure' decision (without an
+ * actual exception being available).
  *
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public class WAInterruptedException extends InterruptedRuntimeException
+public class RRLFinalFailureDecisionException extends Throwable
 {
+
 	/**
-	 * Constructor.
+	 * 
 	 */
-	public WAInterruptedException(InterruptedException cause)
+	public RRLFinalFailureDecisionException()
 	{
-		super("Rethrown unchecked: " + cause, cause);
+		super();
 	}
 
 	/**
 	 * @param message
 	 * @param cause
 	 */
-	public WAInterruptedException(String message, InterruptedException cause)
+	public RRLFinalFailureDecisionException(String message,
+		@Nullable Throwable cause)
 	{
 		super(message, cause);
 	}
+
+	/**
+	 * @param message
+	 */
+	public RRLFinalFailureDecisionException(String message)
+	{
+		super(message);
+	}
+
+	/**
+	 * @param cause
+	 */
+	public RRLFinalFailureDecisionException(@Nullable Throwable cause)
+	{
+		super(cause);
+	}
+	
 }

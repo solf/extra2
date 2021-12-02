@@ -19,6 +19,9 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import io.github.solf.extra2.concurrent.exception.InterruptedRuntimeException;
+import lombok.Getter;
+
 /**
  * This is an abstract implementation of {@link ExitableThread} that also provides
  * an interrupt-handling service via {@link #handleUnexpectedInterruptedException(InterruptedException)}
@@ -41,6 +44,19 @@ public abstract class InterruptHandlingExitableThread extends ExitableThread
 	 * restart.
 	 */
 	protected volatile boolean exitFlag = false;
+
+	/**
+	 * Count of unexpected interrupted exceptions that have occurred so far.
+	 */
+	@Getter
+	protected volatile int unexpectedInterruptedExceptionsCount = 0;
+	
+	/**
+	 * Count of thrown runtime exceptions that have occurred so far.  
+	 */
+	@Getter
+	protected volatile int runtimeExceptionsCount = 0;
+	
 	
 	/**
 	 * 
@@ -100,9 +116,28 @@ public abstract class InterruptHandlingExitableThread extends ExitableThread
 				if (exitFlag)
 					return; // we should exit, so do so
 				
+				unexpectedInterruptedExceptionsCount++;
 				Thread.interrupted(); // clear interrupt flag
-				if (!handleUnexpectedInterruptedException(e))
-					return; // normal thread exit
+				
+				try
+				{
+					if (!handleUnexpectedInterruptedException(e))
+						return; // normal thread exit
+				} catch (InterruptedException he)
+				{
+					throw new InterruptedRuntimeException(he);
+				}
+			} catch (RuntimeException e)
+			{
+				runtimeExceptionsCount++;
+				try
+				{
+					if (!handleRuntimeException(e))
+						return; // normal thread exit
+				} catch (InterruptedException he)
+				{
+					throw new InterruptedRuntimeException(he);
+				}
 			} finally
 			{
 				reentry = true;
@@ -128,9 +163,51 @@ public abstract class InterruptHandlingExitableThread extends ExitableThread
 	 * <p>
 	 * Handler should decide whether to re-enter {@link #run1(boolean)} method;
 	 * if not, then thread will exit normally.
+	 * <p>
+	 * The method is allowed to throw {@link InterruptedException}, so your 
+	 * implementation may simply re-throw the given exception too (this is
+	 * different from returning false because threads throwing exceptions are
+	 * typically reported/logged by JVM).
+	 * <p>
+	 * Exceptions thrown by this method will not be caught and will be handled
+	 * by JVM the same way as exceptions thrown by normal threads (i.e. thread
+	 * will exit).
+	 * <p>
+	 * Counters for exceptions that have occurred so far can be accessed via
+	 * {@link #getUnexpectedInterruptedExceptionsCount()} and 
+	 * {@link #getRuntimeExceptionsCount()}
 	 * 
 	 * @return true if {@link #run1(boolean)} should be re-entered; false if
 	 * 		thread to exit normally
 	 */
-	protected abstract boolean handleUnexpectedInterruptedException(InterruptedException e);
+	protected abstract boolean handleUnexpectedInterruptedException(InterruptedException e) throws InterruptedException;
+	
+	/**
+	 * This is invoked whenever {@link RuntimeException} is thrown by the
+	 * {@link #run1(boolean)} method.
+	 * <p>
+	 * Handler should decide whether to re-enter {@link #run1(boolean)} method;
+	 * if not, then thread will exit normally.
+	 * <p>
+	 * Default implementation simply re-throws the exception (this is
+	 * different from returning false because threads throwing exceptions are
+	 * typically reported/logged by JVM).
+	 * <p>
+	 * Exceptions thrown by this method will not be caught and will be handled
+	 * by JVM the same way as exceptions thrown by normal threads (i.e. thread
+	 * will exit).
+	 * <p>
+	 * Counters for exceptions that have occurred so far can be accessed via
+	 * {@link #getUnexpectedInterruptedExceptionsCount()} and 
+	 * {@link #getRuntimeExceptionsCount()}
+	 * 
+	 * @param e exception that occurred
+	 * @return true if {@link #run1(boolean)} should be re-entered; false if
+	 * 		thread to exit normally
+	 */
+	@SuppressWarnings("unused")
+	protected boolean handleRuntimeException(RuntimeException e) throws InterruptedException
+	{
+		throw e;
+	}
 }

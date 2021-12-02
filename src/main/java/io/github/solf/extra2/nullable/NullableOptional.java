@@ -186,6 +186,43 @@ public class NullableOptional<T>
         
         return value;
     }
+
+    /**
+     * If a value is present, then returns the value; otherwise returns null
+     *
+     * @return the value held by this {@link NullableOptional} or null
+     *
+     * @see #isPresent()
+     */
+    @Nullable
+    public T getOrNull() 
+    {
+        if (!hasValue)
+        {
+        	return null;
+        }
+        
+        return value;
+    }
+
+    /**
+     * If a value is present, then returns the value; otherwise returns provided
+     * fallback value.
+     *
+     * @return the value held by this {@link NullableOptional} or provided
+     * 		fallback value
+     *
+     * @see #isPresent()
+     */
+    public T getOrElse(T fallbackValue) 
+    {
+        if (!hasValue)
+        {
+        	return fallbackValue;
+        }
+        
+        return value;
+    }
     
     /**
      * Returns exception if present otherwise throws {@link NoSuchElementException}
@@ -201,6 +238,17 @@ public class NullableOptional<T>
             throw new NoSuchElementException("No exception present");
     	
     	return result;
+    }
+    
+    /**
+     * Returns exception if present; otherwise null
+     * 
+     * @return stored exception if present or null if none are stored
+     */
+    @Nullable
+    public Throwable getExceptionOrNull()
+    {
+    	return exception;
     }
     
     /**

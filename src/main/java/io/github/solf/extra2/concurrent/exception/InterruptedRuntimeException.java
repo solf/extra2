@@ -18,10 +18,6 @@ package io.github.solf.extra2.concurrent.exception;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * ATTN: strongly consider using {@link InterruptedRuntimeException} instead!
- * This class is retained for backward-compatibility purposes and for naming
- * schema with other WA* classes.
- * <p>
  * This is wrapper class to rethrow {@link InterruptedException} as unchecked.
  * <p>
  * There should always be a 'cause' and it should be of {@link InterruptedException}
@@ -30,12 +26,12 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public class WAInterruptedException extends InterruptedRuntimeException
+public class InterruptedRuntimeException extends RuntimeException
 {
 	/**
 	 * Constructor.
 	 */
-	public WAInterruptedException(InterruptedException cause)
+	public InterruptedRuntimeException(InterruptedException cause)
 	{
 		super("Rethrown unchecked: " + cause, cause);
 	}
@@ -44,7 +40,7 @@ public class WAInterruptedException extends InterruptedRuntimeException
 	 * @param message
 	 * @param cause
 	 */
-	public WAInterruptedException(String message, InterruptedException cause)
+	public InterruptedRuntimeException(String message, InterruptedException cause)
 	{
 		super(message, cause);
 	}
