@@ -68,9 +68,9 @@ public class DefaultRRLEventListener<@Nonnull Input, Output> implements RRLEvent
 	}
 
 	@Override
-	public void errorEventListenerMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t)
+	public void errorEventListenerMethodException(Throwable t)
 	{
-		log.error("EventListener method exception in {} RetryAndRateLimitService while processing: {}", getServiceName(), entry, t);
+		log.error("EventListener method exception in {} RetryAndRateLimitService: {}", getServiceName(), t, t);
 	}
 
 	@Override
@@ -142,8 +142,8 @@ public class DefaultRRLEventListener<@Nonnull Input, Output> implements RRLEvent
 	}
 	
 	@Override
-	public void mainQueueThreadObtained(@Nullable RRLEntry<Input, Output> entry,
-		long itemProcessingSince, long timeTakenToObtainThread)
+	public void mainQueueThreadObtainAttempt(@Nullable RRLEntry<Input, Output> entry,
+		long itemProcessingSince, boolean threadObtained, long timeTakenVirtualMs)
 	{
 		// empty
 	}

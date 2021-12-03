@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.joda.time.LocalDateTime;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.concurrent.retry.RRLConfig;
@@ -48,6 +49,42 @@ import io.github.solf.extra2.util.TypeUtil;
 @NonNullByDefault
 public class TestRRL
 {
+	@BeforeClass
+	public void beforeClass() throws InterruptedException
+	{
+		// Do a warm-up so that timings are more stable.
+		
+		LinkedBlockingQueue<String> dump = new LinkedBlockingQueue<>();
+		
+		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/simpleOneItemTest"));
+		RetryAndRateLimitService<String, String> service = new RetryAndRateLimitService<String, String>(config)
+		{
+			@Override
+			protected String processRequest(String input, int attemptNumber)
+			{
+				return "success";
+			}
+
+			@SuppressWarnings("hiding")
+			@Override
+			protected RRLEventListener<String, String> spiCreateEventListener(
+				RRLConfig config, String commonNamingPrefix,
+				ThreadGroup threadGroup)
+			{
+				return createEventListenerProxy(
+					(proxy, method, methodArgs) -> {
+						dump.add("" + new LocalDateTime() + " " + "[" + method.getName() + "]: " + Arrays.toString(methodArgs));
+					});
+			}
+		}.start();
+		
+		service.submitFor("request", 1000);
+		
+		Thread.sleep(150);
+		
+		//zzz shutdown?
+	}
+	
 	@Test
 	public void simpleOneItemTest() throws InterruptedException
 	{
@@ -91,7 +128,7 @@ public class TestRRL
 		
 		assertBetweenInclusive(processingTimestamps.poll(), start, start + 100);
 		assertBetweenInclusive(processingTimestamps.poll(), start + 100, start + 200);
-		assertBetweenInclusive(processingTimestamps.poll(), start + 900, start + 1000);
+		assertBetweenInclusive(processingTimestamps.poll(), start + 900, start + 1100);
 	}
 	
 	/**

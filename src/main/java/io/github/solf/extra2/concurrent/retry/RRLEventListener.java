@@ -56,9 +56,8 @@ public interface RRLEventListener<@Nonnull Input, Output>
 	public void errorSpiMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t);
 	/**
 	 * Reports event listener method exception.
-	 * zzz if entry is always null, remove it as arg?
 	 */
-	public void errorEventListenerMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t);
+	public void errorEventListenerMethodException(Throwable t);
 
 	/**
 	 * Reports unexpected {@link InterruptedException}
@@ -142,10 +141,9 @@ public interface RRLEventListener<@Nonnull Input, Output>
 	/**
 	 * Reports main queue has obtained a thread required for request processing
 	 * for specific item.
-	 * aaa must handle case when thread was NOT obtained
 	 */
-	public void mainQueueThreadObtained(@Nullable RRLEntry<Input, Output> entry,
-		long itemProcessingSince, long timeTakenToObtainThread);
+	public void mainQueueThreadObtainAttempt(@Nullable RRLEntry<Input, Output> entry,
+		long itemProcessingSince, boolean threadObtained, long timeTakenVirtualMs);
 	
 	/**
 	 * Reports main queue has obtained a thread required for request processing

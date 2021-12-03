@@ -810,6 +810,16 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 							break; // actual processing is below this switch
 					}
 					
+					long remainingValidityRealMs;
+					if (millisFromDecision <= 0)
+					{
+						logAssertionError(entry, "Non-positive remaining validity time received from non-timeout main queue decision: " + millisFromDecision);
+						remainingValidityRealMs = 1;
+					}
+					else
+						remainingValidityRealMs = timeRealWorldInterval(millisFromDecision) + 1; // +1 to hopefully avoid some boundary issues
+					
+					
 					// Need to ensure we have all the appropriate resources for request
 					if (readyForProcessingThreadFuture == null)
 					{
@@ -830,33 +840,43 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						readyForProcessingThreadFuture = result.get();
 						
 						// Wait for thread to be ready.
-						//aaa redo with time limit returned from decision or smth?
 						//zzz use maxsleeptime
-						@Nonnull RRLEntry<@Nonnull Input, Output> ready = commQueue.take(); //qqq this ought to be redone with some kind of timeouts/keep-alive or such
-						if (ready != READY_TO_WORK_OBJECT)
+						RRLEntry<@Nonnull Input, Output> ready = 
+							commQueue.poll(remainingValidityRealMs, TimeUnit.MILLISECONDS);
+						
+						if (ready == null)
 						{
-							logAssertionError(entry, "Object received from processing thread isn't READY_TO_WORK_OBJECT: " + ready);
-							
-							mainQueue.add(entry); // try again later
-							continue mainLoop; // go to next element; thread future will be cancelled in the loop's beginning
+							// Thread wait expired, clear it, will need to try again.
+							readyForProcessingThreadFuture.cancel(true);
+							readyForProcessingThreadFuture = null;
+						}
+						else
+						{
+							if (ready != READY_TO_WORK_OBJECT)
+							{
+								logAssertionError(entry, "Object received from processing thread isn't READY_TO_WORK_OBJECT: " + ready);
+								
+								mainQueue.add(entry); // try again later
+								continue mainLoop; // go to next element; thread future will be cancelled in the loop's beginning
+							}
 						}
 						
-						// Thread is ready.
+						// Thread attempt is done.
 						final long after = timeNow();
 						final long duration = timeGapVirtual(before, after);
 						
+						boolean threadObtained = (readyForProcessingThreadFuture != null);
 						guardedEventListenerInvocation(evListener -> 
-							evListener.mainQueueThreadObtained(entry, itemProcessingSince, duration));
+							evListener.mainQueueThreadObtainAttempt(entry, itemProcessingSince, threadObtained, duration));
 						
 					} 
 					else if (readyToUseTicket == null)
 					{
 						final long before = timeNow();
 						
-						long maxWaitRealMs = 1_000_000L; ///qqq fix this
 						//zzz use maxsleeptime
 						NullableOptional<@Nullable Object> result = guardedSpiInvocationAsNullableOptional(
-							() -> spiObtainTicket(entry, maxWaitRealMs), entry);
+							() -> spiObtainTicket(entry, remainingValidityRealMs), entry);
 						
 						if (result.isEmpty())
 						{
@@ -1365,7 +1385,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			
 			try
 			{
-				eventListener.errorEventListenerMethodException(null, e);
+				eventListener.errorEventListenerMethodException(e);
 			} catch (Throwable e2)
 			{
 				if (e2 instanceof ThreadDeath)
@@ -1560,8 +1580,6 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * are multiple delays involved in processing and time passing can have
 	 * an impact on the decision.
 	 * 
-	 * zzz clarify second return value meaning
-	 * 
 	 * @param hasThread whether processing has already obtained/reserved the
 	 * 		thread required for processing the request; this is done 
 	 * 		before obtaining ticket
@@ -1569,6 +1587,11 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * 		for request processing (required to implement requests rate limiting);
 	 *		this is done after thread has been already obtained so there's no
 	 *		additional waiting after ticket is obtained
+	 *
+	 * @return decision and second milliseconds argument; the second argument
+	 * 		indicates (virtual) time allotted -- for delay it is the length
+	 * 		of delay to be made; for timeout & proceed it indicates the remaining
+	 * 		validity time for the request (can be negative in case of timeout)
 	 */
 	protected Pair<RRLMainQueueProcessingDecision, Long> spiMainQueueProcessingDecision(
 		final RRLEntry<Input, Output> entry, boolean hasThread, boolean hasTicket

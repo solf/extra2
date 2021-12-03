@@ -30,6 +30,9 @@ import io.github.solf.extra2.exception.AssertionException;
 
 /**
  * Futures returned by {@link RetryAndRateLimitService}
+ * 
+ * zzz possibly/likely shouldn't extend Future at all as it is not fully
+ * compatible
  *
  * @author Sergey Olefir
  */
