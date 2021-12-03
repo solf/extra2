@@ -22,11 +22,13 @@ import lombok.Getter;
 /**
  * Used by {@link RetryAndRateLimitService} to indicate in {@link RRLFuture}
  * that processing was aborted due to timeout.
+ * 
+ * aaa figure out if this actually is thrown properly, it probably is wrapped?
  *
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public class RRLTimeoutException extends Throwable
+public class RRLTimeoutException extends RuntimeException
 {
 	/**
 	 * Total time the request was being processed for until timeout.
@@ -42,5 +44,16 @@ public class RRLTimeoutException extends Throwable
 		super("Request timed out after: " + totalProcessingTime + "ms");
 		
 		this.totalProcessingTime = totalProcessingTime;
+	}
+
+	/**
+	 * Constructor for wrapping timeout exception in another timeout exception
+	 * for use in futures.
+	 */
+	public RRLTimeoutException(RRLTimeoutException cause)
+	{
+		super(cause);
+		
+		this.totalProcessingTime = cause.getTotalProcessingTime();
 	}
 }

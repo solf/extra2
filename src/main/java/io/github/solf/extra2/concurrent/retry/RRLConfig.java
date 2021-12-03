@@ -92,12 +92,12 @@ public class RRLConfig extends BaseDelegatingOptions
 	@Getter
 	private final List<Integer> requestProcessingThreadPoolConfig = getRawOptions().getIntList("requestProcessingThreadPoolConfig", OptionConstraint.NON_EMPTY_COLLECTION, OptionConstraint.NON_NEGATIVE);
 	
-	/** Default: Thread.NORM_PRIORITY; priority to be used for requests processing thread pool */ 
+	/** Default: 5 (Thread.NORM_PRIORITY); priority to be used for requests processing thread pool */ 
 	@Getter
 	private final int requestProcessingThreadPriority = getRawOptions().getIntPositive("requestProcessingThreadPriority", Thread.NORM_PRIORITY);
 	
 	
-	/** Default: Thread.NORM_PRIORITY + 1; priority to be used for main queue processing thread */ 
+	/** Default: 6 (Thread.NORM_PRIORITY + 1); priority to be used for main queue processing thread */ 
 	@Getter
 	private final int mainQueueProcessingThreadPriority = getRawOptions().getIntPositive("mainQueueProcessingThreadPriority", Thread.NORM_PRIORITY + 1);
 	
@@ -109,11 +109,11 @@ public class RRLConfig extends BaseDelegatingOptions
 	@Getter
 	private final int mainQueueRuntimeExceptionLimit = getRawOptions().getIntNonNegative("mainQueueRuntimeExceptionLimit", 10);
 	
-	/** Default: 2000; how long at a maximum main queue processing will wait for worker thread to pick up request for processing; in practice this should be near-instant; but if this value is exceeded, then error is logged and item processing is aborted (it is re-queued) */ 
+	/** Default: 2000ms; how long at a maximum main queue processing will wait for worker thread to pick up request for processing; in practice this should be near-instant; but if this value is exceeded, then error is logged and item processing is aborted (it is re-queued) */ 
 	@Getter
 	private final long mainQueueMaxRequestHandoverWaitTime = getRawOptions().getTimeIntervalPositive("mainQueueMaxRequestHandoverWaitTime", 2000);
 	
-	/** Default: Thread.NORM_PRIORITY + 1; priority to be used for threads processing delay queues */ 
+	/** Default: 6 (Thread.NORM_PRIORITY + 1); priority to be used for threads processing delay queues */ 
 	@Getter
 	private final int delayQueueProcessingThreadPriority = getRawOptions().getIntPositive("delayQueueProcessingThreadPriority", Thread.NORM_PRIORITY + 1);
 	

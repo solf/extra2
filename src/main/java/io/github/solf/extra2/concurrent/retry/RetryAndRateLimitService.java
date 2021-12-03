@@ -59,6 +59,9 @@ import lombok.ToString;
  * 
  * zzz - class description
  * 
+ * zzz - note about after* methods
+ * zzz - note about spi* methods
+ * 
  * zzz - add cancel option
  * zzz -- spool/flush
  * zzz -- shutdown (option to ignore tickets?)
@@ -230,9 +233,14 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * zzz probably needs reference to service (for e.g. event listener and what not)
 	 */
 	@ToString
-	@RequiredArgsConstructor
 	protected static class RRLEntry<@Nonnull Input, Output>
 	{
+		/**
+		 * Parent {@link RetryAndRateLimitService}.
+		 */
+		@Getter
+		private final RetryAndRateLimitService<Input, Output> service;
+		
 		/**
 		 * Input data.
 		 */
@@ -351,13 +359,16 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		/**
 		 * Constructor.
 		 */
-		public RRLEntry(Input input, long createdAt, long requestValidityDuration)
+		public RRLEntry(RetryAndRateLimitService<Input, Output> service,
+			Input input, long createdAt, long requestValidityDuration)
 		{
+			this.service = service;
+			
 			this.input = input;
 			this.createdAt = createdAt;
 			this.requestValidityDuration = requestValidityDuration;
 			
-			this.future = new RRLCompletableFuture<>(input); 
+			this.future = new RRLCompletableFuture<>(this); 
 		}
 	}
 	
@@ -687,7 +698,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				throws InterruptedException
 			{
 				guardedEventListenerInvocation(evListener -> 
-					evListener.errorRuntimeException(e, "RuntimeException in main queue processor"));
+					evListener.errorUnexpectedRuntimeException(e, "RuntimeException in main queue processor"));
 			
 				// Decision via SPI method
 				return guardedSpiInvocation(() -> spiMainQueueRuntimeExceptionDecision(
@@ -711,7 +722,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * This instance is used by request processing threads to signal that they
 	 * are ready for work.
 	 */
-	protected final RRLEntry<Input, Output> READY_TO_WORK_OBJECT = new RRLEntry<>(fakeNonNull(), -1, -1); 
+	protected final RRLEntry<Input, Output> READY_TO_WORK_OBJECT = new RRLEntry<>(this, fakeNonNull(), -1, -1); 
 	
 	/**
 	 * Code executed by {@link #mainQueueProcessingThread}
@@ -821,7 +832,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						// Wait for thread to be ready.
 						//aaa redo with time limit returned from decision or smth?
 						//zzz use maxsleeptime
-						@Nonnull RRLEntry<@Nonnull Input, Output> ready = commQueue.take(); //zzz this ought to be redone with some kind of timeouts/keep-alive or such
+						@Nonnull RRLEntry<@Nonnull Input, Output> ready = commQueue.take(); //qqq this ought to be redone with some kind of timeouts/keep-alive or such
 						if (ready != READY_TO_WORK_OBJECT)
 						{
 							logAssertionError(entry, "Object received from processing thread isn't READY_TO_WORK_OBJECT: " + ready);
@@ -842,7 +853,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 					{
 						final long before = timeNow();
 						
-						long maxWaitRealMs = 1_000_000L; ///aaa fix this
+						long maxWaitRealMs = 1_000_000L; ///qqq fix this
 						//zzz use maxsleeptime
 						NullableOptional<@Nullable Object> result = guardedSpiInvocationAsNullableOptional(
 							() -> spiObtainTicket(entry, maxWaitRealMs), entry);
@@ -885,9 +896,11 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						
 						guardedEventListenerInvocation(evListener -> 
 							evListener.requestExecuting(entry, entry.getNumberOfFailedAttempts() + 1, millisFromDecision));
+						
+						continue mainLoop; // go to next element in the queue 
 					}
-				}
-			}
+				} // end resource collection loop
+			} // end main loop
 		} finally
 		{
 			if (inflightEntry != null)
@@ -983,7 +996,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				throws InterruptedException
 			{
 				guardedEventListenerInvocation(evListener -> 
-					evListener.errorRuntimeException(e, "RuntimeException in delay queue processor (" + queueDelayMs + " ms)"));
+					evListener.errorUnexpectedRuntimeException(e, "RuntimeException in delay queue processor (" + queueDelayMs + " ms)"));
 			
 				// Decision via SPI method
 				return guardedSpiInvocation(() -> spiDelayQueueRuntimeExceptionDecision(
@@ -1058,6 +1071,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			decision = guardedSpiInvocation(
 				() -> spiDelayQueueAfterDelayStepDecision(queueDelayMs, entry, remainingDelay.get()), 
 				RRLDelayQueueProcessingDecision.MAIN_QUEUE, entry);
+
+			// log decision event
+			guardedEventListenerInvocation(evListener -> 
+				evListener.delayQueueDecisionAfterDelayStep(entry, queueDelayMs, decision, sleptFor, remainingDelay.get()));
 			
 			switch(decision)
 			{
@@ -1070,10 +1087,6 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 					break;
 			}
 			inflightEntry = null; // clear 'in-flight' entry RIGHT AFTER it is re-queued! IMPORTANT FOR CONSISTENCY!
-			
-			// log decision event
-			guardedEventListenerInvocation(evListener -> 
-				evListener.delayQueueDecisionAfterDelayStep(entry, queueDelayMs, decision, sleptFor, remainingDelay.get()));
 			
 		} finally
 		{
@@ -1306,6 +1319,25 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			return NullableOptional.emptyWithException(e);
 		}
 	}
+
+	/**
+	 * Sneaky throws InterruptedException (instead of normally as checked); to
+	 * be used with care.
+	 * <p>
+	 * Invokes given SPI code and returns the result.
+	 * <p>
+	 * If underlying SPI code throws an exception, then the exception is logged
+	 * via {@link #logSpiMethodException(RRLEntry, Throwable)} and
+	 * valueInCaseOfException is returned.
+	 * <p>
+	 * NOTE: {@link InterruptedException} and {@link ThreadDeath} subclasses
+	 * are not logged and are re-thrown as those can be used to stop thread
+	 */
+	@SneakyThrows(InterruptedException.class)
+	protected void sneakyGuardedEventListenerInvocation(InterruptableConsumer<RRLEventListener<Input, Output>> evListener) 
+	{
+		guardedEventListenerInvocation(evListener);
+	}
 	
 	
 	/**
@@ -1409,7 +1441,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	@SuppressWarnings({"hiding", "unused"})
 	protected RRLEventListener<Input, Output> spiCreateEventListener(RRLConfig config, String commonNamingPrefix, ThreadGroup threadGroup)
 	{
-		return new RRLEventListener<>();
+		return new DefaultRRLEventListener<>(config.getServiceName());
 	}
 	
 	/**
@@ -1803,14 +1835,26 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	}
 	
 	//zzz comment
-	protected Output spiProcessRequest(RRLEntry<Input, Output> entry, int attemptNumber) throws Exception
+	protected Output spiProcessRequest(RRLEntry<Input, Output> entry, int attemptNumber) throws InterruptedException, Exception
 	{
 		return processRequest(entry.getInput(), attemptNumber);
 	}
 	
 	//zzz comment
 	//zzz this is allowed to return null
-	protected abstract Output processRequest(Input input, int attemptNumber) throws Exception;
+	protected abstract Output processRequest(Input input, int attemptNumber) throws InterruptedException, Exception;
+	
+	
+	//zzz must take into account current state!
+	public <T extends RetryAndRateLimitService<Input, Output>> T start()
+	{
+		mainQueueProcessingThread.start();
+		
+		for (RRLDelayQueueData dq : delayQueues)
+			dq.getProcessingThread().start();
+		
+		return TypeUtil.coerce(this);
+	}
 	
 	
 	/**
@@ -1854,11 +1898,16 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				throw e;
 			}
 			if (errMsg != null)
+			{
+				sneakyGuardedEventListenerInvocation(evListener -> 
+					evListener.errorRequestRejected(request, timeLimitMs, delayBeforeFirstAttempMs, errMsg));
+				
 				throw new RejectedExecutionException(errMsg);
+			}
 		}
 		
 		long now = timeNow();
-		RRLEntry<@Nonnull Input, Output> entry = new RRLEntry<Input, Output>(request, now, timeLimitMs);
+		RRLEntry<@Nonnull Input, Output> entry = new RRLEntry<Input, Output>(this, request, now, timeLimitMs);
 		
 		if (delayBeforeFirstAttempMs > 0)
 		{
@@ -1867,6 +1916,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		
 		mainQueue.add(entry);
 		processingRequestsCount.incrementAndGet();
+		
+		sneakyGuardedEventListenerInvocation(evListener -> evListener.requestAdded(entry));
 		
 		return entry;
 	}

@@ -28,59 +28,47 @@ import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService.RRLEntry;
 import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService.RRLMainQueueProcessingDecision;
 
 /**
- * Events listener for {@link RetryAndRateLimitService}
- * 
- * zzz make interface?
- * 
- * zzz ought to have reference to service?
- * 
- * zzz comments and warnings
+ * Events listener interface for {@link RetryAndRateLimitService}
  *
  * @author Sergey Olefir
  */
+//Exclude TYPE_ARGUMENT as we will allow null return values.
 @NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
-public class RRLEventListener<@Nonnull Input, Output>
+public interface RRLEventListener<@Nonnull Input, Output>
 {
 	/**
 	 * Reports an assertion error in the code.
 	 */
-	public void errorAssertionError(@Nullable RRLEntry<Input, Output> entry, String message)
-	{
-		//zzz do something here, log?
-	}
+	public void errorAssertionError(@Nullable RRLEntry<Input, Output> entry, String message);
+	
+	/**
+	 * Request was rejected (not added to processing).
+	 * <p>
+	 * Classified as 'error' because it seems like something that 'should not happen'.
+	 * 
+	 * @param errMsg error message reported to the client
+	 */
+	public void errorRequestRejected(Input request, long timeLimitMs, long delayBeforeFirstAttempMs, String errMsg);
 
 	/**
 	 * Reports SPI method exception.
 	 */
-	public void errorSpiMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t)
-	{
-		//zzz do something here, log?
-	}
-
+	public void errorSpiMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t);
 	/**
 	 * Reports event listener method exception.
 	 * zzz if entry is always null, remove it as arg?
 	 */
-	public void errorEventListenerMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t)
-	{
-		//zzz do something here, log?
-	}
+	public void errorEventListenerMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t);
 
 	/**
 	 * Reports unexpected {@link InterruptedException}
 	 */
-	public void errorUnexpectedInterruptedException(InterruptedException e, String message)
-	{
-		//zzz do something here, log?
-	}
-
+	public void errorUnexpectedInterruptedException(InterruptedException e, String message);
+	
 	/**
 	 * Reports unexpected {@link RuntimeException}
 	 */
-	public void errorRuntimeException(RuntimeException e, String message)
-	{
-		//zzz do something here, log?
-	}
+	public void errorUnexpectedRuntimeException(RuntimeException e, String message);
 	
 	/**
 	 * Final failure of request processing (request never completed without
@@ -90,10 +78,7 @@ public class RRLEventListener<@Nonnull Input, Output>
 	 * 		{@link Throwable}; if null, then {@link RRLMainQueueProcessingDecision#FINAL_FAILURE}
 	 * 		was returned by {@link #spiMainQueueProcessingDecision(RRLEntry, boolean, boolean)}
 	 */
-	public void requestFinalFailure(RRLEntry<Input, Output> entry, @Nullable Throwable t)
-	{
-		// empty
-	}
+	public void requestFinalFailure(RRLEntry<Input, Output> entry, @Nullable Throwable t);
 	
 	/**
 	 * Final timeout of request processing (request never completed without
@@ -103,10 +88,7 @@ public class RRLEventListener<@Nonnull Input, Output>
 	 * 		valid; in case of timeout this is often expected to be negative
 	 * 		or zero/close-to-zero (negative means request is past validity time)
 	 */
-	public void requestFinalTimeout(RRLEntry<Input, Output> entry, long remainingValidityTime)
-	{
-		// empty
-	}
+	public void requestFinalTimeout(RRLEntry<Input, Output> entry, long remainingValidityTime);
 	
 	/**
 	 * Final timeout of request processing (request never completed without
@@ -116,43 +98,27 @@ public class RRLEventListener<@Nonnull Input, Output>
 	 * 		valid; in case of timeout this is often expected to be negative
 	 * 		or zero/close-to-zero (negative means request is past validity time)
 	 */
-	public void requestExecuting(RRLEntry<Input, Output> entry, int attemptNumber, long remainingValidityTime)
-	{
-		// empty
-	}
+	public void requestExecuting(RRLEntry<Input, Output> entry, int attemptNumber, long remainingValidityTime);
 	
 	/**
 	 * Request succeeded.
 	 */
-	public void requestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestDuration)
-	{
-		// empty
-	}
+	public void requestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestDuration);
 	
 	/**
 	 * Request attempt failed.
 	 */
-	public void requestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestDuration)
-	{
-		// empty
-	}
+	public void requestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestDuration);
 	
 	/**
 	 * Request attempt failed.
 	 */
-	public void requestAttemptFailedDecision(RRLEntry<Input, Output> entry, Pair<RRLAfterRequestAttemptFailedDecision, Long> decision)
-	{
-		// empty
-	}
+	public void requestAttemptFailedDecision(RRLEntry<Input, Output> entry, Pair<RRLAfterRequestAttemptFailedDecision, Long> decision);
 	
 	/**
 	 * Request added to processing.
-	 * aaa make use of
 	 */
-	public void requestAdded(RRLEntry<Input, Output> entry)
-	{
-		// empty
-	}
+	public void requestAdded(RRLEntry<Input, Output> entry);
 	
 	/**
 	 * Request removed from processing -- either due to completion or any of
@@ -161,10 +127,7 @@ public class RRLEventListener<@Nonnull Input, Output>
 	 * This kind of duplicates {@link #requestSuccess(RRLEntry, Object, int, long)}
 	 * etc. but sometimes it is more convenient to handle stuff in one place.
 	 */
-	public void requestRemoved(RRLEntry<Input, Output> entry)
-	{
-		// empty
-	}
+	public void requestRemoved(RRLEntry<Input, Output> entry);
 	
 	
 	/**
@@ -173,45 +136,29 @@ public class RRLEventListener<@Nonnull Input, Output>
 	 * that potentially takes time (reserving a thread, obtaining a ticket)
 	 * results in a new decision afterwards.
 	 */
-	@SuppressWarnings("unused")
 	public void mainQueueProcessingDecision(@Nullable RRLEntry<Input, Output> entry,
-		Pair<RRLMainQueueProcessingDecision, Long> decision, long itemProcessingSince)
-	{
-		// empty
-	}
+		Pair<RRLMainQueueProcessingDecision, Long> decision, long itemProcessingSince);
 	
 	/**
 	 * Reports main queue has obtained a thread required for request processing
 	 * for specific item.
 	 * aaa must handle case when thread was NOT obtained
 	 */
-	@SuppressWarnings("unused")
 	public void mainQueueThreadObtained(@Nullable RRLEntry<Input, Output> entry,
-		long itemProcessingSince, long timeTakenToObtainThread)
-	{
-		// empty
-	}
+		long itemProcessingSince, long timeTakenToObtainThread);
 	
 	/**
 	 * Reports main queue has obtained a thread required for request processing
 	 * for specific item.
 	 */
-	@SuppressWarnings("unused")
 	public void mainQueueTicketObtainAttempt(@Nullable RRLEntry<Input, Output> entry,
-		long itemProcessingSince, boolean ticketObtained, long timeTakenVirtualMs)
-	{
-		// empty
-	}
+		long itemProcessingSince, boolean ticketObtained, long timeTakenVirtualMs);
 	
 	/**
 	 * Reports main queue has completed processing of an item.
 	 */
-	@SuppressWarnings("unused")
 	public void mainQueueProcessingCompleted(@Nullable RRLEntry<Input, Output> entry,
-		long itemProcessingSince, long timeTakenVirtualMs)
-	{
-		// empty
-	}
+		long itemProcessingSince, long timeTakenVirtualMs);
 	
 	
 	/**
@@ -219,20 +166,12 @@ public class RRLEventListener<@Nonnull Input, Output>
 	 * delay queue processing retrieved an item and needs to decide what to do
 	 * with it, including potentially sleeping). 
 	 */
-	@SuppressWarnings("unused")
 	public void delayQueueItemBeforeDelayStep(@Nullable RRLEntry<Input, Output> entry, 
-		long queueDelayMs, long remainingDelay)
-	{
-		// empty
-	}
+		long queueDelayMs, long remainingDelay);
 	
 	/**
 	 * Reports delay queue processing decision after single delay step.
 	 */
-	@SuppressWarnings("unused")
 	public void delayQueueDecisionAfterDelayStep(@Nullable RRLEntry<Input, Output> entry, long queueDelayMs, 
-		RRLDelayQueueProcessingDecision decision, long sleptFor, long remainingDelay)
-	{
-		// empty
-	}
+		RRLDelayQueueProcessingDecision decision, long sleptFor, long remainingDelay);
 }
