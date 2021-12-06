@@ -19,6 +19,7 @@ import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import java.lang.reflect.Method;
@@ -279,6 +280,8 @@ public class TestRRL
 		{
 			// Check simple success case with two retries
 			failUntilAttempt.set(3);
+			attempts.clear();
+			events.clear();
 			
 			final long start = System.currentTimeMillis();
 			
@@ -289,6 +292,7 @@ public class TestRRL
 			checkAttempt(attempts.poll(), 1, "request", null, start, start + 100);
 			checkAttempt(attempts.poll(), 2, "request", null, start + 120, start + 220);
 			checkAttempt(attempts.poll(), 3, "request", "success: request", start + 940, start + 1140);
+			assertNull(attempts.poll());
 			
 	//zzz		checkEvent(events.poll(), "requestAdded"); need to do checkEvent tests
 			
@@ -313,8 +317,29 @@ public class TestRRL
 			}
 		}
 		
+		{
+			// tests 'not earlier than' processing
+			failUntilAttempt.set(0);
+			attempts.clear();
+			events.clear();
+			
+			
+			final long now = System.currentTimeMillis();
+			final long delayFor = 300;
+			final long later = now + delayFor;
+			
+			RRLFuture<String, String> fDelayFor = service.submitForWithDelayFor("delayFor", 2000, delayFor);
+			RRLFuture<String, String> fDelayUntil = service.submitUntilWithDelayUntil("delayUntil", now + 2000, later);
+			
+			assertEquals(fDelayFor.getOrNull(2000, TimeUnit.MILLISECONDS), "success: delayFor");
+			assertEquals(fDelayUntil.getOrNull(2000, TimeUnit.MILLISECONDS), "success: delayUntil");
+			
+			checkAttempt(attempts.poll(), 1, "delayFor", "success: delayFor", later, later + 100);
+			checkAttempt(attempts.poll(), 1, "delayUntil", "success: delayUntil", later, later + 100);
+			assertNull(attempts.poll());
+		}
 		
-		//zzz tests for 'not earlier than'
+		
 		//zzz tests for timeout
 		//zzz tests for all attempts fail
 		//zzz test grace
