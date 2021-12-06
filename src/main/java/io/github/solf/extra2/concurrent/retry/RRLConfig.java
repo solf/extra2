@@ -75,7 +75,7 @@ public class RRLConfig extends BaseDelegatingOptions
 	private final List<Long> delayQueues = getRawOptions().getTimeIntervalList("delayQueues", OptionConstraint.NON_EMPTY_COLLECTION, OptionConstraint.POSITIVE);
 
 	
-	/** Rate limiter's bucket size (maximum number of available tokens that can be stored); setting this to zero disables rate limiter -- requests are sent for execution asap */
+	/** Rate limiter's bucket size [starts empty] (maximum number of available tokens that can be stored); setting this to zero disables rate limiter -- requests are sent for execution asap */
 	@Getter
 	private final int rateLimiterBucketSize = getRawOptions().getIntNonNegative("rateLimiterBucketSize");
 	
