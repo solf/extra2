@@ -17,6 +17,7 @@ package io.github.solf.extra2.retry;
 
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertContains;
+import static io.github.solf.extra2.testutil.AssertExtra.assertFailsWithSubstring;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
@@ -418,6 +419,20 @@ public class TestRRL
 			assertEquals(status.getRequestsExecutorServiceActiveThreads(), 0);
 		}
 		
+		// ================ DESTRUCTIVE TEST ==================
+		
+		{
+			// check max pending requests limit
+			failUntilAttempt.set(0);
+			attempts.clear();
+			events.clear();
+			
+			for (int i = 0; i < 100; i++)
+				service.submitForWithDelayFor("request " + i, 1000, 100);
+			
+			assertFailsWithSubstring(() -> service.submitFor("request too many", 1000), 
+				"java.util.concurrent.RejectedExecutionException: Too many already-processing requests");
+		}
 	}
 	
 	
