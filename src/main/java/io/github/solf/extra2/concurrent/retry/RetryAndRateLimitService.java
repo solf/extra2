@@ -17,6 +17,7 @@ package io.github.solf.extra2.concurrent.retry;
 
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static io.github.solf.extra2.util.NullUtil.nn;
+import static io.github.solf.extra2.util.NullUtil.nnChecked;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import java.util.ArrayList;
@@ -27,8 +28,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,6 +46,7 @@ import io.github.solf.extra2.concurrent.InterruptableRunnable;
 import io.github.solf.extra2.concurrent.InterruptableSupplier;
 import io.github.solf.extra2.concurrent.WAThreadPoolExecutor;
 import io.github.solf.extra2.concurrent.exception.InterruptedRuntimeException;
+import io.github.solf.extra2.lambda.BooleanObjectWrapper;
 import io.github.solf.extra2.lambda.SimpleLongCounter;
 import io.github.solf.extra2.nullable.NonNullOptional;
 import io.github.solf.extra2.nullable.NullableOptional;
@@ -55,8 +60,6 @@ import lombok.SneakyThrows;
 import lombok.ToString;
 
 /**
- * aaa needs status thingy to at least check requests count and if all threads are alive
- * 
  * zzz - class description
  * 
  * zzz - note about after* methods
@@ -92,6 +95,12 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * zzz make sure items count is tested
 	 */
 	protected final AtomicInteger processingRequestsCount = new AtomicInteger(0);
+	
+	/**
+	 * Cached status of the service if previously calculated.
+	 */
+	@Nullable
+	protected volatile RRLStatus cachedStatus;
 	
 	
 	/**
@@ -425,7 +434,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		this.mainQueueProcessingThread = createMainQueueProcessor(config, commonNamingPrefix, threadGroup);
 		this.delayQueues = createDelayQueues(config, commonNamingPrefix, threadGroup);
 		
-		this.requestsExecutorService = spiCreateExecutorService(config, commonNamingPrefix, threadGroup);
+		this.requestsExecutorService = spiCreateRequestProcessingExecutorService(config, commonNamingPrefix, threadGroup);
 		
 		this.rateLimiter = spiCreateRateLimiter(config, commonNamingPrefix, threadGroup);
 	}
@@ -954,7 +963,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * Note that custom implementations may decide to override this and they
 	 * are allowed to return empty list if they need special handling; however
 	 * they then MUST properly override {@link #delayEntry(RRLEntry, long)}
-	 * method to be compatible!
+	 * AND {@link #isAllDelayQueuesAlive()} method to be compatible!
 	 */
 	@SuppressWarnings("hiding")
 	protected List<RRLDelayQueueData> createDelayQueues(RRLConfig config, String commonNamingPrefix, ThreadGroup threadGroup)
@@ -1140,6 +1149,20 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		queue.addToQueue(entry);
 	}
 	
+	/**
+	 * Checks that all delay queues are alive.
+	 */
+	protected boolean isAllDelayQueuesAlive()
+	{
+		for (RRLDelayQueueData dq : delayQueues)
+		{
+			if (!dq.getProcessingThread().isAlive())
+				return false;
+		}
+		
+		return true;
+	}
+	
 	//zzz comments
 	protected Void runnableRequestProcessor(SynchronousQueue<RRLEntry<Input, Output>> commQueue)
 		throws InterruptedException
@@ -1263,6 +1286,32 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		return result.get();
 	}
 
+
+	/**
+	 * Invokes given SPI code and returns the result -- this is for methods
+	 * that don't throw {@link InterruptedException}
+	 * <p>
+	 * If underlying SPI code throws an exception, then the exception is logged
+	 * via {@link #logSpiMethodException(RRLEntry, Throwable)} and
+	 * valueInCaseOfException is returned.
+	 * <p>
+	 * NOTE: {@link InterruptedException} and {@link ThreadDeath} subclasses
+	 * are not logged and are re-thrown as those can be used to stop thread
+	 */
+	protected <@Nonnull RV> RV guardedSpiInvocationNoInterrupt(Supplier<RV> callable,
+		RV valueInCaseOfException, @Nullable RRLEntry<Input, Output> entryForLoggingInCaseOfException) 
+	{
+		try
+		{
+			return guardedSpiInvocation(() -> callable.get(), valueInCaseOfException, entryForLoggingInCaseOfException);
+		} catch( InterruptedException e )
+		{
+			logAssertionError(entryForLoggingInCaseOfException, "InterruptedException in guardedSpiInvocationNoInterrupt(..) should not happen");
+			
+			return valueInCaseOfException;
+		}
+	}
+	
 	/** Used in {@link #guardedSpiInvocationNoResult(InterruptableRunnable, RRLEntry)} */
 	private static final Object someObject = new Object();
 	
@@ -1402,8 +1451,11 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * Custom implementations are allowed to return null value in case they
 	 * don't use a dedicated thread pool / executor -- but in that case they
 	 * MUST properly override {@link #spiStartRequestProcessingThread(RRLEntry, Callable)}
-	 * method! zzz also mention about status? probably status should be spi* method too
-	 * <p> 
+	 * method AND {@link #spiStatusIsRequestProcessingExecutorServiceAlive()}
+	 * method AND {@link #spiStatusRequestProcessingExecutorServiceActiveThreads()}
+	 * method (which ASSUMES BY DEFAULT that {@link #requestsExecutorService}
+	 * is an instance of {@link ThreadPoolExecutor}!).
+	 * <p>
 	 * Default implementation creates {@link WAThreadPoolExecutor} with
 	 * min/max sizes from {@link RRLConfig#requestProcessingThreadPoolConfig()}
 	 * and using daemon threads with priority
@@ -1411,7 +1463,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 */
 	@SuppressWarnings("hiding")
 	@Nullable
-	protected ExecutorService spiCreateExecutorService(RRLConfig config, String commonNamingPrefix, ThreadGroup threadGroup)
+	protected ExecutorService spiCreateRequestProcessingExecutorService(RRLConfig config, String commonNamingPrefix, ThreadGroup threadGroup)
 	{
 		List<@Nonnull Integer> sizeCfg = config.getRequestProcessingThreadPoolConfig();
 		if (sizeCfg.size() != 2)
@@ -1429,6 +1481,35 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			true/*is daemon*/, 
 			config.getRequestProcessingThreadPriority(), 
 			threadGroup);
+	}
+	
+	/**
+	 * Checks that request processing executor service is alive.
+	 * <p>
+	 * NOTE: custom implementations that override {@link #spiCreateRequestProcessingExecutorService(RRLConfig, String, ThreadGroup)}
+	 * in a special way need to take care of this method too.
+	 * <p>
+	 * Default implementation simply checks whether {@link #requestsExecutorService}
+	 * is not shutdown.
+	 */
+	protected boolean spiStatusIsRequestProcessingExecutorServiceAlive()
+	{
+		return !nnChecked(requestsExecutorService).isShutdown();
+	}
+	
+	/**
+	 * Checks how many threads are currently active (executing tasks) in
+	 * {@link #requestsExecutorService}
+	 * <p>
+	 * NOTE: custom implementations that override {@link #spiCreateRequestProcessingExecutorService(RRLConfig, String, ThreadGroup)}
+	 * in a special way need to take care of this method too!
+	 * <p>
+	 * Default implementation assumes that executor is actually {@link ThreadPoolExecutor}
+	 * and returns {@link ThreadPoolExecutor#getActiveCount()}
+	 */
+	protected int spiStatusRequestProcessingExecutorServiceActiveThreads()
+	{
+		return ((ThreadPoolExecutor)nnChecked(requestsExecutorService)).getActiveCount();
 	}
 	
 	
@@ -2036,5 +2117,121 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			throw new IllegalArgumentException("delayUntilTimestamp [" + delayUntilTimestamp + "] is not after 'now'");
 		
 		return internalSubmit(request, timeLimitMs, delayFor).getFuture();
+	}
+	
+	
+	
+	/**
+	 * Synchronization object for {@link #getStatus(long)}
+	 */
+	private final Object getStatusSyncObject = new Object();
+	
+	/**
+	 * Gets service status (e.g. for monitoring).
+	 * 
+	 * @param maximum age for the retrieved status -- previously calculated status
+	 * 		is cached so it can be re-used if it is not older that the given
+	 * 		maximum age; this age is in 'virtual' ms, i.e. affected by {@link #timeFactor()};
+	 * 		use 0 to disable caching
+	 * 
+	 * @throws IllegalArgumentException if maximum age is negative
+	 */
+	public RRLStatus getStatus(final long maximumAgeMsVirtual)
+		throws IllegalArgumentException
+	{
+		if (maximumAgeMsVirtual < 0)
+			throw new IllegalArgumentException("Maximum age must be non-negative, got: " + maximumAgeMsVirtual);
+		
+		final long now = timeNow();
+		if (maximumAgeMsVirtual > 0)
+		{
+			RRLStatus status = cachedStatus;
+			if (status != null)
+			{
+				long validUntil = timeAddVirtualIntervalToRealWorldTime(
+					status.getStatusCreatedAt(), maximumAgeMsVirtual);
+				
+				if (validUntil >= now)
+					return status; 
+			}
+		}
+		
+		// Need new status; 
+		// synchronize to make sure this is not duplicated (2021-12-06: not sure this is useful)
+		synchronized (getStatusSyncObject)
+		{
+			// Double-check if status was updated concurrently and is maybe valid now
+			if (maximumAgeMsVirtual > 0)
+			{
+				RRLStatus status = cachedStatus;
+				if (status != null)
+				{
+					long validUntil = timeAddVirtualIntervalToRealWorldTime(
+						status.getStatusCreatedAt(), maximumAgeMsVirtual);
+					
+					if (validUntil >= now)
+						return status; 
+				}
+			}
+			
+			// Need to build a new status
+			
+			BooleanObjectWrapper everythingAlive = BooleanObjectWrapper.of(true);
+			Function<@Nonnull Thread, @Nonnull Boolean> resetEverythingAliveIfThreadIsDead = new Function<@Nonnull Thread, @Nonnull Boolean>()
+			{
+				@Override
+				public Boolean apply(Thread t)
+				{
+					boolean alive = t.isAlive();
+					
+					if (!alive)
+					{
+						everythingAlive.setFalse();
+						return Boolean.FALSE;
+					}
+					else
+						return Boolean.TRUE;
+				}
+			};
+			Function<@Nonnull Boolean, @Nonnull Boolean> resetEverythingAliveIfFalse = new Function<@Nonnull Boolean, @Nonnull Boolean>()
+			{
+				@Override
+				public Boolean apply(Boolean alive)
+				{
+					if (!alive)
+						everythingAlive.setFalse();
+					
+					return alive;
+				}
+			};
+			
+			RRLStatus status = RRLStatusBuilder
+				.statusCreatedAt(now)
+				.serviceAlive(resetEverythingAliveIfFalse.apply(true)) //zzz impl actual status
+				.serviceUsable(true) // zzz impl actual
+				.mainQueueProcessingThreadAlive(       resetEverythingAliveIfThreadIsDead.apply(mainQueueProcessingThread))
+				.delayQueueProcessingThreadsAreAlive(  resetEverythingAliveIfFalse.apply(isAllDelayQueuesAlive()))
+				.requestsExecutorServiceAlive(         resetEverythingAliveIfFalse.apply(
+					guardedSpiInvocationNoInterrupt(() -> spiStatusIsRequestProcessingExecutorServiceAlive(), 
+						false, null)
+				))
+				.requestsExecutorServiceActiveThreads(
+					guardedSpiInvocationNoInterrupt(() -> spiStatusRequestProcessingExecutorServiceActiveThreads(), 0, null)
+				)
+				.everythingAlive(everythingAlive.isTrue())
+				
+				.currentProcessingRequestsCount(processingRequestsCount.get())
+				.mainQueueSize(mainQueue.size())
+				
+				.configMaxAttempts(config.getMaxAttempts())
+				.configDelaysAfterFailure(config.getDelaysAfterFailure())
+				.configMaxPendingRequests(config.getMaxPendingRequests())
+				.configRequestEarlyProcessingGracePeriod(config.getRequestEarlyProcessingGracePeriod())
+				
+				.buildRRLStatus();
+			
+			cachedStatus = status; // cache status
+			return status;
+		}
 	}
 }
