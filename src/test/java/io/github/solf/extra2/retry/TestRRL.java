@@ -47,6 +47,7 @@ import io.github.solf.extra2.concurrent.retry.RRLStatus;
 import io.github.solf.extra2.concurrent.retry.RRLTimeoutException;
 import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService;
 import io.github.solf.extra2.config.Configuration;
+import io.github.solf.extra2.config.OverrideFlatConfiguration;
 import io.github.solf.extra2.lambda.TriConsumer;
 import io.github.solf.extra2.util.TypeUtil;
 import lombok.Getter;
@@ -305,6 +306,7 @@ public class TestRRL
 			
 			{
 				// check status
+				Thread.sleep(100);
 				RRLStatus status = service.getStatus(5);
 				assertBetweenInclusive(status.getStatusCreatedAt(), System.currentTimeMillis() - 15, System.currentTimeMillis());
 				
@@ -396,8 +398,6 @@ public class TestRRL
 			assertNull(attempts.poll());
 		}
 		
-		//zzz test grace
-		
 		{
 			// check status
 			Thread.sleep(100);
@@ -419,6 +419,80 @@ public class TestRRL
 		}
 		
 	}
+	
+	
+	@Test
+	public void testGrace() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(0);
+		
+		OverrideFlatConfiguration overrideConfig = new OverrideFlatConfiguration("retry/simpleCasesTest");
+		overrideConfig.override("serviceName", "testGrace");
+		overrideConfig.override("requestEarlyProcessingGracePeriod", "50ms");
+		
+		RRLConfig config = new RRLConfig(overrideConfig);
+		RetryAndRateLimitService<String, String> service = new RetryAndRateLimitService<String, String>(config)
+		{
+			@Override
+			protected String processRequest(String input, int attemptNumber) throws InterruptedException
+			{
+//				System.out.println("" + new Date() + " " + attemptNumber + ": " + System.currentTimeMillis());{}
+				
+				String result = null;
+				if (attemptNumber >= failUntilAttempt.get())
+					result = "success: " + input;
+					
+				Thread.sleep(20);
+				
+				attempts.add(new AttemptRecord<>(System.currentTimeMillis(), attemptNumber, input, result));
+					
+				if (result == null)
+					throw new IllegalStateException("attempt: " + attemptNumber);
+				
+				return result;
+			}
+
+			@SuppressWarnings("hiding")
+			@Override
+			protected RRLEventListener<String, String> spiCreateEventListener(
+				RRLConfig config, String commonNamingPrefix,
+				ThreadGroup threadGroup)
+			{
+				return createEventListenerProxy(
+					(proxy, method, methodArgs) -> {
+						events.add(new EventListenerEvent(proxy, method, methodArgs));
+//						System.out.println("" + new LocalDateTime() + " " + "[" + method.getName() + "]: " + Arrays.toString(methodArgs));{}
+					});
+			}
+			
+			
+		};
+		service.start();
+		
+		
+		{
+			// Check grace functionality
+			failUntilAttempt.set(0);
+			attempts.clear();
+			events.clear();
+			
+			final long start = System.currentTimeMillis();
+			
+			RRLFuture<String, String> fDelay70 = service.submitForWithDelayFor("delay70", 2000, 70);
+			RRLFuture<String, String> fDelay40 = service.submitForWithDelayFor("delay40", 2000, 40);
+			
+			assertEquals(fDelay40.getOrNull(200, TimeUnit.MILLISECONDS), "success: delay40");
+			assertEquals(fDelay70.getOrNull(200, TimeUnit.MILLISECONDS), "success: delay70");
+			
+			checkAttempt(attempts.poll(), 1, "delay40", "success: delay40", start, start + 80);
+			checkAttempt(attempts.poll(), 1, "delay70", "success: delay70", start + 90, start + 180);
+			assertNull(attempts.poll());
+		}
+	}
+	
 	
 	/**
 	 * Creates event listener proxy.
