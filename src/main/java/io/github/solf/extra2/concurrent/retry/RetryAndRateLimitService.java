@@ -1753,9 +1753,18 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		if (remainingValidityTime <= 0)
 			return new Pair<>(RRLAfterRequestAttemptFailedDecision.TIMEOUT, remainingValidityTime);
 		
+		// if we don't have time for another attempt, it's reasonable to just
+		// timeout right now, however it may be unexpected at the client 
+		// (timeout before time actually expired), so we delay until time
+		// actually expires
+		
 		// May retry
-		return new Pair<>(RRLAfterRequestAttemptFailedDecision.RETRY, 
-			spiCalculateDelayAfterFailedRequestAttempt(entry, exception, attemptNumber, requestDuration));
+		return new Pair<>(RRLAfterRequestAttemptFailedDecision.RETRY,
+			Math.min(
+				remainingValidityTime, // no reason to wait past timeout 
+				spiCalculateDelayAfterFailedRequestAttempt(entry, exception, attemptNumber, requestDuration)
+			)
+		);
 	}
 	
 	/**

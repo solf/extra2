@@ -16,11 +16,13 @@
 package io.github.solf.extra2.retry;
 
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
+import static io.github.solf.extra2.testutil.AssertExtra.assertContains;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -41,6 +43,7 @@ import io.github.solf.extra2.concurrent.retry.RRLConfig;
 import io.github.solf.extra2.concurrent.retry.RRLEventListener;
 import io.github.solf.extra2.concurrent.retry.RRLFuture;
 import io.github.solf.extra2.concurrent.retry.RRLStatus;
+import io.github.solf.extra2.concurrent.retry.RRLTimeoutException;
 import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService;
 import io.github.solf.extra2.config.Configuration;
 import io.github.solf.extra2.lambda.TriConsumer;
@@ -63,7 +66,7 @@ public class TestRRL
 		
 		LinkedBlockingQueue<String> dump = new LinkedBlockingQueue<>();
 		
-		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/simpleOneItemTest"));
+		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/simpleCasesTest"));
 		RetryAndRateLimitService<String, String> service = new RetryAndRateLimitService<String, String>(config)
 		{
 			@Override
@@ -180,14 +183,14 @@ public class TestRRL
 	}
 	
 	@Test
-	public void simpleOneItemTest() throws InterruptedException
+	public void simpleCasesTest() throws InterruptedException
 	{
 		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
 		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
 		
 		final AtomicInteger failUntilAttempt = new AtomicInteger(3);
 		
-		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/simpleOneItemTest"));
+		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/simpleCasesTest"));
 		RetryAndRateLimitService<String, String> service = new RetryAndRateLimitService<String, String>(config)
 		{
 			@Override
@@ -323,24 +326,48 @@ public class TestRRL
 			attempts.clear();
 			events.clear();
 			
-			
 			final long now = System.currentTimeMillis();
 			final long delayFor = 300;
 			final long later = now + delayFor;
 			
-			RRLFuture<String, String> fDelayFor = service.submitForWithDelayFor("delayFor", 2000, delayFor);
 			RRLFuture<String, String> fDelayUntil = service.submitUntilWithDelayUntil("delayUntil", now + 2000, later);
+			Thread.sleep(100);
+			RRLFuture<String, String> fDelayFor = service.submitForWithDelayFor("delayFor", 2000, delayFor);
 			
-			assertEquals(fDelayFor.getOrNull(2000, TimeUnit.MILLISECONDS), "success: delayFor");
 			assertEquals(fDelayUntil.getOrNull(2000, TimeUnit.MILLISECONDS), "success: delayUntil");
+			assertEquals(fDelayFor.getOrNull(2000, TimeUnit.MILLISECONDS), "success: delayFor");
 			
-			checkAttempt(attempts.poll(), 1, "delayFor", "success: delayFor", later, later + 100);
 			checkAttempt(attempts.poll(), 1, "delayUntil", "success: delayUntil", later, later + 100);
+			checkAttempt(attempts.poll(), 1, "delayFor", "success: delayFor", later + 100, later + 200);
+			assertNull(attempts.poll());
+		}
+
+		
+		{
+			// tests for timeout
+			failUntilAttempt.set(3);
+			attempts.clear();
+			events.clear();
+			
+			final long start = System.currentTimeMillis();
+			try
+			{
+				service.submitFor("timeout", 300).getOrNull(2000);
+				fail("should not be reacheable");
+			} catch (RRLTimeoutException e)
+			{
+				assertTrue(e.getCause() instanceof RRLTimeoutException);
+				assertContains(e, "Request timed out after");
+			}
+			final long duration = System.currentTimeMillis() - start;
+			assertBetweenInclusive(duration, 300L, 400L);
+			
+			checkAttempt(attempts.poll(), 1, "timeout", null, start, start + 100);
+			checkAttempt(attempts.poll(), 2, "timeout", null, start + 120, start + 220);
 			assertNull(attempts.poll());
 		}
 		
 		
-		//zzz tests for timeout
 		//zzz tests for all attempts fail
 		//zzz test grace
 	}
