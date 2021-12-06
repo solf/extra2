@@ -39,6 +39,7 @@ import org.joda.time.LocalDateTime;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import io.github.solf.extra2.concurrent.exception.ExecutionRuntimeException;
 import io.github.solf.extra2.concurrent.retry.RRLConfig;
 import io.github.solf.extra2.concurrent.retry.RRLEventListener;
 import io.github.solf.extra2.concurrent.retry.RRLFuture;
@@ -185,6 +186,8 @@ public class TestRRL
 	@Test
 	public void simpleCasesTest() throws InterruptedException
 	{
+		//zzz test all the different flavours of future#get
+		
 		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
 		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
 		
@@ -366,10 +369,55 @@ public class TestRRL
 			checkAttempt(attempts.poll(), 2, "timeout", null, start + 120, start + 220);
 			assertNull(attempts.poll());
 		}
+
 		
+		{
+			// tests for all attempts fail
+			failUntilAttempt.set(300);
+			attempts.clear();
+			events.clear();
+			
+			final long start = System.currentTimeMillis();
+			try
+			{
+				service.submitFor("failure", 5000).getOrNull(2000);
+				fail("should not be reacheable");
+			} catch (ExecutionRuntimeException e)
+			{
+				assertTrue(e.getCause() instanceof IllegalStateException);
+				assertContains(e, "java.lang.IllegalStateException: attempt: 3");
+			}
+			final long duration = System.currentTimeMillis() - start;
+			assertBetweenInclusive(duration, 940L, 1200L);
+			
+			checkAttempt(attempts.poll(), 1, "failure", null, start, start + 100);
+			checkAttempt(attempts.poll(), 2, "failure", null, start + 120, start + 220);
+			checkAttempt(attempts.poll(), 3, "failure", null, start + 940, start + 1140);
+			assertNull(attempts.poll());
+		}
 		
-		//zzz tests for all attempts fail
 		//zzz test grace
+		
+		{
+			// check status
+			Thread.sleep(100);
+			RRLStatus status = service.getStatus(0);
+			assertBetweenInclusive(status.getStatusCreatedAt(), System.currentTimeMillis() - 15, System.currentTimeMillis());
+			
+			//zzz			assertTrue(status.isServiceAlive());
+			//zzz			assertTrue(status.isServiceUsable());
+						
+			assertTrue(status.isEverythingAlive());
+			assertTrue(status.isMainQueueProcessingThreadAlive());
+			assertTrue(status.isDelayQueueProcessingThreadsAreAlive());
+			
+			assertTrue(status.isRequestsExecutorServiceAlive());
+			
+			assertEquals(status.getCurrentProcessingRequestsCount(), 0);
+			assertEquals(status.getMainQueueSize(), 0);
+			assertEquals(status.getRequestsExecutorServiceActiveThreads(), 0);
+		}
+		
 	}
 	
 	/**

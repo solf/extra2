@@ -22,8 +22,6 @@ import lombok.Getter;
 /**
  * Used by {@link RetryAndRateLimitService} to indicate in {@link RRLFuture}
  * that processing was aborted due to timeout.
- * 
- * aaa figure out if this actually is thrown properly, it probably is wrapped?
  *
  * @author Sergey Olefir
  */

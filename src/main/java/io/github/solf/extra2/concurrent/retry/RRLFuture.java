@@ -86,7 +86,8 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * @throws RRLTimeoutException if the underlying request has timed out
 	 * 		(haven't been successfully completed before the maximum allowed time elapsed)
 	 * @throws ExecutionRuntimeException if the underlying request completed
-	 * 		with exception; original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
+	 * 		with exception AND no further retries are going to happen; 
+	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
 	 */
@@ -104,10 +105,10 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * @throws RRLTimeoutException if the underlying request has timed out
 	 * 		(haven't been successfully completed before the maximum allowed time elapsed)
 	 * @throws ExecutionRuntimeException if the underlying request completed
-	 * 		with exception; original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
+	 * 		with exception AND no further retries are going to happen; 
+	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
-	 *  
 	 */
 	@Nullable
 	default Output get(long timeoutMs) throws InterruptedException, TimeoutException,
@@ -128,7 +129,8 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * @throws RRLTimeoutException if the underlying request has timed out
 	 * 		(haven't been successfully completed before the maximum allowed time elapsed)
 	 * @throws ExecutionRuntimeException if the underlying request completed
-	 * 		with exception; original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
+	 * 		with exception AND no further retries are going to happen; 
+	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
 	 */
@@ -156,10 +158,10 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * @throws RRLTimeoutException if the underlying request has timed out
 	 * 		(haven't been successfully completed before the maximum allowed time elapsed)
 	 * @throws ExecutionRuntimeException if the underlying request completed
-	 * 		with exception; original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
+	 * 		with exception AND no further retries are going to happen; 
+	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
-	 *  
 	 */
 	@Nullable
 	default Output getOrNull(long timeout, TimeUnit unit) throws InterruptedException, 
@@ -185,10 +187,10 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * @throws RRLTimeoutException if the underlying request has timed out
 	 * 		(haven't been successfully completed before the maximum allowed time elapsed)
 	 * @throws ExecutionRuntimeException if the underlying request completed
-	 * 		with exception; original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
+	 * 		with exception AND no further retries are going to happen; 
+	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
-	 *  
 	 */
 	@Nullable
 	default Output getOrNull(long timeoutMs) throws InterruptedException, 

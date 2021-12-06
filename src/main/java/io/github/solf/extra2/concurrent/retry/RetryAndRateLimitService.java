@@ -1226,7 +1226,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				{
 					case FINAL_FAILURE:
 						inflightEntry = null; // not going to retry this
-						handleFinalFailure(entry, t);
+						handleFinalFailure(entry, t == null ? exception : t);
 						break;
 						
 					case TIMEOUT:
