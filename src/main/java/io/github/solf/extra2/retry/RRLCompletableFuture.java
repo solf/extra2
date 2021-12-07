@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.concurrent.retry;
+package io.github.solf.extra2.retry;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -26,8 +26,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.concurrent.exception.ExecutionInterruptedRuntimeException;
 import io.github.solf.extra2.concurrent.exception.ExecutionRuntimeException;
-import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService.RRLEntry;
 import io.github.solf.extra2.exception.AssertionException;
+import io.github.solf.extra2.retry.RetryAndRateLimitService.RRLEntry;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

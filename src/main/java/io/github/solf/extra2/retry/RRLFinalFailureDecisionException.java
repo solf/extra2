@@ -13,32 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.concurrent.retry;
+package io.github.solf.extra2.retry;
 
 import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * Implementation of {@link RRLRateLimiter} that doesn't place any rate limit
- * restrictions (tickets are always available).
+ * Used by {@link RetryAndRateLimitService} to indicate in {@link RRLFuture}
+ * that processing was aborted due to 'final failure' decision (without an
+ * actual exception being available).
  *
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public class RRLUnlimitedRateLimiter implements RRLRateLimiter<String>
+public class RRLFinalFailureDecisionException extends Throwable
 {
 
-	@Override
-	public @Nullable String obtainTicket(long maxWaitRealMs)
-		throws InterruptedException
+	/**
+	 * 
+	 */
+	public RRLFinalFailureDecisionException()
 	{
-		return "RRLUnlimitedRateLimiter";
+		super();
 	}
 
-	@Override
-	public void returnUnusedTicket(String ticket)
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public RRLFinalFailureDecisionException(String message,
+		@Nullable Throwable cause)
 	{
-		// nothing
+		super(message, cause);
 	}
+
+	/**
+	 * @param message
+	 */
+	public RRLFinalFailureDecisionException(String message)
+	{
+		super(message);
+	}
+
+	/**
+	 * @param cause
+	 */
+	public RRLFinalFailureDecisionException(@Nullable Throwable cause)
+	{
+		super(cause);
+	}
+	
 }

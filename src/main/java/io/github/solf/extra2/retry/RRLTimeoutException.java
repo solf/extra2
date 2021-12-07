@@ -13,55 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.concurrent.retry;
-
-import javax.annotation.Nullable;
+package io.github.solf.extra2.retry;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import lombok.Getter;
+
 /**
  * Used by {@link RetryAndRateLimitService} to indicate in {@link RRLFuture}
- * that processing was aborted due to 'final failure' decision (without an
- * actual exception being available).
+ * that processing was aborted due to timeout.
  *
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public class RRLFinalFailureDecisionException extends Throwable
+public class RRLTimeoutException extends RuntimeException
 {
-
 	/**
-	 * 
+	 * Total time the request was being processed for until timeout.
 	 */
-	public RRLFinalFailureDecisionException()
+	@Getter
+	private final long totalProcessingTime;
+	
+	/**
+	 * Constructor.
+	 */
+	public RRLTimeoutException(long totalProcessingTime)
 	{
-		super();
+		super("Request timed out after: " + totalProcessingTime + "ms");
+		
+		this.totalProcessingTime = totalProcessingTime;
 	}
 
 	/**
-	 * @param message
-	 * @param cause
+	 * Constructor for wrapping timeout exception in another timeout exception
+	 * for use in futures.
 	 */
-	public RRLFinalFailureDecisionException(String message,
-		@Nullable Throwable cause)
-	{
-		super(message, cause);
-	}
-
-	/**
-	 * @param message
-	 */
-	public RRLFinalFailureDecisionException(String message)
-	{
-		super(message);
-	}
-
-	/**
-	 * @param cause
-	 */
-	public RRLFinalFailureDecisionException(@Nullable Throwable cause)
+	public RRLTimeoutException(RRLTimeoutException cause)
 	{
 		super(cause);
+		
+		this.totalProcessingTime = cause.getTotalProcessingTime();
 	}
-	
 }

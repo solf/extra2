@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.concurrent.retry;
+package io.github.solf.extra2.retry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,10 +22,10 @@ import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.javatuples.Pair;
 
-import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService.RRLAfterRequestAttemptFailedDecision;
-import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService.RRLDelayQueueProcessingDecision;
-import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService.RRLEntry;
-import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService.RRLMainQueueProcessingDecision;
+import io.github.solf.extra2.retry.RetryAndRateLimitService.RRLAfterRequestAttemptFailedDecision;
+import io.github.solf.extra2.retry.RetryAndRateLimitService.RRLDelayQueueProcessingDecision;
+import io.github.solf.extra2.retry.RetryAndRateLimitService.RRLEntry;
+import io.github.solf.extra2.retry.RetryAndRateLimitService.RRLMainQueueProcessingDecision;
 
 /**
  * Events listener interface for {@link RetryAndRateLimitService}

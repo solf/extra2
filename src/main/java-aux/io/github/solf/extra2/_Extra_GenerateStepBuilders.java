@@ -22,8 +22,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import io.github.solf.extra2.cache.wbrb.WBRBStatus;
 import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderContext;
 import io.github.solf.extra2.codegenerate.stepbuilder.StepBuilderGenerator;
-import io.github.solf.extra2.concurrent.retry.RRLStatus;
 import io.github.solf.extra2.log.LoggingStatus;
+import io.github.solf.extra2.retry.RRLStatus;
 
 /**
  * Generates step builders via {@link StepBuilderGenerator}

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.solf.extra2.concurrent.retry;
+package io.github.solf.extra2.retry;
 
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
