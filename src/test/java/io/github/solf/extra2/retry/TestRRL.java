@@ -18,18 +18,24 @@ package io.github.solf.extra2.retry;
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertContains;
 import static io.github.solf.extra2.testutil.AssertExtra.assertFailsWithSubstring;
+import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
@@ -41,18 +47,21 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.concurrent.exception.ExecutionRuntimeException;
-import io.github.solf.extra2.concurrent.retry.RRLConfig;
-import io.github.solf.extra2.concurrent.retry.RRLEventListener;
-import io.github.solf.extra2.concurrent.retry.RRLFuture;
-import io.github.solf.extra2.concurrent.retry.RRLStatus;
-import io.github.solf.extra2.concurrent.retry.RRLTimeoutException;
-import io.github.solf.extra2.concurrent.retry.RetryAndRateLimitService;
 import io.github.solf.extra2.config.Configuration;
 import io.github.solf.extra2.config.OverrideFlatConfiguration;
 import io.github.solf.extra2.lambda.TriConsumer;
+import io.github.solf.extra2.retry.RRLConfig;
+import io.github.solf.extra2.retry.RRLEventListener;
+import io.github.solf.extra2.retry.RRLFuture;
+import io.github.solf.extra2.retry.RRLStatus;
+import io.github.solf.extra2.retry.RRLTimeoutException;
+import io.github.solf.extra2.retry.RetryAndRateLimitService;
 import io.github.solf.extra2.util.TypeUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Tests for {@link RetryAndRateLimitService}
@@ -60,6 +69,7 @@ import lombok.RequiredArgsConstructor;
  * @author Sergey Olefir
  */
 @NonNullByDefault
+@Slf4j
 public class TestRRL
 {
 	@BeforeClass
@@ -505,6 +515,415 @@ public class TestRRL
 			checkAttempt(attempts.poll(), 1, "delay40", "success: delay40", start, start + 80);
 			checkAttempt(attempts.poll(), 1, "delay70", "success: delay70", start + 90, start + 180);
 			assertNull(attempts.poll());
+		}
+	}
+	
+	@Test
+	public void testThreadLimit() throws InterruptedException
+	{
+		final AtomicBoolean doDelay = new AtomicBoolean(true);
+		
+		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/threadLimit"));
+		RetryAndRateLimitService<String, String> service = new RetryAndRateLimitService<String, String>(config)
+		{
+			@Override
+			protected String processRequest(String input, int attemptNumber) throws InterruptedException
+			{
+				if (doDelay.get())
+					Thread.sleep(500);
+				
+				return "success: " + input;
+			}
+		};
+		service.start();
+		
+		ArrayList<RRLFuture<String, String>> futures = new ArrayList<>();
+		for (int i = 0; i < 50; i++)
+			futures.add(service.submitFor("request " + i, 5000));
+		
+		Thread.sleep(250);
+		
+		{
+			// test threads usage
+			RRLStatus status = service.getStatus(0);
+			
+			assertEquals(status.getRequestsExecutorServiceActiveThreads(), 10);
+			assertEquals(status.getCurrentProcessingRequestsCount(), futures.size());
+			assertEquals(status.getMainQueueSize(), futures.size() - 10 - 1);
+		}
+		
+		doDelay.set(false);
+		
+		final long start = System.currentTimeMillis();
+		
+		for (RRLFuture<String, String> future : futures)
+			assertEquals(future.getOrNull(500), "success: " + future.getTask(), future.getTask());
+		
+		assertBetweenInclusive(System.currentTimeMillis() - start, 200L, 500L);
+		
+		Thread.sleep(100);
+		
+		{
+			// test requests / queue sizes
+			RRLStatus status = service.getStatus(0);
+			
+			assertEquals(status.getCurrentProcessingRequestsCount(), 0);
+			assertEquals(status.getMainQueueSize(), 0);
+			assertEquals(status.getRequestsExecutorServiceActiveThreads(), 0);
+		}
+	}
+	
+	//zzz comment
+	private static enum FullTestItemMode
+	{
+		NOT_EARLIER_THAN,
+		
+		NO_FAIL_SUCCESS,
+		FAIL_1_SUCCESS,
+		FAIL_ALWAYS,
+		FAIL_TIMEOUT,
+		
+		TIMEOUT_WITHOUT_ATTEMPTS,
+	}
+	
+	
+	//zzz comment
+	@RequiredArgsConstructor
+	@ToString(doNotUseGetters = true)
+	private static class FullTestItem
+	{
+		/**
+		 * Special value to mark result as timeout.
+		 */
+		public static final String RESULT_TIMEOUT = "<<-TIMEOUT->>";
+		/**
+		 * Special value to mark result as fail.
+		 */
+		public static final String RESULT_FAIL = "<<-FAIL->>";
+		
+		
+		@Getter
+		private final FullTestItemMode mode;
+		
+		/**
+		 * Request string that is used to generate result from.
+		 */
+		@Getter
+		private final String request;
+		
+		@Getter @Setter
+		private volatile RRLFuture<FullTestItem, String> future = fakeNonNull();
+		
+		@Getter
+		private volatile LinkedBlockingQueue<AttemptRecord<FullTestItem, String>> attemptsQueue = new LinkedBlockingQueue<>();
+		
+		@Nullable
+		private volatile ArrayList<AttemptRecord<FullTestItem, String>> attemptsList = null;
+		/**
+		 * Gets view of the attempts as the list.
+		 * <p>
+		 * AFTER CALLING THIS METHOD QUEUE BECOMES UNUSABLE!!!
+		 */
+		public ArrayList<AttemptRecord<FullTestItem, String>> getAttemptsList()
+		{
+			ArrayList<AttemptRecord<FullTestItem, String>> retVal = attemptsList;
+			if (retVal == null)
+			{
+				retVal = new ArrayList<>(attemptsQueue);
+				attemptsList = retVal;
+				
+				attemptsQueue = fakeNonNull(); // make queue unusable
+			}
+			
+			return retVal;
+		}
+		
+		/**
+		 * When item processing was completed; initially -1
+		 */
+		@Getter
+		private volatile long completedAt = -1;
+		/**
+		 * null -- timeout; true -- success; false -- failure
+		 */
+		@Getter
+		private volatile String result;
+		/**
+		 * @param result -- resulting value or {@link #RESULT_TIMEOUT} or {@link #RESULT_FAIL}
+		 */
+		public void setCompletedAt(long completedAt, String result)
+		{
+			if (this.completedAt != -1)
+				throw new IllegalStateException("Trying to change completedAt from " + this.completedAt + " to " + completedAt);
+			
+			this.completedAt = completedAt;
+			this.result = result;
+		}
+		
+	}
+	
+	
+	
+	@Test
+	public void fullTest() throws InterruptedException
+	{
+		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/fullTest"));
+		RetryAndRateLimitService<FullTestItem, String> service = new RetryAndRateLimitService<FullTestItem, String>(config)
+		{
+			@Override
+			protected String processRequest(FullTestItem input, int attemptNumber) throws InterruptedException
+			{
+				String result = null;
+				try
+				{
+					result = processRequest0(input, attemptNumber);
+					return result;
+				} finally
+				{
+					// record attempt
+					input.getAttemptsQueue().add(new AttemptRecord<>(
+						System.currentTimeMillis(), attemptNumber, input, result));
+				}
+			}
+				
+			protected String processRequest0(FullTestItem input, int attemptNumber)
+			{
+				switch (input.getMode())
+				{
+					case FAIL_1_SUCCESS:
+						if (attemptNumber == 1)
+							throw new IllegalStateException("attempt " + attemptNumber);
+						break;
+						
+					case FAIL_ALWAYS:
+					case FAIL_TIMEOUT:
+						throw new IllegalStateException("attempt " + attemptNumber);
+						
+					case NOT_EARLIER_THAN:
+					case NO_FAIL_SUCCESS:
+					case TIMEOUT_WITHOUT_ATTEMPTS:
+						break; // these complete normally
+				}
+				
+				return "success: " + input.getRequest();
+			}
+
+			@Override
+			protected void afterRequestFinalFailure(
+				RRLEntry<FullTestItem, String> entry,
+				@Nullable Throwable t)
+			{
+				entry.getInput().setCompletedAt(System.currentTimeMillis(), FullTestItem.RESULT_FAIL);
+			}
+
+			@Override
+			protected void afterRequestFinalTimeout(
+				RRLEntry<FullTestItem, String> entry,
+				long remainingValidityTime)
+			{
+				entry.getInput().setCompletedAt(System.currentTimeMillis(), FullTestItem.RESULT_TIMEOUT);
+			}
+
+			@Override
+			protected void afterRequestSuccess(
+				RRLEntry<FullTestItem, String> entry, String result,
+				int attemptNumber, long requestDuration)
+			{
+				entry.getInput().setCompletedAt(System.currentTimeMillis(), result);
+			}
+		};
+		service.start();
+		
+		List<FullTestItem> firstList = new ArrayList<>(25);
+		List<FullTestItem> mainList = new ArrayList<>(125);
+		List<FullTestItem> lastList = new ArrayList<>(25);
+		
+		{
+			int itemCount = 1;
+			// 'not earlier than' go into first list at least in part
+			for (int i = 0; i < 10; i++)
+			{
+				firstList.add(new FullTestItem(FullTestItemMode.NOT_EARLIER_THAN, "not-earlier-than-first " + (itemCount++)));
+				mainList.add(new FullTestItem(FullTestItemMode.NOT_EARLIER_THAN, "not-earlier-than-main " + (itemCount++)));
+			}
+			// stuff that just goes into main list
+			for (int i = 0; i < 20; i++)
+			{
+				mainList.add(new FullTestItem(FullTestItemMode.NO_FAIL_SUCCESS, "no-fail " + (itemCount++)));
+				mainList.add(new FullTestItem(FullTestItemMode.FAIL_1_SUCCESS, "fail-1 " + (itemCount++)));
+				mainList.add(new FullTestItem(FullTestItemMode.FAIL_ALWAYS, "fail-1 " + (itemCount++)));
+				mainList.add(new FullTestItem(FullTestItemMode.FAIL_TIMEOUT, "fail-timeout " + (itemCount++)));
+			}
+			// stuff that goes into 'last list' -- i.e. timeouts w/o fail
+			for (int i = 0; i < 20; i++)
+			{
+				lastList.add(new FullTestItem(FullTestItemMode.TIMEOUT_WITHOUT_ATTEMPTS, "timeout-no-attempt " + (itemCount++)));
+			}
+		}
+		
+		// Shuffle lists for better testing
+		Collections.shuffle(firstList);
+		Collections.shuffle(mainList);
+		Collections.shuffle(lastList);
+		
+		// Submit everything
+		final long start = System.currentTimeMillis();
+		final long maxTimeLimit = 15_000;
+		final long maxEndTime = start + maxTimeLimit;
+		final long delayItemsDelayFor = 5_000;
+		int itemsCount = 0;
+		for (List<FullTestItem> list : List.of(firstList, mainList, lastList))
+		{
+			for (FullTestItem item : list)
+			{
+				itemsCount++;
+				RRLFuture<FullTestItem, String> future = fakeNonNull(); // make compiler happy
+				switch (item.getMode())
+				{
+					case FAIL_1_SUCCESS:
+					case FAIL_ALWAYS:
+					case NO_FAIL_SUCCESS:
+						future = service.submitFor(item, maxTimeLimit);
+						break;
+					case FAIL_TIMEOUT:
+						future = service.submitFor(item, 4000); // should timeout before the 3rd attempt
+						break;
+					case NOT_EARLIER_THAN:
+						future = service.submitForWithDelayFor(item, maxTimeLimit, delayItemsDelayFor);
+						break;
+					case TIMEOUT_WITHOUT_ATTEMPTS:
+						future = service.submitFor(item, 2000); // these go at the end, with 30/sec should timeout before getting to those
+						break;
+				}
+				
+				item.setFuture(future);
+			}
+		}
+		
+		{
+			// test requests / queue sizes
+			RRLStatus status = service.getStatus(0);
+			
+			assertBetweenInclusive(status.getCurrentProcessingRequestsCount(), itemsCount - 30 /*skipped items + rate limiter guess*/, itemsCount);
+			assertBetweenInclusive(status.getMainQueueSize(), itemsCount - 30 /*skipped items + rate limiter guess*/, itemsCount);
+		}
+		
+		// Make sure all items have completed.
+		for (List<FullTestItem> list : List.of(firstList, mainList, lastList))
+		{
+			for (FullTestItem item : list)
+			{
+				String result;
+				try
+				{
+					result = item.getFuture().getOrNull(
+						Math.max(
+							start + maxTimeLimit - System.currentTimeMillis(),
+							1
+						));
+				} catch (RuntimeException e)
+				{
+					// this is okay, many of them should fail
+					result = "had exception";
+				}
+				
+				assertNotNull(result, "Null result for: " + item);
+			}
+		}
+		
+		final long end = System.currentTimeMillis();
+		final long duration = end - start;
+		
+		log.info("Full test duration for all futures to complete: {} ms", duration);
+		
+		// Validate results.
+		for (List<FullTestItem> list : List.of(firstList, mainList, lastList))
+		{
+			for (FullTestItem item : list)
+			{
+				ArrayList<AttemptRecord<FullTestItem, String>> attemptsList = item.getAttemptsList();
+				
+				{
+					// Validate intervals between attempts (if any).
+					long prev = start;
+					int count = 0;
+					for (AttemptRecord<FullTestItem, String> attempt : attemptsList)
+					{
+						count++;
+						long time = attempt.getTimestamp();
+						
+						final long minInterval;
+						switch (count)
+						{
+							case 1:
+								minInterval = 0;
+								break;
+							case 2:
+								minInterval = 1000;
+								break;
+							case 3:
+								minInterval = 4000;
+								break;
+							default:
+								fail("Too many attempts" + item);
+								return; // for compiler happiness
+						}
+						
+						assertBetweenInclusive(time, prev + minInterval, maxEndTime, "Attempt " + count + " in: " + item);
+						
+						prev = time;
+					}
+				}
+				
+				switch (item.getMode())
+				{
+					case FAIL_1_SUCCESS:
+						assertEquals(attemptsList.size(), 2, item.toString());
+						assertEquals(item.getResult(), "success: " + item.getRequest(), item.toString());
+						assertEquals(item.getFuture().getOrNull(0), "success: " + item.getRequest(), item.toString());
+						break;
+					case FAIL_ALWAYS:
+						assertEquals(attemptsList.size(), 3, item.toString());
+						assertEquals(item.getResult(), FullTestItem.RESULT_FAIL, item.toString());
+						assertFailsWithSubstring(() -> item.getFuture().getOrNull(0), "ExecutionRuntimeException"); 
+						break;
+					case FAIL_TIMEOUT:
+						assertBetweenInclusive(attemptsList.size(), 1, 2, item.toString());
+						assertEquals(item.getResult(), FullTestItem.RESULT_TIMEOUT, item.toString());
+						assertFailsWithSubstring(() -> item.getFuture().getOrNull(0), "RRLTimeoutException"); 
+						break;
+					case NOT_EARLIER_THAN:
+						assertEquals(attemptsList.size(), 1, item.toString());
+						assertEquals(item.getResult(), "success: " + item.getRequest(), item.toString());
+						assertEquals(item.getFuture().getOrNull(0), "success: " + item.getRequest(), item.toString());
+						assertBetweenInclusive(item.getCompletedAt(), start + delayItemsDelayFor, maxEndTime, item.toString());
+						break;
+					case NO_FAIL_SUCCESS:
+						assertEquals(attemptsList.size(), 1, item.toString());
+						assertEquals(item.getResult(), "success: " + item.getRequest(), item.toString());
+						assertEquals(item.getFuture().getOrNull(0), "success: " + item.getRequest(), item.toString());
+						assertBetweenInclusive(item.getCompletedAt(), start, start + 4000 /*should be enough time to process queue*/, item.toString());
+						break;
+					case TIMEOUT_WITHOUT_ATTEMPTS:
+						assertEquals(attemptsList.size(), 0, item.toString());
+						assertEquals(item.getResult(), FullTestItem.RESULT_TIMEOUT, item.toString());
+						assertFailsWithSubstring(() -> item.getFuture().getOrNull(0), "RRLTimeoutException");
+						// hard to guess when main queue will be able to timeout items, but 6000 ought to cover it
+						assertBetweenInclusive(item.getCompletedAt(), start, start + 6000, item.toString());
+						break;
+				}
+			}
+		}
+		
+		Thread.sleep(100);
+		
+		{
+			// test requests / queue sizes
+			RRLStatus status = service.getStatus(0);
+			
+			assertEquals(status.getCurrentProcessingRequestsCount(), 0);
+			assertEquals(status.getMainQueueSize(), 0);
+			assertEquals(status.getRequestsExecutorServiceActiveThreads(), 0);
 		}
 	}
 	
