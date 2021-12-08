@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.cache.wbrb;
 
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyTrueWithValue;
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenExclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertContains;
@@ -2458,7 +2459,11 @@ public class TestWBRB
 				assertFalse(value.hasException());
 			}
 			
-			assertFailsWithSubstring(() -> cache.readIfCachedOrException(key), notYetLoadedSubstring);
+			// This can fail either way depending on delays.
+			assertAnyTrueWithValue(
+				assertFails(() -> cache.readIfCachedOrException(key)).toString(),
+				v -> v.contains(notYetLoadedSubstring),
+				v -> v.contains(failedToLoadSubstring));
 			
 			{
 				NullableOptional<String> value = cache.readFor(key, 1000);

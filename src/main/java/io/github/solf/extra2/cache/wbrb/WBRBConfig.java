@@ -76,7 +76,7 @@ public class WBRBConfig extends BaseDelegatingOptions
 	@Getter
 	private final boolean canMergeWrites = getRawOptions().getBoolean("canMergeWrites");
 	
-	/** When inital read fails (final fail after possible retries) what action should be taken; options are in WBRBInitialReadFailedFinalDecision: REMOVE_FROM_CACHE, KEEP_AND_THROW_CACHE_READ_EXCEPTIONS */ 
+	/** When initial read fails (final fail after possible retries) what action should be taken; options are in WBRBInitialReadFailedFinalDecision: REMOVE_FROM_CACHE, KEEP_AND_THROW_CACHE_READ_EXCEPTIONS */ 
 	@Getter
 	private final WBRBInitialReadFailedFinalDecision initialReadFailedFinalAction = WBRBInitialReadFailedFinalDecision.valueOf(getRawOptions().getString("initialReadFailedFinalAction"));
 	
