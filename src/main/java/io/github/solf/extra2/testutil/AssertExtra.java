@@ -18,13 +18,18 @@ package io.github.solf.extra2.testutil;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import io.github.solf.extra2.concurrent.ConsumerWithException;
+import io.github.solf.extra2.concurrent.FunctionWithException;
 import io.github.solf.extra2.concurrent.RunnableWithException;
+import io.github.solf.extra2.concurrent.SupplierWithException;
 import io.github.solf.extra2.util.TypeUtil;
 
 /**
@@ -589,4 +594,257 @@ public class AssertExtra
 		assertNotBetweenExclusive(actual, lowerBound, upperBound, (String[])null);
 	}
 	
+	/**
+	 * Asserts that at least of the given paths completes successfully (without
+	 * exception); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 */
+	public static int assertAnyOk(RunnableWithException... paths)
+		throws IllegalArgumentException, IllegalStateException
+	{
+		if (paths.length == 0)
+			throw new IllegalArgumentException("Must provide at least one path, got: " + Arrays.toString(paths));
+		
+		Throwable last = null;
+		int index = 0;
+		for (RunnableWithException path : paths)
+		{
+			index++;
+			
+			try
+			{
+				path.run();
+				
+				return index; // success, return path index
+			} catch (Throwable e)
+			{
+				// This path failed, try another one
+				last = e;
+			}
+		}
+		
+		throw new IllegalStateException("All paths failed, last exception: " + last, last);
+	}
+	
+	/**
+	 * Evaluates given expression and (with the evaluated value) 
+	 * asserts that at least of the given paths completes successfully (without
+	 * exception); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 */
+	@SafeVarargs
+	//Exclude TYPE_ARGUMENT as we will allow null return values.
+	@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
+	public static <V> int assertAnyOkWithEval(Callable<V> expresionToEval,
+		ConsumerWithException<V>... paths)
+		throws IllegalArgumentException, IllegalStateException
+	{
+		final V value;
+		try
+		{
+			value = expresionToEval.call();
+		} catch (Throwable e)
+		{
+			throw new IllegalStateException("Expression evaluation failed: " + e, e);
+		}
+		
+		RunnableWithException[] runnables = new @Nonnull RunnableWithException[paths.length];
+		for (int i = 0; i < paths.length; i++)
+		{
+			final ConsumerWithException<V> path = paths[i];
+			runnables[i] = () -> path.accept(value);
+		}
+		
+		try
+		{
+			return assertAnyOk(runnables);
+		} catch (Throwable e)
+		{
+			throw new IllegalStateException("assertAnyOkWithEval failed for value [" + value + "]: " + e, e);
+		}
+	}
+	
+	/**
+	 * With the given value 
+	 * asserts that at least of the given paths completes successfully (without
+	 * exception); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 */
+	@SafeVarargs
+	//Exclude TYPE_ARGUMENT as we will allow null return values.
+	@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
+	public static <V> int assertAnyOkWithValue(V value,
+		ConsumerWithException<V>... paths)
+		throws IllegalArgumentException, IllegalStateException
+	{
+		return assertAnyOkWithEval(() -> value, paths);
+	}
+	
+	/**
+	 * Asserts that at least of the given paths completes successfully (without
+	 * exception AND returns true); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 */
+	@SafeVarargs
+	public static int assertAnyTrue(SupplierWithException<Boolean>... paths)
+		throws IllegalArgumentException, IllegalStateException
+	{
+		
+		RunnableWithException[] runnables = new @Nonnull RunnableWithException[paths.length];
+		for (int i = 0; i < paths.length; i++)
+		{
+			SupplierWithException<Boolean> path = paths[i];
+			runnables[i] = () -> {if (!Boolean.TRUE.equals(path.get())) throw new IllegalStateException("got false");};
+		}
+		
+		return assertAnyOk(runnables);
+	}
+	
+	/**
+	 * Asserts that at least of the given paths completes successfully (without
+	 * exception AND returns true); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 * 
+	 * @param msg additional message to add to exception in case of failure
+	 */
+	@SafeVarargs
+	public static int assertAnyTrue(String msg, SupplierWithException<Boolean>... paths)
+		throws IllegalStateException
+	{
+		try
+		{
+			return assertAnyTrue(paths);
+		} catch (Throwable e)
+		{
+			throw new IllegalStateException(msg + ": " + e, e);
+		}
+	}
+	
+	/**
+	 * Evaluates given expression and (with the evaluated value) 
+	 * asserts that at least of the given paths completes successfully (without
+	 * exception AND returns true); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 */
+	@SafeVarargs
+	//Exclude TYPE_ARGUMENT as we will allow null return values.
+	@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
+	public static <V> int assertAnyTrueWithEval(Callable<V> expresionToEval, FunctionWithException<V, @Nonnull Boolean>... paths)
+		throws IllegalStateException
+	{
+		final V value;
+		try
+		{
+			value = expresionToEval.call();
+		} catch (Throwable e)
+		{
+			throw new IllegalStateException("Expression evaluation failed: " + e, e);
+		}
+		
+		@SuppressWarnings("unchecked") SupplierWithException<Boolean>[] suppliers = new @Nonnull SupplierWithException[paths.length];
+		for (int i = 0; i < paths.length; i++)
+		{
+			FunctionWithException<V, Boolean> path = paths[i];
+			suppliers[i] = () -> path.apply(value);
+		}
+		
+		try
+		{
+			return assertAnyTrue(suppliers);
+		} catch (Throwable e)
+		{
+			throw new IllegalStateException("assertAnyTrueWithEval failed for value [" + value + "]: " + e, e);
+		}
+	}
+	
+	/**
+	 * With the given value 
+	 * asserts that at least of the given paths completes successfully (without
+	 * exception AND returns true); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 */
+	@SafeVarargs
+	//Exclude TYPE_ARGUMENT as we will allow null return values.
+	@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
+	public static <V> int assertAnyTrueWithValue(V value, FunctionWithException<V, @Nonnull Boolean>... paths)
+		throws IllegalStateException
+	{
+		return assertAnyTrueWithEval(() -> value, paths);
+	}
+	
+	/**
+	 * Evaluates given expression and (with the evaluated value) 
+	 * asserts that at least of the given paths completes successfully (without
+	 * exception AND returns true); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 * 
+	 * @param msg additional message to add to exception in case of failure
+	 */
+	@SafeVarargs
+	//Exclude TYPE_ARGUMENT as we will allow null return values.
+	@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
+	public static <V> int assertAnyTrueWithEval(String msg, Callable<V> expresionToEval, FunctionWithException<V, @Nonnull Boolean>... paths)
+		throws IllegalStateException
+	{
+		try
+		{
+			return assertAnyTrueWithEval(expresionToEval, paths);
+		} catch (Throwable e)
+		{
+			throw new IllegalStateException(msg + ": " + e, e);
+		}
+	}
+	
+	/**
+	 * With the given value 
+	 * asserts that at least of the given paths completes successfully (without
+	 * exception AND returns true); at least one path must be specified.
+	 * <p>
+	 * Paths are evaluated until one of them succeeds, everything after that is
+	 * skipped.
+	 * <p>
+	 * For wider compatibility this throws exception rather than assertion error.
+	 * 
+	 * @param msg additional message to add to exception in case of failure
+	 */
+	@SafeVarargs
+	//Exclude TYPE_ARGUMENT as we will allow null return values.
+	@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
+	public static <V> int assertAnyTrueWithValueAndMessage(String msg, V value, FunctionWithException<V, @Nonnull Boolean>... paths)
+		throws IllegalStateException
+	{
+		return assertAnyTrueWithEval(msg, () -> value, paths);
+	}
 }

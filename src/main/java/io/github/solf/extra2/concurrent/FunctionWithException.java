@@ -15,23 +15,26 @@
  */
 package io.github.solf.extra2.concurrent;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
- * {@link Supplier} that is allowed to throw {@link InterruptedException}
+ * {@link Function} that is allowed to throw {@link Exception}
  *
  * @author Sergey Olefir
  */
 @FunctionalInterface
 //Exclude TYPE_ARGUMENT as we will allow null return values.
 @NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
-public interface InterruptableSupplier<T>
+public interface FunctionWithException<T, R>
 {
-	/**
-	 * Just like {@link Supplier#get()} but allows to throw {@link InterruptedException}
-	 */
-	public T get() throws InterruptedException;
+    /**
+     * Applies this function to the given argument.
+     *
+     * @param t the function argument
+     * @return the function result
+     */
+    R apply(T t) throws Exception;
 }

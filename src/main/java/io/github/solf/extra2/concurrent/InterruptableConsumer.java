@@ -17,6 +17,7 @@ package io.github.solf.extra2.concurrent;
 
 import java.util.function.Consumer;
 
+import org.eclipse.jdt.annotation.DefaultLocation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
@@ -24,8 +25,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  *
  * @author Sergey Olefir
  */
-@NonNullByDefault
 @FunctionalInterface
+//Exclude TYPE_ARGUMENT as we will allow null return values.
+@NonNullByDefault({DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_BOUND, DefaultLocation.ARRAY_CONTENTS})
 public interface InterruptableConsumer<T>
 {
 	/**

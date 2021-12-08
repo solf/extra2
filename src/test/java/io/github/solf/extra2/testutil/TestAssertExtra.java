@@ -15,6 +15,13 @@
  */
 package io.github.solf.extra2.testutil;
 
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyOk;
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyOkWithEval;
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyOkWithValue;
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyTrue;
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyTrueWithEval;
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyTrueWithValue;
+import static io.github.solf.extra2.testutil.AssertExtra.assertAnyTrueWithValueAndMessage;
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenExclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertContains;
@@ -33,6 +40,7 @@ import static io.github.solf.extra2.testutil.AssertExtra.assertNotBetweenInclusi
 import static io.github.solf.extra2.testutil.AssertExtra.assertNotContains;
 import static io.github.solf.extra2.testutil.AssertExtra.assertNotContainsIgnoreCase;
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 import javax.annotation.Nonnull;
@@ -276,6 +284,150 @@ public class TestAssertExtra
 		mustFailWithException(() -> assertBetweenInclusive(nullInt, -6, -5, "msgbi"));
 		mustFailWithException(() -> assertBetweenInclusive(-5, nullInt, -5, "msgbi"));
 		mustFailWithException(() -> assertBetweenInclusive(-5, -6, nullInt, "msgbi"));
+	}
+	
+	/**
+	 * Tests for {@link AssertExtra#assertAnyOk(io.github.solf.extra2.concurrent.RunnableWithException...)}
+	 * and similar methods.
+	 */
+	@Test
+	public void testAnyOk()
+	{
+		assertFailsWithSubstring(() -> assertAnyOk(), "Must provide at least one path");
+		
+		assertAnyOk(() -> {/**/});
+		assertAnyOk(() -> {/**/}, () -> {/**/});
+		assertAnyOk(() -> {/**/}, () -> {/**/}, () -> {/**/});
+
+		assertFailsWithSubstring(() -> assertAnyOk(() -> fail("fail")), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertAnyOk(() -> fail("fail"), () -> {/**/});
+		assertAnyOk(() -> fail("fail"), () -> {/**/}, () -> {/**/});
+		
+		assertFailsWithSubstring(() -> assertAnyOk(() -> fail("fail"), () -> fail("fail")), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertAnyOk(() -> fail("fail"), () -> fail("fail"), () -> {/**/});
+		
+		assertFailsWithSubstring(() -> assertAnyOk(() -> fail("fail"), () -> fail("fail"), () -> fail("fail")), "All paths failed, last exception: java.lang.AssertionError: fail");
+		
+		assertEquals(assertAnyOk(() -> {/**/}), 1);
+		assertEquals(assertAnyOk(() -> fail("fail"), () -> {/**/}), 2);
+		assertEquals(assertAnyOk(() -> fail("fail"), () -> fail("fail"), () -> {/**/}), 3);
+		
+		
+		
+		
+		assertFailsWithSubstring(() -> assertAnyOkWithEval(() -> "asd"), "Must provide at least one path");
+		assertFailsWithSubstring(() -> assertAnyOkWithEval(() -> {fail("eval"); return "qwe";}, v -> {/**/}), "Expression evaluation failed: java.lang.AssertionError: eval");
+
+		assertAnyOkWithEval(() -> "asd", v -> {/**/});
+		assertAnyOkWithEval(() -> "asd", v -> {/**/}, v -> {/**/});
+		assertAnyOkWithEval(() -> "asd", v -> {/**/}, v -> {/**/}, v -> {/**/});
+
+		assertFailsWithSubstring(() -> assertAnyOkWithEval(() -> "asd", v -> fail("fail")), "assertAnyOkWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		assertAnyOkWithEval(() -> "asd", v -> fail("fail"), v -> {/**/});
+		assertAnyOkWithEval(() -> "asd", v -> fail("fail"), v -> {/**/}, v -> {/**/});
+		
+		assertFailsWithSubstring(() -> assertAnyOkWithEval(() -> "asd", v -> fail("fail"), v -> fail("fail")), "assertAnyOkWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		assertAnyOkWithEval(() -> "asd", v -> fail("fail"), v -> fail("fail"), v -> {/**/});
+		
+		assertFailsWithSubstring(() -> assertAnyOkWithEval(() -> "asd", v -> fail("fail"), v -> fail("fail"), v -> fail("fail")), "assertAnyOkWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		
+		assertEquals(assertAnyOkWithEval(() -> "asd", v -> {/**/}), 1);
+		assertEquals(assertAnyOkWithEval(() -> "asd", v -> fail("fail"), v -> {/**/}), 2);
+		assertEquals(assertAnyOkWithEval(() -> "asd", v -> fail("fail"), v -> fail("fail"), v -> {/**/}), 3);
+		
+		
+		assertFailsWithSubstring(() -> assertAnyOkWithValue("asd"), "Must provide at least one path");
+
+		assertAnyOkWithValue("asd", v -> {/**/});
+		assertAnyOkWithValue("asd", v -> {/**/}, v -> {/**/});
+		assertAnyOkWithValue("asd", v -> {/**/}, v -> {/**/}, v -> {/**/});
+
+		assertFailsWithSubstring(() -> assertAnyOkWithValue("asd", v -> fail("fail")), "assertAnyOkWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		assertAnyOkWithValue("asd", v -> fail("fail"), v -> {/**/});
+		assertAnyOkWithValue("asd", v -> fail("fail"), v -> {/**/}, v -> {/**/});
+		
+		assertFailsWithSubstring(() -> assertAnyOkWithValue("asd", v -> fail("fail"), v -> fail("fail")), "assertAnyOkWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		assertAnyOkWithValue("asd", v -> fail("fail"), v -> fail("fail"), v -> {/**/});
+		
+		assertFailsWithSubstring(() -> assertAnyOkWithValue("asd", v -> fail("fail"), v -> fail("fail"), v -> fail("fail")), "assertAnyOkWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		
+		assertEquals(assertAnyOkWithValue("asd", v -> {/**/}), 1);
+		assertEquals(assertAnyOkWithValue("asd", v -> fail("fail"), v -> {/**/}), 2);
+		assertEquals(assertAnyOkWithValue("asd", v -> fail("fail"), v -> fail("fail"), v -> {/**/}), 3);
+		
+		
+		
+		assertFailsWithSubstring(() -> assertAnyTrue(), "Must provide at least one path");
+		assertFailsWithSubstring(() -> assertAnyTrue(() -> {fail("fail"); return true;}), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertFailsWithSubstring(() -> assertAnyTrue(() -> false, () -> {fail("fail"); return true;}), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertFailsWithSubstring(() -> assertAnyTrue("AMSG", () -> {fail("fail"); return true;}), "AMSG: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		
+		assertAnyTrue(() -> true);
+		assertAnyTrue(() -> true, () -> true);
+		assertAnyTrue(() -> true, () -> true, () -> true);
+
+		assertFailsWithSubstring(() -> assertAnyTrue(() -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		assertAnyTrue(() -> false, () -> true);
+		assertAnyTrue(() -> false, () -> true, () -> true);
+		
+		assertFailsWithSubstring(() -> assertAnyTrue(() -> false, () -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		assertAnyTrue(() -> false, () -> false, () -> true);
+		
+		assertFailsWithSubstring(() -> assertAnyTrue(() -> false, () -> false, () -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		
+		assertEquals(assertAnyTrue(() -> true), 1);
+		assertEquals(assertAnyTrue(() -> false, () -> true), 2);
+		assertEquals(assertAnyTrue(() -> false, () -> fakeNonNull(), () -> true), 3);
+		
+		
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval(() -> "asd"), "Must provide at least one path");
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval(() -> {fail("eval"); return "qwe";}, v -> true), "Expression evaluation failed: java.lang.AssertionError: eval");
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval(() -> "asd", v -> {fail("fail"); return true;}), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval(() -> "asd", v -> false, v -> {fail("fail"); return true;}), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval("AMSG", () -> "asd", v -> {fail("fail"); return true;}), "AMSG: java.lang.IllegalStateException: assertAnyTrueWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		
+		assertAnyTrueWithEval(() -> "asd", v -> true);
+		assertAnyTrueWithEval(() -> "asd", v -> true, v -> true);
+		assertAnyTrueWithEval(() -> "asd", v -> true, v -> true, v -> true);
+
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval(() -> "asd", v -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		assertAnyTrueWithEval(() -> "asd", v -> false, v -> true);
+		assertAnyTrueWithEval(() -> "asd", v -> false, v -> true, v -> true);
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval(() -> "asd", v -> false, v -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		assertAnyTrueWithEval(() -> "asd", v -> false, v -> false, v -> true);
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithEval(() -> "asd", v -> false, v -> false, v -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		
+		assertEquals(assertAnyTrueWithEval(() -> "asd", v -> true), 1);
+		assertEquals(assertAnyTrueWithEval(() -> "asd", v -> false, v -> true), 2);
+		assertEquals(assertAnyTrueWithEval(() -> "asd", v -> false, v -> fakeNonNull(), v -> true), 3);
+		
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithValue("asd"), "Must provide at least one path");
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithValue("asd", v -> {fail("fail"); return true;}), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertFailsWithSubstring(() -> assertAnyTrueWithValue("asd", v -> false, v -> {fail("fail"); return true;}), "All paths failed, last exception: java.lang.AssertionError: fail");
+		assertFailsWithSubstring(() -> assertAnyTrueWithValueAndMessage("AMSG", "asd", v -> {fail("fail"); return true;}), "AMSG: java.lang.IllegalStateException: assertAnyTrueWithEval failed for value [asd]: java.lang.IllegalStateException: All paths failed, last exception: java.lang.AssertionError: fail");
+		
+		assertAnyTrueWithValue("asd", v -> true);
+		assertAnyTrueWithValue("asd", v -> true, v -> true);
+		assertAnyTrueWithValue("asd", v -> true, v -> true, v -> true);
+
+		assertFailsWithSubstring(() -> assertAnyTrueWithValue("asd", v -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		assertAnyTrueWithValue("asd", v -> false, v -> true);
+		assertAnyTrueWithValue("asd", v -> false, v -> true, v -> true);
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithValue("asd", v -> false, v -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		assertAnyTrueWithValue("asd", v -> false, v -> false, v -> true);
+		
+		assertFailsWithSubstring(() -> assertAnyTrueWithValue("asd", v -> false, v -> false, v -> false), "All paths failed, last exception: java.lang.IllegalStateException: got false");
+		
+		assertEquals(assertAnyTrueWithValue("asd", v -> true), 1);
+		assertEquals(assertAnyTrueWithValue("asd", v -> false, v -> true), 2);
+		assertEquals(assertAnyTrueWithValue("asd", v -> false, v -> fakeNonNull(), v -> true), 3);
 	}
 	
 	/**
