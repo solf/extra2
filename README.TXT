@@ -210,6 +210,36 @@ SimpleObjectPool -- simple objects pool with configurable min and max values wit
 optional automatic objects expiration if they are not used.
 
 
+- io.github.solf.extra2.retry
+RetryAndRateLimitService provides support for executing [external] requests that
+might need retrying (due to transient failures etc.) and may also require
+rate limiting (restricting number of requests per time interval to avoid 
+overloading the target system).
+
+. All requests are initially put into queue.
+. Requests from the queue are processed when a thread (used to process request
+  asynchronously) and a token (obtained from rate limiting service in order to
+  facilitate throttling) are both available.
+. If request processing fails, then a decision is made (based on configuration
+  by default, but it can be customized) -- request is either retried (after some
+  configurable delay), is considered failed (too many failures) or is considered
+  'timed out' (when requests are submitted, validity time must be specified --
+  it may be pointless to retry time-sensitive request after a lot of time has
+  passed).
+. It is also possible for requests to 'time out' without making an actual
+  processing attempt -- e.g. in cases when obtaining resources (thread & token) 
+  takes too long.
+. For every submitted request, a Future is provided that can be used to monitor
+  request status (and eventually it will be possible to submit cancellation
+  request).
+. There's configurable limit on the number of pending requests (i.e. if there
+  are so many that it will take too long to process them all, it is pointless
+  to accept more).
+. There's event listener that can be used to monitor various events and collect
+  statistics etc.
+. There are also various hooks that can be used to customize behavior.
+
+
 - io.github.solf.extra2.stacktrace
 Support for producing condensed (one-line) stack traces & obtaining information
 about current Java file name / line number.
