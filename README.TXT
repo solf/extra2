@@ -239,6 +239,10 @@ overloading the target system).
   statistics etc.
 . There are also various hooks that can be used to customize behavior.
 
+NOTE: the service is functional but it is not 'complete' -- there are missing
+Javadocs and some functionality (such as requesting cancellation of a pending
+request) is not yet available.
+
 
 - io.github.solf.extra2.stacktrace
 Support for producing condensed (one-line) stack traces & obtaining information
