@@ -348,6 +348,8 @@ operations may execute concurrently whereas write(update) operation is exclusive
 actual cache implementation code does not need to worry about concurrency 
 issues.
 
+See WBRBCache.png in this directory for an overview of the cache operation.
+
 The internal cache functionality is quite complex, however using the cache is
 not -- see ExampleSignalCache for an example of cache implementation (to write
 a new cache implementation you simply extend WriteBehindResyncInBackgroundCache,
