@@ -95,6 +95,16 @@ public class NullUtil
 	{
 		return null;
 	}
+	
+	/**
+	 * Since {@link Void} doesn't have instance this method provides a way to
+	 * 'return a void' in various parameterized methods (in reality null is 
+	 * returned).
+	 */
+	public static @Nonnull Void fakeVoid()
+	{
+		return fakeNonNull();
+	}
 
 	/**
 	 * 'converts' collection to the one that:
