@@ -727,7 +727,7 @@ public class TestRRL
 			@Override
 			protected void afterRequestSuccess(
 				RRLEntry<FullTestItem, String> entry, String result,
-				int attemptNumber, long requestDuration)
+				int attemptNumber, long requestAttemptDuration)
 			{
 				entry.getInput().setCompletedAt(System.currentTimeMillis(), result);
 			}

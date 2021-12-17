@@ -242,7 +242,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * zzz probably needs reference to service (for e.g. event listener and what not)
 	 */
 	@ToString
-	protected static class RRLEntry<@Nonnull Input, Output>
+	// public because needs to be accessible in event listeners
+	public static class RRLEntry<@Nonnull Input, Output>
 	{
 		/**
 		 * Parent {@link RetryAndRateLimitService}.
@@ -424,12 +425,35 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 */
 	public RetryAndRateLimitService(RRLConfig config)
 	{
+		this(0, config, null);
+	}
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param eventListener event listener to use; {@link #spiCreateEventListener(RRLConfig, String, ThreadGroup)}
+	 * 		is not used in this case
+	 */
+	public RetryAndRateLimitService(RRLConfig config, RRLEventListener<Input, Output> eventListener)
+	{
+		this(0, config, eventListener);
+	}
+	
+	/**
+	 * Internal constructor.
+	 * 
+	 * @param unused only used to disambiguate from other constructors
+	 */
+	private RetryAndRateLimitService(@SuppressWarnings("unused") int unused, 
+		RRLConfig config, @Nullable RRLEventListener<Input, Output> eventListener)
+	{
 		this.config = config;
 		this.commonNamingPrefix = "RRLService[" + config.getServiceName() + "]";
 		
 		this.threadGroup = new ThreadGroup(commonNamingPrefix + " Thread Group");
 		
-		this.eventListener = spiCreateEventListener(config, commonNamingPrefix, threadGroup);
+		this.eventListener = eventListener != null ? eventListener : 
+			spiCreateEventListener(config, commonNamingPrefix, threadGroup);
 		
 		this.mainQueueProcessingThread = createMainQueueProcessor(config, commonNamingPrefix, threadGroup);
 		this.delayQueues = createDelayQueues(config, commonNamingPrefix, threadGroup);
@@ -630,7 +654,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * Takes care of updating request size counters, updates future, fires
 	 * events.
 	 */
-	protected void handleSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestDuration)
+	protected void handleSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestAttemptDuration)
 		throws InterruptedException
 	{
 		decrementRequestsCountAndSetTotalProcessingTime(entry); // item is removed from processing
@@ -640,10 +664,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		if (!future.complete(result))
 			logAssertionError(entry, "Failed to transition Future to success.");
 		
-		guardedEventListenerInvocation(evListener -> evListener.requestSuccess(entry, result, attemptNumber, requestDuration));
+		guardedEventListenerInvocation(evListener -> evListener.requestSuccess(entry, result, attemptNumber, requestAttemptDuration));
 		guardedEventListenerInvocation(evListener -> evListener.requestRemoved(entry));
 		
-		guardedSpiInvocationNoResult(() -> afterRequestSuccess(entry, result, attemptNumber, requestDuration), entry);
+		guardedSpiInvocationNoResult(() -> afterRequestSuccess(entry, result, attemptNumber, requestAttemptDuration), entry);
 	}
 	
 	/**
@@ -724,7 +748,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 
 
 	//zzz comment
-	protected static final Pair<RRLMainQueueProcessingDecision, Long> MQ_FINAL_FAILURE_DECISION =
+	protected static final Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> MQ_FINAL_FAILURE_DECISION =
 		new Pair<>(RRLMainQueueProcessingDecision.FINAL_FAILURE, -1L);
 	
 	/**
@@ -791,10 +815,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				final SynchronousQueue<RRLEntry<Input, Output>> commQueue = new SynchronousQueue<>();
 				while (true) // the code is iterated until all required resources are obtained
 				{
-					NonNullOptional<@Nonnull Pair<RRLMainQueueProcessingDecision, Long>> decisionOptional = 
+					NonNullOptional<@Nonnull Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long>> decisionOptional = 
 						guardedSpiInvocationAsOptional(() -> spiMainQueueProcessingDecision(entry, false, false), entry);
 					
-					Pair<RRLMainQueueProcessingDecision, Long> decision = 
+					Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> decision = 
 						decisionOptional.getOrElse(MQ_FINAL_FAILURE_DECISION);
 					long millisFromDecision = decision.getValue1(); 
 					Throwable t = decisionOptional.getExceptionOrNull();
@@ -1197,25 +1221,25 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				exception = tmpException;
 			}
 			
-			final long requestDuration = timeGapVirtual(start, timeNow());
+			final long requestAttemptDuration = timeGapVirtual(start, timeNow());
 			
 			if (exception == null)
 			{
 				inflightEntry = null; // request was successful, make sure item is not re-added
-				handleSuccess(entry, result, attemptNumber, requestDuration);
+				handleSuccess(entry, result, attemptNumber, requestAttemptDuration);
 			}
 			else
 			{
 				entry.setNumberOfFailedAttempts(attemptNumber);
 				
-				guardedEventListenerInvocation(evListener -> evListener.requestAttemptFailed(entry, exception, attemptNumber, requestDuration));
-				guardedSpiInvocationNoResult(() -> afterRequestAttemptFailed(entry, exception, attemptNumber, requestDuration), entry);
+				guardedEventListenerInvocation(evListener -> evListener.requestAttemptFailed(entry, exception, attemptNumber, requestAttemptDuration));
+				guardedSpiInvocationNoResult(() -> afterRequestAttemptFailed(entry, exception, attemptNumber, requestAttemptDuration), entry);
 				
-				NonNullOptional<@Nonnull Pair<RRLAfterRequestAttemptFailedDecision, Long>> decisionOptional = guardedSpiInvocationAsOptional( 
-					() -> spiAfterRequestAttemptFailedDecision(entry, exception, attemptNumber, requestDuration), entry);
+				NonNullOptional<@Nonnull Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long>> decisionOptional = guardedSpiInvocationAsOptional( 
+					() -> spiAfterRequestAttemptFailedDecision(entry, exception, attemptNumber, requestAttemptDuration), entry);
 				
 				
-				Pair<RRLAfterRequestAttemptFailedDecision, Long> decision = 
+				Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long> decision = 
 					decisionOptional.getOrElse(AR_FINAL_FAILURE_DECISION);
 				long millisFromDecision = decision.getValue1(); 
 				Throwable t = decisionOptional.getExceptionOrNull();
@@ -1537,7 +1561,9 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	/**
 	 * Creates event listener for this instance.
 	 * <p>
-	 * Default implementation zzz
+	 * ONLY USED IF listener is NOT passed in constructor.
+	 * <p>
+	 * Default implementation creates new {@link DefaultRRLEventListener}
 	 */
 	@SuppressWarnings({"hiding", "unused"})
 	protected RRLEventListener<Input, Output> spiCreateEventListener(RRLConfig config, String commonNamingPrefix, ThreadGroup threadGroup)
@@ -1674,7 +1700,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * 		of delay to be made; for timeout & proceed it indicates the remaining
 	 * 		validity time for the request (can be negative in case of timeout)
 	 */
-	protected Pair<RRLMainQueueProcessingDecision, Long> spiMainQueueProcessingDecision(
+	protected Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> spiMainQueueProcessingDecision(
 		final RRLEntry<Input, Output> entry, boolean hasThread, boolean hasTicket
 		)
 	{
@@ -1732,7 +1758,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	}
 	
 	//zzz comment
-	protected static final Pair<RRLAfterRequestAttemptFailedDecision, Long> AR_FINAL_FAILURE_DECISION =
+	protected static final Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long> AR_FINAL_FAILURE_DECISION =
 		new Pair<>(RRLAfterRequestAttemptFailedDecision.FINAL_FAILURE, -1L);
 	
 	/**
@@ -1741,9 +1767,9 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * 
 	 * zzz clarify meaning of second return arg
 	 */
-	protected Pair<RRLAfterRequestAttemptFailedDecision, Long> spiAfterRequestAttemptFailedDecision(
+	protected Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long> spiAfterRequestAttemptFailedDecision(
 		final RRLEntry<Input, Output> entry, Exception exception, 
-		int attemptNumber, long requestDuration)
+		int attemptNumber, long requestAttemptDuration)
 	{
 		long remainingAttempts = spiCalculateRemainingAttempts(entry, attemptNumber);
 		if (remainingAttempts <= 0)
@@ -1762,7 +1788,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		return new Pair<>(RRLAfterRequestAttemptFailedDecision.RETRY,
 			Math.min(
 				remainingValidityTime, // no reason to wait past timeout 
-				spiCalculateDelayAfterFailedRequestAttempt(entry, exception, attemptNumber, requestDuration)
+				spiCalculateDelayAfterFailedRequestAttempt(entry, exception, attemptNumber, requestAttemptDuration)
 			)
 		);
 	}
@@ -1791,7 +1817,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 */
 	protected long spiCalculateDelayAfterFailedRequestAttempt(
 		@SuppressWarnings("unused") final RRLEntry<Input, Output> entry, @SuppressWarnings("unused") Exception exception, 
-		int failedAttemptNumber, @SuppressWarnings("unused") long requestDuration)
+		int failedAttemptNumber, @SuppressWarnings("unused") long requestAttemptDuration)
 	{
 		List<@Nonnull Long> delaysList = config.getDelaysAfterFailure();
 		
@@ -1930,7 +1956,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * but it also present here for potentially better separation of concerns.
 	 */
 	@SuppressWarnings("unused")
-	protected void afterRequestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestDuration)
+	protected void afterRequestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestAttemptDuration)
 	{
 		// blank
 	}
@@ -1942,7 +1968,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * but it also present here for potentially better separation of concerns.
 	 */
 	@SuppressWarnings("unused")
-	protected void afterRequestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestDuration)
+	protected void afterRequestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestAttemptDuration)
 	{
 		// blank
 	}

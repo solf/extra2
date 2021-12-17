@@ -101,18 +101,22 @@ public interface RRLEventListener<@Nonnull Input, Output>
 	
 	/**
 	 * Request succeeded.
+	 * <p>
+	 * When request succeeds, it is removed from the service and its future
+	 * is updated correspondingly.
 	 */
-	public void requestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestDuration);
+	public void requestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestAttemptDuration);
 	
 	/**
 	 * Request attempt failed.
 	 */
-	public void requestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestDuration);
+	public void requestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestAttemptDuration);
 	
 	/**
-	 * Request attempt failed.
+	 * After request attempt has failed, a decision has to be made as to what
+	 * to do with the request -- this logs the result of that decision.
 	 */
-	public void requestAttemptFailedDecision(RRLEntry<Input, Output> entry, Pair<RRLAfterRequestAttemptFailedDecision, Long> decision);
+	public void requestAttemptFailedDecision(RRLEntry<Input, Output> entry, Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long> decision);
 	
 	/**
 	 * Request added to processing.
@@ -134,13 +138,19 @@ public interface RRLEventListener<@Nonnull Input, Output>
 	 * process is potentially invoked multiple times per item -- every operation
 	 * that potentially takes time (reserving a thread, obtaining a ticket)
 	 * results in a new decision afterwards.
+	 * 
+	 * @param itemProcessingSince timestamp when main queue starting processing
+	 * 		this item (for this attempt)
 	 */
 	public void mainQueueProcessingDecision(@Nullable RRLEntry<Input, Output> entry,
-		Pair<RRLMainQueueProcessingDecision, Long> decision, long itemProcessingSince);
+		Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> decision, long itemProcessingSince);
 	
 	/**
 	 * Reports main queue has obtained a thread required for request processing
 	 * for specific item.
+	 * 
+	 * @param itemProcessingSince timestamp when main queue starting processing
+	 * 		this item (for this attempt)
 	 */
 	public void mainQueueThreadObtainAttempt(@Nullable RRLEntry<Input, Output> entry,
 		long itemProcessingSince, boolean threadObtained, long timeTakenVirtualMs);
@@ -148,12 +158,18 @@ public interface RRLEventListener<@Nonnull Input, Output>
 	/**
 	 * Reports main queue has obtained a thread required for request processing
 	 * for specific item.
+	 * 
+	 * @param itemProcessingSince timestamp when main queue starting processing
+	 * 		this item (for this attempt)
 	 */
 	public void mainQueueTicketObtainAttempt(@Nullable RRLEntry<Input, Output> entry,
 		long itemProcessingSince, boolean ticketObtained, long timeTakenVirtualMs);
 	
 	/**
 	 * Reports main queue has completed processing of an item.
+	 * 
+	 * @param itemProcessingSince timestamp when main queue starting processing
+	 * 		this item (for this attempt)
 	 */
 	public void mainQueueProcessingCompleted(@Nullable RRLEntry<Input, Output> entry,
 		long itemProcessingSince, long timeTakenVirtualMs);

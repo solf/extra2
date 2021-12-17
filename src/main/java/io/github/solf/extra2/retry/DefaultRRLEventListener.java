@@ -104,19 +104,19 @@ public class DefaultRRLEventListener<@Nonnull Input, Output> implements RRLEvent
 	}
 	
 	@Override
-	public void requestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestDuration)
+	public void requestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestAttemptDuration)
 	{
 		// empty
 	}
 	
 	@Override
-	public void requestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestDuration)
+	public void requestAttemptFailed(RRLEntry<Input, Output> entry, Exception exception, int attemptNumber, long requestAttemptDuration)
 	{
 		// empty
 	}
 	
 	@Override
-	public void requestAttemptFailedDecision(RRLEntry<Input, Output> entry, Pair<RRLAfterRequestAttemptFailedDecision, Long> decision)
+	public void requestAttemptFailedDecision(RRLEntry<Input, Output> entry, Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long> decision)
 	{
 		// empty
 	}
@@ -136,7 +136,7 @@ public class DefaultRRLEventListener<@Nonnull Input, Output> implements RRLEvent
 	
 	@Override
 	public void mainQueueProcessingDecision(@Nullable RRLEntry<Input, Output> entry,
-		Pair<RRLMainQueueProcessingDecision, Long> decision, long itemProcessingSince)
+		Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> decision, long itemProcessingSince)
 	{
 		// empty
 	}
