@@ -16,6 +16,11 @@
 package io.github.solf.extra2.log;
 
 import static io.github.solf.extra2.util.NullUtil.nnChecked;
+import static org.eclipse.jdt.annotation.DefaultLocation.FIELD;
+import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;
+import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;
+import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_ARGUMENT;
+import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_BOUND;
 
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,7 +70,7 @@ import lombok.ToString;
  * @param <LogMessageType> indicates the type used for log messages (could be
  * 		e.g. an enum) 
  */
-@NonNullByDefault 
+@NonNullByDefault({PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT}) // exclude ARRAY_CONTENTS because we accept null msg args
 public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 {
 	/**

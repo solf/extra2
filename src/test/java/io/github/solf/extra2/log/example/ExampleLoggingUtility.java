@@ -15,6 +15,12 @@
  */
 package io.github.solf.extra2.log.example;
 
+import static org.eclipse.jdt.annotation.DefaultLocation.FIELD;
+import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;
+import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;
+import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_ARGUMENT;
+import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_BOUND;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -39,7 +45,7 @@ import io.github.solf.extra2.log.LogMessageSeverity;
  *
  * @author Sergey Olefir
  */
-@NonNullByDefault
+@NonNullByDefault({PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT}) // exclude ARRAY_CONTENTS because we accept null msg args
 @Slf4j
 public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 {
@@ -157,7 +163,7 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	// Override this to use specific logger, rather than the default one for BaseLoggingUtility
 	@Override
 	protected Logger spiGetLogger(ExampleLogMessage msg,
-		@Nullable Throwable exception, @Nonnull Object @Nonnull... args)
+		@Nullable Throwable exception, Object @Nonnull... args)
 		throws InterruptedException
 	{
 		return log;
@@ -167,7 +173,7 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	@Override
 	public void logNonClassified(LogMessageSeverity severity,
 		@NonNull String classifier, @Nullable Throwable exception,
-		@Nonnull Object @Nonnull... args)
+		Object @Nonnull... args)
 	{
 		super.logNonClassified(severity, classifier, exception, args);
 	}
@@ -176,7 +182,7 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 	@Override
 	protected void spiLogMessage_FinalFormatAndLogMessage(Logger theLog,
 		ExampleLogMessage msg, @Nullable Throwable exception,
-		@Nonnull Object @Nonnull... args)
+		Object @Nonnull... args)
 		throws InterruptedException
 	{
 		// Need to skip both self and the parent logging class in stack trace!

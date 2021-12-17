@@ -15,6 +15,12 @@
  */
 package io.github.solf.extra2.log;
 
+import static org.eclipse.jdt.annotation.DefaultLocation.FIELD;
+import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;
+import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;
+import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_ARGUMENT;
+import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_BOUND;
+
 import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
@@ -34,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author Sergey Olefir
  */
-@NonNullByDefault
+@NonNullByDefault({PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT}) // exclude ARRAY_CONTENTS because we accept null msg args
 @Slf4j
 public class TestLog extends ExampleLoggingUtility
 {
@@ -61,7 +67,7 @@ public class TestLog extends ExampleLoggingUtility
 	@Override
 	protected Logger spiGetLogger(ExampleLogMessage msg,
 		@Nullable Throwable exception,
-		@Nonnull Object @Nonnull... args)
+		Object @Nonnull... args)
 		throws InterruptedException
 	{
 		return log;
@@ -71,7 +77,7 @@ public class TestLog extends ExampleLoggingUtility
 	protected void spiLogMessage_FinalLogMessage(Logger theLog,
 		String formattedMsg, ExampleLogMessage msg,
 		@Nullable Throwable exception,
-		@Nonnull Object @Nonnull... args)
+		Object @Nonnull... args)
 	{
 		String m = exception == null ? formattedMsg : formattedMsg + " EXCLOG: " + exception.toString();
 		loggedMessages.add(m);
