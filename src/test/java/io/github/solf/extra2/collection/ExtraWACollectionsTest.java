@@ -23,25 +23,37 @@ import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.exception.AssertionException;
+import io.github.solf.extra2.io.BAOSInputStream;
+import io.github.solf.extra2.testutil.TestUtil;
+import io.github.solf.extra2.util.TypeUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.With;
 
@@ -361,7 +373,7 @@ public class ExtraWACollectionsTest
 	@AllArgsConstructor
 	@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 	@ToString
-	private static class TKeyValue implements Cloneable
+	private static class TKeyValue implements Cloneable, Serializable
 	{
 		@EqualsAndHashCode.Include 
 		private final String key;
@@ -401,6 +413,54 @@ public class ExtraWACollectionsTest
 			{
 				throw new AssertionException();
 			}
+		}
+	}
+	
+	/**
+	 * Factory class for creating instances of various subclasses of {@link BSet}
+	 * via static *.create* methods.
+	 */
+	@RequiredArgsConstructor
+	private static class BSetFactory
+	{
+		/**
+		 * Factory class that contains create* methods.
+		 */
+		private final Class<?> factoryClass;
+		
+		/**
+		 * Factory create method.
+		 */
+		public <S extends SerializableBSet<E>, E> S create()
+		{
+			return TestUtil.invokeInaccessibleMethod(factoryClass, "create", null);
+		}
+		
+		/**
+		 * Factory create method.
+		 */
+		public <S extends SerializableBSet<E>, E> S create(int initialCapacity)
+		{
+			return TestUtil.invokeInaccessibleMethod(factoryClass, "create", null, 
+				int.class, initialCapacity);
+		}
+		
+		/**
+		 * Factory create method.
+		 */
+		public <S extends SerializableBSet<E>, E> S create(@Nonnull Collection<? extends E> c)
+		{
+			return TestUtil.invokeInaccessibleMethod(factoryClass, "create", null, 
+				Collection.class, c);
+		}
+		
+		/**
+		 * Factory create method.
+		 */
+		public <S extends SerializableBSet<E>, E> S create(int initialCapacity, float loadFactor)
+		{
+			return TestUtil.invokeInaccessibleMethod(factoryClass, "create", null, 
+				int.class, initialCapacity, float.class, loadFactor);
 		}
 	}
 	
@@ -450,6 +510,17 @@ public class ExtraWACollectionsTest
 			assertTrue(tset.add(key1));
 			assertFalse(tset.add(key1.withValue(876)));
 			assertEquals(set, tset);
+
+			tset.clear();
+			assertTrue(tset.addIfAbsent(key1));
+			assertFalse(tset.addIfAbsent(key1.withValue(876)));
+			assertEquals(set, tset);
+			assertTrue(tset.addIfAbsent(nkey1));
+			assertFalse(tset.addIfAbsent(nkey1.withValue(876)));
+			assertNotEquals(set, tset);
+			assertEquals(tset.size(), 2);
+			assertTrue(tset.has(key1));
+			assertTrue(tset.has(nkey1));
 			
 			tset.clear();
 			assertNotEquals(set, tset);
@@ -459,7 +530,6 @@ public class ExtraWACollectionsTest
 			tset.clear();
 			assertNotEquals(set, tset);
 			tset.addOrReplace(key1.clone().withValue(456));
-			assertEquals(set, tset);
 		}
 		
 		TKeyValue key1_2 = new TKeyValue("key1", 2);
@@ -467,9 +537,9 @@ public class ExtraWACollectionsTest
 		{
 			RHashSet<@Nullable TKeyValue> tset = new RHashSet<>(5, 0.75f);
 			assertNotEquals(set, tset);
-			assertNull(tset.addIfAbsent(key1_2)); 
-			assertTrue(tset.addIfAbsent(key1_2) == key1_2); 
-			assertTrue(tset.addIfAbsent(key1) == key1_2);
+			assertNull(tset.addIfAbsentAndGetIfPresent(key1_2)); 
+			assertTrue(tset.addIfAbsentAndGetIfPresent(key1_2) == key1_2); 
+			assertTrue(tset.addIfAbsentAndGetIfPresent(key1) == key1_2);
 			compareItems(tset, key1_2);
 			assertEquals(set, tset.toUnmodifiableJavaSet());
 			
@@ -481,12 +551,12 @@ public class ExtraWACollectionsTest
 			compareItems(tset, key1_2);
 			assertEquals(set, tset.toUnmodifiableJavaSet());
 			
-			assertNull(tset.addIfAbsent(null));
+			assertNull(tset.addIfAbsentAndGetIfPresent(null));
 			compareItems(tset, key1_2, null);
-			assertNull(tset.addIfAbsent(null));
+			assertNull(tset.addIfAbsentAndGetIfPresent(null));
 			compareItems(tset, key1_2, null);
 			assertNull(tset.removeAndGet(null));
-			assertNull(tset.addIfAbsent(null));
+			assertNull(tset.addIfAbsentAndGetIfPresent(null));
 			assertTrue(tset.remove(null));
 			assertFalse(tset.remove(null));
 			
@@ -506,9 +576,18 @@ public class ExtraWACollectionsTest
 			
 			{
 				RHashSet<@Nullable TKeyValue> aset = tset.clone();
+				
 				assert aset != tset;
 				assertEquals(aset, tset.toUnmodifiableJavaSet());
 				assertEquals(aset.hashCode(), tset.hashCode());
+				
+				tset.clear(); // test decoupling
+				
+				assertNotEquals(aset, tset.toUnmodifiableJavaSet());
+				assertNotEquals(aset.hashCode(), tset.hashCode());
+				
+				assertEquals(tset.size(), 0);
+				assertEquals(aset.size(), 1);
 				
 				tset = aset;
 			}
@@ -637,11 +716,371 @@ public class ExtraWACollectionsTest
 		assertTrue(nn(set.get(key2.clone().withValue(321))).fullyEquals(key2));
 		
 	}
+
+	/**
+	 * Gets an element from set (via scanning an entire set).
+	 */
+	@Nullable
+	private <E> E getSetElement(Set<E> set, @Nonnull E element)
+	{
+		for (E item : set)
+		{
+			if (element.equals(item))
+				return item;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Tests for various flavors of {@link BSet}
+	 */
+	@Test
+	public void testBSet()
+	{
+		internalTestBSet(BHashSet.create(), new BSetFactory(BHashSet.class));
+		internalTestBSet(BHashSet.create(3), new BSetFactory(BHashSet.class));
+		internalTestBSet(BHashSet.create(3, 0.6f), new BSetFactory(BHashSet.class));
+		internalTestBSet(BHashSet.create(Collections.emptySet()), new BSetFactory(BHashSet.class));
+		
+		internalTestBSet(EHashSet.create(), new BSetFactory(EHashSet.class));
+		internalTestBSet(EHashSet.create(3), new BSetFactory(EHashSet.class));
+		internalTestBSet(EHashSet.create(3, 0.6f), new BSetFactory(EHashSet.class));
+		internalTestBSet(EHashSet.create(Collections.emptySet()), new BSetFactory(EHashSet.class));
+		
+		internalTestBSet(RHashSet.create(), new BSetFactory(RHashSet.class));
+		internalTestBSet(RHashSet.create(3), new BSetFactory(RHashSet.class));
+		internalTestBSet(RHashSet.create(3, 0.6f), new BSetFactory(RHashSet.class));
+		internalTestBSet(RHashSet.create(Collections.emptySet()), new BSetFactory(RHashSet.class));
+		
+		internalTestBSet(new RHashSet<>(), new BSetFactory(RHashSet.class));
+		internalTestBSet(new RHashSet<>(3), new BSetFactory(RHashSet.class));
+		internalTestBSet(new RHashSet<>(3, 0.6f), new BSetFactory(RHashSet.class));
+		internalTestBSet(new RHashSet<>(Collections.emptySet()), new BSetFactory(RHashSet.class));
+		
+		
+		internalTestBSet(BSet.of(new HashSet<>()), new BSetFactory(BHashSet.class));
+		internalTestBSet(BSet.of(new HashSet<>(3)), new BSetFactory(BHashSet.class));
+		internalTestBSet(BSet.of(new HashSet<>(3, 0.6f)), new BSetFactory(BHashSet.class));
+		internalTestBSet(BSet.of(new HashSet<>(Collections.emptySet())), new BSetFactory(BHashSet.class));
+		
+		internalTestBSet(SerializableBSet.of(new HashSet<>()), new BSetFactory(BHashSet.class));
+		internalTestBSet(SerializableBSet.of(new HashSet<>(3)), new BSetFactory(BHashSet.class));
+		internalTestBSet(SerializableBSet.of(new HashSet<>(3, 0.6f)), new BSetFactory(BHashSet.class));
+		internalTestBSet(SerializableBSet.of(new HashSet<>(Collections.emptySet())), new BSetFactory(BHashSet.class));
+		
+		// Cheat since we know the underlying impl
+		internalTestBSet(TypeUtil.coerce(ReadOnlySet.of(new HashSet<>())), new BSetFactory(BHashSet.class));
+		internalTestBSet(TypeUtil.coerce(ReadOnlySet.of(new HashSet<>(3))), new BSetFactory(BHashSet.class));
+		internalTestBSet(TypeUtil.coerce(ReadOnlySet.of(new HashSet<>(3, 0.6f))), new BSetFactory(BHashSet.class));
+		internalTestBSet(TypeUtil.coerce(ReadOnlySet.of(new HashSet<>(Collections.emptySet()))), new BSetFactory(BHashSet.class));
+	}
+	
+	/**
+	 * Tests {@link RHashSet} & {@link ForIterable}
+	 */
+	@SuppressWarnings("deprecation")
+	private <S extends SerializableBSet<@Nullable TKeyValue>> void internalTestBSet(S set, BSetFactory factory)
+	{
+		TKeyValue nkey1 = new TKeyValue("nkey1", 1);
+		
+		TKeyValue key1 = new TKeyValue("key1", 1);
+		
+		assertEquals(set.size(), 0);
+		assertTrue(set.isEmpty());
+		assertFalse(set.has(key1));
+		assertFalse(set.has(nkey1));
+		assertFalse(set.has(null));
+		compareItems(set);
+		set.stream().map(e -> Integer.parseInt(nn(e).toString())).collect(Collectors.toList()); // should fail if there are any elements
+		
+		assertTrue(set.add(key1));
+		assertEquals(set.size(), 1);
+		assertFalse(set.isEmpty());
+		assertFalse(set.has(nkey1));
+		assertFalse(set.has(null));
+		compareItems(set, key1);
+		assertTrue(set.has(key1));
+		assertTrue(set.has(key1.clone()));
+		assertTrue(set.has(key1.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key1)).fullyEquals(key1));
+		assertTrue(nn(getSetElement(set, key1.clone())).fullyEquals(key1));
+		assertTrue(nn(getSetElement(set, key1.clone().withValue(321))).fullyEquals(key1));
+		assertFails( () ->
+			{set.stream().map(e -> Integer.parseInt(nn(e).toString())).collect(Collectors.toList());}); // should fail if there are any elements
+		compareItems(set, new ArrayList<@Nullable TKeyValue>(set.stream().map(e -> e).collect(Collectors.toList())).toArray(new @Nullable TKeyValue[0]));
+		
+		{
+			BSet<TKeyValue> tset = factory.create(3);
+			
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1));
+			assertFalse(tset.add(key1.withValue(876)));
+			assertEquals(set, tset);
+			
+			tset.clear();
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1.clone()));
+			assertEquals(set, tset);
+			
+			tset.clear();
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1.clone().withValue(456)));
+			assertEquals(set, tset);
+		}
+		
+		TKeyValue key1_2 = new TKeyValue("key1", 2);
+		
+		{
+			SerializableBSet<@Nullable TKeyValue> tset = factory.create(5, 0.75f);
+			
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1_2)); 
+			assertFalse(tset.add(key1_2)); 
+			assertFalse(tset.add(key1));
+			compareItems(tset, key1_2);
+			assertEquals(set, tset.toUnmodifiableJavaSet());
+			
+			assertTrue(tset.removeElement(key1));
+			compareItems(tset);
+			assertEquals(tset.size(), 0);
+			assertTrue(tset.isEmpty());
+			assertTrue(tset.add(key1_2)); 
+			assertTrue(tset.remove(key1));
+			compareItems(tset);
+			assertEquals(tset.size(), 0);
+			assertTrue(tset.isEmpty());
+			assertTrue(tset.add(key1_2)); 
+			assertTrue(tset.add(nkey1)); 
+			compareItems(tset, key1_2, nkey1);
+			assertEquals(tset.size(), 2);
+			assertFalse(tset.isEmpty());
+			assertTrue(tset.removeElement(nkey1));
+			compareItems(tset, key1_2);
+			assertEquals(tset.size(), 1);
+			assertFalse(tset.isEmpty());
+			assertTrue(tset.add(nkey1)); 
+			compareItems(tset, key1_2, nkey1);
+			assertEquals(tset.size(), 2);
+			assertFalse(tset.isEmpty());
+			assertTrue(tset.remove(nkey1));
+			compareItems(tset, key1_2);
+			assertEquals(tset.size(), 1);
+			assertFalse(tset.isEmpty());
+			
+			assertTrue(tset.add(null));
+			compareItems(tset, key1_2, null);
+			assertFalse(tset.add(null));
+			compareItems(tset, key1_2, null);
+			assertTrue(tset.remove(null));
+			compareItems(tset, key1_2);
+			assertTrue(tset.add(null));
+			compareItems(tset, key1_2, null);
+			assertTrue(tset.remove(null));
+			assertFalse(tset.remove(null));
+			compareItems(tset, key1_2);
+			
+			assertTrue(tset.add(null));
+			compareItems(tset, key1_2, null);
+			assertFalse(tset.add(null));
+			compareItems(tset, key1_2, null);
+			assertTrue(tset.removeElement(null));
+			compareItems(tset, key1_2);
+			assertTrue(tset.add(null));
+			compareItems(tset, key1_2, null);
+			assertTrue(tset.removeElement(null));
+			assertFalse(tset.removeElement(null));
+			compareItems(tset, key1_2);
+			
+			tset.clear();
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1_2.clone()));
+			assertEquals(set, tset.toUnmodifiableJavaSet());
+			
+			{
+				SerializableBSet<@Nullable TKeyValue> aset = cloneViaSerialization(tset);
+				
+				assert aset != tset;
+				assertEquals(aset, tset.toUnmodifiableJavaSet());
+				assertEquals(aset.hashCode(), tset.hashCode());
+				
+				tset.clear(); // test decoupling
+				
+				assertNotEquals(aset, tset.toUnmodifiableJavaSet());
+				assertNotEquals(aset.hashCode(), tset.hashCode());
+				
+				assertEquals(tset.size(), 0);
+				assertEquals(aset.size(), 1);
+				
+				tset = aset;
+			}
+			
+			tset.clear();
+			assertNotEquals(set, tset.toUnmodifiableJavaSet());
+			assertTrue(tset.add(key1_2.clone().withValue(456)));
+			assertEquals(set, tset.toUnmodifiableJavaSet());
+		}
+		
+		assertTrue(key1.fullyEquals(getSetElement(set, key1)));
+		assertTrue(set.removeElement(key1_2));
+		assertTrue(set.add(key1_2));
+		{
+			BSet<TKeyValue> tset = factory.create();
+			assertNotEquals(set, tset.toUnmodifiableJavaSet());
+			assertTrue(tset.add(key1));
+			assertEquals(set, tset.toUnmodifiableJavaSet()); 
+			
+			tset.clear();
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1.clone()));
+			assertEquals(set, tset);
+			
+			tset.clear();
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1.clone().withValue(456)));
+			assertTrue(tset.remove(key1.clone()));
+			assertTrue(tset.add(key1.clone().withValue(456)));
+			assertEquals(set, tset);
+		}
+		assertEquals(set.size(), 1);
+		assertFalse(set.has(nkey1));
+		assertFalse(set.has(null));
+		compareItems(set, key1_2);
+		assertTrue(set.has(key1_2));
+		assertTrue(set.has(key1_2.clone()));
+		assertTrue(set.has(key1_2.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key1_2)).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1_2.clone())).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1_2.clone().withValue(321))).fullyEquals(key1_2));
+		assertTrue(set.has(key1));
+		assertTrue(set.has(key1.clone()));
+		assertTrue(set.has(key1.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key1)).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1.clone())).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1.clone().withValue(321))).fullyEquals(key1_2));
+		
+		TKeyValue key2 = new TKeyValue("key2", 22);
+		assertTrue(set.add(key2));
+		assertEquals(set.size(), 2);
+		assertFalse(set.has(nkey1));
+		assertFalse(set.has(null));
+		compareItems(set, key1_2, key2);
+		
+		{
+			BSet<TKeyValue> tset = factory.create(Arrays.asList(key1));
+			
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key2));
+			assertEquals(set, tset);
+			
+			tset.clear();
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1_2));
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key2.clone()));
+			assertEquals(set, tset);
+			
+			tset.clear();
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key1));
+			assertNotEquals(set, tset);
+			assertTrue(tset.add(key2.clone().withValue(678)));
+			assertEquals(set, tset);
+		}
+
+		assertTrue(set.has(key1_2));
+		assertTrue(set.has(key1_2.clone()));
+		assertTrue(set.has(key1_2.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key1_2)).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1_2.clone())).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1_2.clone().withValue(321))).fullyEquals(key1_2));
+		assertTrue(set.has(key1));
+		assertTrue(set.has(key1.clone()));
+		assertTrue(set.has(key1.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key1)).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1.clone())).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1.clone().withValue(321))).fullyEquals(key1_2));
+		assertTrue(set.has(key2));
+		assertTrue(set.has(key2.clone()));
+		assertTrue(set.has(key2.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key2)).fullyEquals(key2));
+		assertTrue(nn(getSetElement(set, key2.clone())).fullyEquals(key2));
+		assertTrue(nn(getSetElement(set, key2.clone().withValue(321))).fullyEquals(key2));
+		
+		
+		// check with nulls too
+		assertTrue(set.add(null));
+		assertEquals(set.size(), 3);
+		assertFalse(set.has(nkey1));
+		assertTrue(set.has(null));
+		compareItems(set, key1_2, key2, null);
+		compareItems(set, new ArrayList<@Nullable TKeyValue>(set.stream().map(e -> e).collect(Collectors.toList())).toArray(new @Nullable TKeyValue[0]));
+
+		assertFalse(set.add(null));
+		assertEquals(set.size(), 3);
+		assertFalse(set.has(nkey1));
+		assertTrue(set.has(null));
+		compareItems(set, key1_2, key2, null);
+		
+		assertTrue(set.contains(null));
+		assertTrue(set.has(null));
+		assertTrue(set.has(key1_2));
+		assertTrue(set.has(key1_2.clone()));
+		assertTrue(set.has(key1_2.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key1_2)).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1_2.clone())).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1_2.clone().withValue(321))).fullyEquals(key1_2));
+		assertTrue(set.has(key1));
+		assertTrue(set.has(key1.clone()));
+		assertTrue(set.has(key1.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key1)).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1.clone())).fullyEquals(key1_2));
+		assertTrue(nn(getSetElement(set, key1.clone().withValue(321))).fullyEquals(key1_2));
+		assertTrue(set.has(key2));
+		assertTrue(set.has(key2.clone()));
+		assertTrue(set.has(key2.clone().withValue(321)));
+		assertTrue(nn(getSetElement(set, key2)).fullyEquals(key2));
+		assertTrue(nn(getSetElement(set, key2.clone())).fullyEquals(key2));
+		assertTrue(nn(getSetElement(set, key2.clone().withValue(321))).fullyEquals(key2));
+		
+	}
+	
+	
+	/**
+	 * Clones given serializable object via serialization-deserialization pair.
+	 */
+	private static <O extends Serializable> O cloneViaSerialization(O src)
+	{
+		try
+		{
+			try (
+				ByteArrayOutputStream os = new ByteArrayOutputStream(2048);
+				
+				ObjectOutputStream oos = new ObjectOutputStream(os);
+			) {
+			
+				oos.writeObject(src);
+				oos.flush();
+				
+				try (
+					BAOSInputStream is = new BAOSInputStream(os);
+					ObjectInputStream ois = new ObjectInputStream(is);
+				) {
+					@SuppressWarnings("unchecked") O result = (O)ois.readObject();
+					
+					return result;
+				}
+			}
+		} catch (Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
 	
 	/**
 	 * Verifies that given set contains exactly the elements (via fullyEquals())
 	 */
-	private void compareItems(RHashSet<@Nullable TKeyValue> set, @Nullable TKeyValue... elements)
+	private void compareItems(SerializableBSet<@Nullable TKeyValue> set, @Nullable TKeyValue... elements)
 	{
 		compareItems(set, false, elements);
 		compareItems(set, true, elements);
@@ -651,7 +1090,7 @@ public class ExtraWACollectionsTest
 	 * Verifies that given set contains exactly the elements (via fullyEquals())
 	 */
 	@SuppressWarnings("deprecation")
-	private void compareItems(RHashSet<@Nullable TKeyValue> set, boolean useRemove, @Nullable TKeyValue... elements)
+	private void compareItems(SerializableBSet<@Nullable TKeyValue> set, boolean useRemove, @Nullable TKeyValue... elements)
 	{
 		if (set.size() == 1)
 		{
@@ -677,7 +1116,7 @@ public class ExtraWACollectionsTest
 			count++;
 		assertEquals(elements.length, count);
 		
-		RHashSet<@Nullable TKeyValue> remaining = set.clone();
+		RHashSet<@Nullable TKeyValue> remaining = RHashSet.create(set);
 		
 		for (@Nullable TKeyValue item : elements)
 		{
@@ -704,6 +1143,16 @@ public class ExtraWACollectionsTest
 		}
 		
 		assertEquals(0, remaining.size());
+		
+		// Compare stuff using standard equals/hashCode
+//		System.out.println("" + set.getClass() + ": " + set);
+		{
+			Set<@Nullable TKeyValue> targetSet = new HashSet<>(Arrays.asList(elements));
+			
+			assertTrue(set.equals(targetSet), "" + set + " : " + targetSet);
+			assertTrue(targetSet.equals(set), "" + set + " : " + targetSet);
+			assertEquals(set.hashCode(), targetSet.hashCode(), "" + set + " : " + targetSet);
+		}
 	}
 	
 	/**

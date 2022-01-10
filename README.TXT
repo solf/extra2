@@ -30,6 +30,11 @@ by default)
 
 -------------------
 
+The potential 'star' of this library is collection extensions (Map/Set/HashMap/HashSet)
+in io.github.solf.extra2.collection -- these provide significant improvements
+over standard java sets and maps, such as explicitly-defined read-only interface.
+
+-------------------
 
 Here's a brief overview of what's inside on a per-package basis
 
@@ -69,8 +74,19 @@ in a custom Maven profile in order to do not pollute the main build):
 
 
 - io.github.solf.extra2.collection
-Misc collections extensions, in particular ability to obtain value from set and 
-entry from map.
+A major rework/improvement on Java (Hash)Map & (Hash)Set that provides such
+things as read-only views of these collection plus fixes/clarifies a lot of 
+type-checking/semantics issues plus adds functionality such as being able 
+to retrieve elements from sets, keys and entries from map, and being able
+to replace elements & keys.
+
+The functionality is separated in parts that can be easily 'wrapped onto'
+pre-existing set and map instances (BMap/ReadOnlyMap; BSet/ReadOnlySet) and
+extended functionality that cannot be done in a simple wrapper 
+(EMap/EReadOnlyMap/RMap; ESet/RSet).
+
+Also older misc collections extensions, in particular ability to obtain value 
+from set and entry from map via reflection (HashMapExt, HashSetExt, WACollections).
 
 ItemSampler provides a way to 'sample' (aggregate fixed-size list) items over 
 an unknown-length source list -- it tries to space sample items more or less

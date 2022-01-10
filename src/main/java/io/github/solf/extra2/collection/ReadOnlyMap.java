@@ -15,10 +15,13 @@
  */
 package io.github.solf.extra2.collection;
 
+import java.util.Collections;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import lombok.NonNull;
 
 /**
  * Read-only operations possible on a map.
@@ -27,6 +30,25 @@ import javax.annotation.Nullable;
  */
 public interface ReadOnlyMap<K, V> extends ForIterable<@Nonnull ReadOnlyEntry<K, V>>
 {
+	/**
+	 * Represents any given Java map as {@link SerializableBMap} via a thin
+	 * wrapper.
+	 * <p>
+	 * All operations on the wrapper are pass-through to the underlying map instance.
+	 * <p>  
+	 * NOTE: whether resulting map is actually serializable depends on whether
+	 * underlying map is serializable.
+	 * <p>
+	 * The performance impact of using this is very similar to using {@link Collections#unmodifiableMap(Map)} --
+	 * specifically any entry iteration over the map results in a creation of 
+	 * intermediate wrapper object ({@link ReadOnlyEntry}) for each entry iterated.
+	 */
+	@Nonnull
+	public static <K, V> ReadOnlyMap<K, V> of(@Nonnull @NonNull Map<K, V> mapToWrap)
+	{
+		return BMap.of(mapToWrap);
+	}
+	
     /**
      * Exactly like {@link Map#getOrDefault(Object, Object)} except type-checks
      * the key.
@@ -72,32 +94,6 @@ public interface ReadOnlyMap<K, V> extends ForIterable<@Nonnull ReadOnlyEntry<K,
 	 * instance, e.g.: for (var entry : map)
 	 */
 	@Nonnull ForIterable<@Nonnull ReadOnlyEntry<K, V>> entries();
-
-	/**
-	 * Gets a read-only view of the entry matching the given key (including the
-	 * actual stored key instance).
-	 * <p>
-	 * This acknowledges the fact that key equality via hashCode/equals doesn't
-	 * mean that keys are identical, therefore the actual stored key instance
-	 * is returned.
-	 * 
-	 * @return entry matching the key or null if there are none
-	 */
-	@Nullable ReadOnlyEntry<K, V> getEntry(K key);
-
-	/**
-	 * Gets the current key instance stored in the map that matches the provided
-	 * key or null of there's none.
-	 * <p>
-	 * Since key equality via hashCode/equals doesn't guarantee that items
-	 * are fully identical (as an example -- database row representation may use
-	 * primary key for equals/hashCode while being completely different in other
-	 * columns), therefore this method provides a way to retrieve the actual key 
-	 * stored in the map.
-	 * 
-	 * @return matching key stored in the map or null if there is none
-	 */
-	@Nullable K getKey(K key);
 
     /**
      * Exactly equivalent to {@link Map#get(Object)} but with better type-checking.

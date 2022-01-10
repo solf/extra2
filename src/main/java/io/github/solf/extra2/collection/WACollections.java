@@ -577,7 +577,7 @@ public class WACollections
 	 * Empty read-only set implementation.
 	 */
 	@NonNullByDefault({})
-	private static class EmptyReadOnlySet implements ReadOnlySet<Object>, Serializable
+	private static class EmptyReadOnlySet implements EReadOnlySet<Object>, Serializable
 	{
 		@SuppressWarnings("deprecation")
 		@Override
@@ -637,7 +637,7 @@ public class WACollections
 	 * Empty read-only map implementation.
 	 */
 	@NonNullByDefault({})
-	private static class EmptyReadOnlyMap implements ReadOnlyMap<Object, Object>, Serializable
+	private static class EmptyReadOnlyMap implements EReadOnlyMap<Object, Object>, Serializable
 	{
 
 		@Override

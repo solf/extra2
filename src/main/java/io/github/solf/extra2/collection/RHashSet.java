@@ -17,7 +17,6 @@ package io.github.solf.extra2.collection;
 
 import static io.github.solf.extra2.util.NullUtil.nn;
 
-import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,17 +54,85 @@ import lombok.RequiredArgsConstructor;
  * for cleaner interfaces where limited access to the {@link RHashSet} needs
  * to be provided.
  * <p>
- * NOTE: this implementation has specific overhead -- due to how {@link HashMap}
+ * NOTE: the implementation of this on top of standard {@link HashSet} is pretty 
+ * cheap and can basically be used everywhere where {@link HashSet}s are normally
+ * used EXCEPT for the note about replacing elements below.
+ * <p>
+ * NOTE ABOUT REPLACING ELEMENTS: this implementation has specific overhead -- 
+ * due to how {@link HashMap}
  * is implemented, if value in the set is replaced, the reference to the original
  * value is still retained as it is used as a key in the underlying {@link HashMap}.  
  *
  * @author Sergey Olefir
  */
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializable, ReadOnlySet<E>
+public class RHashSet<E> extends AbstractSet<E> implements Cloneable, SerializableRSet<E>
 {
 	/** UID for serialization */
 	private static final long serialVersionUID = 1L;
+	
+    /**
+     * Constructs a new, empty set; the backing {@code HashMap} instance has
+     * default initial capacity (16) and load factor (0.75).
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashSet}
+     */
+	@Nonnull
+	public static <E> RHashSet<E> create()
+	{
+		return new RHashSet<E>();
+	}
+	
+
+    /**
+     * Constructs a new, empty set; the backing {@code HashMap} instance has
+     * the specified initial capacity and the specified load factor.
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashSet}
+     *
+     * @param      initialCapacity   the initial capacity of the hash map
+     * @param      loadFactor        the load factor of the hash map
+     * @throws     IllegalArgumentException if the initial capacity is less
+     *             than zero, or if the load factor is nonpositive
+     */
+	@Nonnull
+	public static <E> RHashSet<E> create(int initialCapacity, float loadFactor) 
+	{
+		return new RHashSet<E>(initialCapacity, loadFactor);
+    }
+
+    /**
+     * Constructs a new, empty set; the backing {@code HashMap} instance has
+     * the specified initial capacity and default load factor (0.75).
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashSet}
+     *
+     * @param      initialCapacity   the initial capacity of the hash table
+     * @throws     IllegalArgumentException if the initial capacity is less
+     *             than zero
+     */
+	@Nonnull
+	public static <E> RHashSet<E> create(int initialCapacity) 
+	{
+		return new RHashSet<E>(initialCapacity);
+    }
+
+    /**
+     * Constructs a new set containing the elements in the specified
+     * collection.  The {@code HashMap} is created with default load factor
+     * (0.75) and an initial capacity sufficient to contain the elements in
+     * the specified collection.
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashSet}
+     *
+     * @param c the collection whose elements are to be placed into this set
+     * @throws NullPointerException if the specified collection is null
+     */
+	@Nonnull
+	public static <E> RHashSet<E> create(@Nonnull Collection<? extends E> c) 
+	{
+		return new RHashSet<E>(c); 
+    }
 	
 	/**
 	 * Backing map for this set.
@@ -138,11 +205,7 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
         return liveIterator();
     }
 	
-	/**
-	 * Returns a live iterator over the elements contained in this set.
-	 * <p>
-	 * Live iterator can be used to remove the elements from the set.
-	 */
+	@Override
 	@Nonnull
     public Iterator<E> liveIterator() {
         return map.values().iterator();
@@ -175,7 +238,7 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
 
 
 	/**
-	 * @deprecated use {@link #addIfAbsent(Object)} for clarity
+	 * @deprecated use {@link #addIfAbsentAndGetIfPresent(Object)} for clarity
 	 */
 	@Deprecated
 	@Override
@@ -183,44 +246,27 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
 	{
 		int preSize = map.size();
 		
-        addIfAbsent(e);
+        addIfAbsentAndGetIfPresent(e);
         
         return preSize != map.size(); // true if map changed
 	}
+
+	@Override
+	public boolean addIfAbsent(E e)
+	{
+		return add(e);
+	}
 	
 	
-    /**
-     * Adds (or replaces IF it is ALREADY PRESENT) the specified element to this set.
-     * <p>
-     * Since item equality via hashCode/equals does not guarantee that items are
-     * identical otherwise, this method provides a way to actually REPLACE item
-     * stored in the set even if a matching elements is already present. 
-     *
-     * @param e element to be added to this set
-     * @return the PREVIOUS value stored in the set or null if there was no
-     * 		matching element
-     */
-    @Nullable
+    @Override
+	@Nullable
     public E addOrReplace(E e) {
         return map.put(e, e);
     }
     
-    /**
-     * Adds the specified element to this set if it is NOT ALREADY present.
-     * More formally, adds the specified element {@code e} to this set if
-     * this set contains no element {@code e2} such that
-     * {@code Objects.equals(e, e2)}.
-     * If this set already contains the element, the call leaves the set
-     * unchanged.
-     *
-     * @param e element to be added to this set
-     * @return the PREVIOUS value stored in the set or null if there was no
-     * 		matching element
-     * 
-     * @see #addIfAbsentAndGet(Object)
-     */
-    @Nullable
-    public E addIfAbsent(E e) {
+    @Override
+	@Nullable
+    public E addIfAbsentAndGetIfPresent(E e) {
     	if (e == null)
     	{
     		map.put(e, e);
@@ -239,22 +285,8 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
     	}
     }
     
-    /**
-     * Adds the specified element to this set if it is NOT ALREADY present.
-     * More formally, adds the specified element {@code e} to this set if
-     * this set contains no element {@code e2} such that
-     * {@code Objects.equals(e, e2)}.
-     * If this set already contains the element, the call leaves the set
-     * unchanged.
-     *
-     * @param e element to be added to this set
-     * @return the CURRENT value stored in the set after the method invocation (either
-     * 		the one that was already there before or the new one specified as
-     * 		argument)
-     * 
-     * @see #addIfAbsent(Object)
-     */
-    @Nullable
+    @Override
+	@Nullable
     public E addIfAbsentAndGet(E e) {
     	if (e == null)
     	{
@@ -272,23 +304,21 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
     @Override
     @Deprecated
     public boolean remove(Object o) {
-    	int beforeSize = map.size();
-        removeAndGet((E)o);
-        
-        return beforeSize != map.size(); // true if map changed
+        return removeElement((E)o);
     }
 
-    /**
-     * Removes the specified element from this set if it is present.
-     * More formally, removes an element {@code e} such that
-     * {@code Objects.equals(o, e)},
-     * if this set contains such an element.
-     *
-     * @param o object to be removed from this set, if present
-     * @return the matching element that was in the set prior to remove or null
-     * 		if there was none
-     */
-    @Nullable
+	@Override
+	public boolean removeElement(E o)
+	{
+    	int beforeSize = map.size();
+        removeAndGet(o);
+        
+        return beforeSize != map.size(); // true if map changed
+	}
+    
+
+    @Override
+	@Nullable
     public E removeAndGet(E o) {
         return map.remove(o);
     }
@@ -320,7 +350,7 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
 	@Override
 	public @Nonnull Stream<E> stream()
 	{
-		return ReadOnlySet.super.stream();
+		return SerializableRSet.super.stream();
 	}
 	
 	
@@ -339,6 +369,5 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
 		
 		return ujs;
 	}
-	
-	
+
 }

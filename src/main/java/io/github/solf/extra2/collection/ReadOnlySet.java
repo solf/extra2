@@ -18,7 +18,8 @@ package io.github.solf.extra2.collection;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
+import lombok.NonNull;
 
 /**
  * Read-only operations possible on a set.
@@ -28,16 +29,19 @@ import javax.annotation.Nullable;
 public interface ReadOnlySet<E> extends ForIterable<E>
 {
 	/**
-	 * Since item equality via hashCode/equals doesn't guarantee that items
-	 * are fully identical (as an example -- database row representation may use
-	 * primary key for equals/hashCode while being completely different in other
-	 * columns), this method provides a way to retrieve the actual item stored
-	 * in the set.
-	 * 
-	 * @return matching item stored in the set or null if there is none
+	 * Represents any given Java set as {@link ReadOnlySet} via a thin
+	 * wrapper.
+	 * <p>
+	 * All operations on the wrapper are pass-through to the underlying set instance.
+	 * <p>
+	 * This has very little performance impact and can be used freely as needed.
 	 */
-	@Nullable E get(E item);
-
+	@Nonnull
+	public static <E> ReadOnlySet<E> of(@Nonnull @NonNull Set<E> setToWrap)
+	{
+		return BSet.of(setToWrap);
+	}
+	
     /**
      * Returns {@code true} if this set contains the specified element.
      * More formally, returns {@code true} if and only if this set

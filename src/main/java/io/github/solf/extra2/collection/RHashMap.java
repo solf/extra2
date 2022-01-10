@@ -16,6 +16,7 @@
 package io.github.solf.extra2.collection;
 
 import static io.github.solf.extra2.util.NullUtil.nn;
+import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import java.io.Serializable;
 import java.util.AbstractCollection;
@@ -60,7 +61,12 @@ import lombok.ToString;
  * for cleaner interfaces where limited access to the {@link RHashMap} needs
  * to be provided.
  * <p>
- * NOTE: this implementation has specific overhead -- due to how {@link HashMap}
+ * NOTE: this implementation has specific overhead compared to standard {@link HashMap} 
+ * -- for every mapping stored in the map an additional wrapper object is 
+ * created in order to provide the required functionality.
+ * <p>
+ * NOTE ON REPLACING KEYS: this key replacement functionality implementation 
+ * has specific overhead -- due to how this {@link RMap}
  * is implemented, if key in the map is replaced, the reference to the original
  * key is still retained as it is used as a key in the underlying {@link HashMap}.  
  * <p>
@@ -71,11 +77,72 @@ import lombok.ToString;
  *
  * @author Sergey Olefir
  */
-@ToString
-public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Serializable, ReadOnlyMap<K, V>
+public class RHashMap<K, V> extends AbstractMap<K, V> implements SerializableRMap<K, V>, Cloneable
 {
 	/** UID for serialization */
 	private static final long serialVersionUID = 1L;
+	
+    /**
+     * Constructs an empty {@link BMap} with the default initial capacity
+     * (16) and the default load factor (0.75).
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashMap}
+     */
+	@Nonnull
+	public static <K, V> RHashMap<K, V> create()
+	{
+		return new RHashMap<K, V>();
+	}
+	
+
+    /**
+     * Constructs an empty {@link RHashMap} with the specified initial
+     * capacity and load factor.
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashMap}
+     *
+     * @param  initialCapacity the initial capacity
+     * @param  loadFactor      the load factor
+     * @throws IllegalArgumentException if the initial capacity is negative
+     *         or the load factor is nonpositive
+     */
+	@Nonnull
+	public static <K, V> RHashMap<K, V> create(int initialCapacity, float loadFactor) 
+	{
+		return new RHashMap<K, V>(initialCapacity, loadFactor);
+    }
+
+    /**
+     * Constructs an empty {@link RHashMap} with the specified initial
+     * capacity and the default load factor (0.75).
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashMap}
+     *
+     * @param  initialCapacity the initial capacity.
+     * @throws IllegalArgumentException if the initial capacity is negative.
+     */
+	@Nonnull
+	public static <K, V> RHashMap<K, V> create(int initialCapacity) 
+	{
+		return new RHashMap<K, V>(initialCapacity);
+    }
+
+    /**
+     * Constructs a new {@link RHashMap} with the same mappings as the
+     * specified {@code Map}.  The {@link RHashMap} is created with
+     * default load factor (0.75) and an initial capacity sufficient to
+     * hold the mappings in the specified {@code Map}.
+     * <p>
+     * This exists (in addition to constructors) in order to provide interface similar to {@link BHashMap}
+     *
+     * @param   m the map whose mappings are to be placed in this map
+     * @throws  NullPointerException if the specified map is null
+     */
+	@Nonnull
+	public static <K, V> RHashMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
+	{
+		return new RHashMap<K, V>(m); 
+    }
 	
 	
 	/**
@@ -113,6 +180,24 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 			value = newValue;
 			return old;
 		}
+
+        @Override
+		public int hashCode() {
+            return Objects.hashCode(key) ^ Objects.hashCode(value);
+        }
+		
+        @Override
+		public boolean equals(@Nullable Object o) {
+            if (o == this)
+                return true;
+            if (o instanceof Map.Entry) {
+                Map.Entry<?,?> e = (Map.Entry<?,?>)o;
+                if (Objects.equals(key, e.getKey()) &&
+                    Objects.equals(value, e.getValue()))
+                    return true;
+            }
+            return false;
+        }
 	}
 	
 
@@ -157,7 +242,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
      * @param   m the map whose mappings are to be placed in this map
      * @throws  NullPointerException if the specified map is null
      */
-    public RHashMap(Map<? extends K, ? extends V> m) {
+    public RHashMap(@Nonnull Map<? extends K, ? extends V> m) {
     	map = new HashMap<>();
     	putAll(m);
     }
@@ -239,14 +324,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 		return entry.getValue();
 	}
 	
-	/**
-	 * If map already contains value mapped to the given key, then that value
-	 * is returned; otherwise the provided producer is invoked and the resulting
-	 * key-value pair is entered into the map (and the produced value is returned).
-	 * 
-	 * @return current value associated with the key after this method processing;
-	 * 		this is either a pre-existing value or the value created by the producer
-	 */
+	@Override
 	public V getOrCreateValue(K key, @Nonnull Function<? super K, ? extends V> producer)
 	{
 		Entry<K, V> entry = nn(map.computeIfAbsent(key, k -> {
@@ -256,6 +334,29 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 		}));
 		
 		return entry.getValue();
+	}
+	
+	@Override
+	@Nonnull
+	public V getOrCreateValueNonNull(K key, @Nonnull Function<? super K, @Nonnull ? extends V> producer)
+		 throws NullPointerException
+	{
+		Entry<K, V> entry = nn(map.computeIfAbsent(key, RHashMap::createNullValueEntry));
+		
+		V value = entry.getValue();
+		if (value == null)
+		{
+			value = producer.apply(key);
+			if (nullable(value) == null)
+			{
+				removeAndGet(key);
+				throw new NullPointerException("Unexpected null value from producer for key: " + key);
+			}
+			
+			entry.setValue(value);
+		}
+		
+		return value;
 	}
 
 	@Override
@@ -274,16 +375,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 		return getRealEntry(key);
 	}
 
-	/**
-	 * Gets a live view (can change value) of the entry matching the given key 
-	 * (including the actual stored key instance).
-	 * <p>
-	 * This acknowledges the fact that key equality via hashCode/equals doesn't
-	 * mean that keys are identical, therefore the actual stored key instance
-	 * is returned.
-	 * 
-	 * @return entry matching the key or null if there are none
-	 */
+	@Override
 	public Map.@Nullable Entry<K, V> getLiveEntry(K key)
 	{
 		return getRealEntry(key);
@@ -356,72 +448,19 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 		return putRetainKey(key, value);
 	}
 	
-    /**
-     * Associates the specified value with the specified key in this map.
-     * If the map previously contained a mapping for the key, the old
-     * value AND THE OLD KEY ARE REPLACED.
-     *
-     * @param key key with which the specified value is to be associated
-     * @param value value to be associated with the specified key
-     * @return the previous value associated with {@code key}, or
-     *         {@code null} if there was no mapping for {@code key}.
-     *         (A {@code null} return can also indicate that the map
-     *         previously associated {@code null} with {@code key}.)
-     */
+	@Override
 	public @Nullable V putWithNewKey(K key, V value)
 	{
 		return putInternal(key, value, true);
 	}
 
-    /**
-     * Associates the specified value with the specified key in this map.
-     * If the map previously contained a mapping for the key, the old
-     * value is replaced but the OLD KEY IS RETAINED.
-     *
-     * @param key key with which the specified value is to be associated
-     * @param value value to be associated with the specified key
-     * @return the previous value associated with {@code key}, or
-     *         {@code null} if there was no mapping for {@code key}.
-     *         (A {@code null} return can also indicate that the map
-     *         previously associated {@code null} with {@code key}.)
-     */
+	@Override
 	public @Nullable V putRetainKey(K key, V value)
 	{
 		return putInternal(key, value, false);
 	}
 	
-    /**
-     * Exactly equivalent to {@link Map#remove(Object)} but with better type-checking.
-     * <p>
-     * Removes the mapping for a key from this map if it is present
-     * (optional operation).   More formally, if this map contains a mapping
-     * from key {@code k} to value {@code v} such that
-     * {@code Objects.equals(key, k)}, that mapping
-     * is removed.  (The map can contain at most one such mapping.)
-     *
-     * <p>Returns the value to which this map previously associated the key,
-     * or {@code null} if the map contained no mapping for the key.
-     *
-     * <p>If this map permits null values, then a return value of
-     * {@code null} does not <i>necessarily</i> indicate that the map
-     * contained no mapping for the key; it's also possible that the map
-     * explicitly mapped the key to {@code null}.
-     *
-     * <p>The map will not contain a mapping for the specified key once the
-     * call returns.
-     *
-     * @param key key whose mapping is to be removed from the map
-     * @return the previous value associated with {@code key}, or
-     *         {@code null} if there was no mapping for {@code key}.
-     * @throws UnsupportedOperationException if the {@code remove} operation
-     *         is not supported by this map
-     * @throws ClassCastException if the key is of an inappropriate type for
-     *         this map
-     * (<a href="{@docRoot}/java.base/java/util/Collection.html#optional-restrictions">optional</a>)
-     * @throws NullPointerException if the specified key is null and this
-     *         map does not permit null keys
-     * (<a href="{@docRoot}/java.base/java/util/Collection.html#optional-restrictions">optional</a>)
-     */
+	@Override
 	public @Nullable V removeAndGet(K key)
 	{
 		Entry<K, V> old = map.remove(key);
@@ -443,7 +482,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 	}
 
 	@Override
-	public void putAll(Map<? extends K, ? extends V> m)
+	public void putAll(@Nonnull Map<? extends K, ? extends V> m)
 	{
 		super.putAll(m);
 	}
@@ -620,7 +659,15 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
             return Objects.equals(e.getValue(), entry.getValue()); 
         }
     	@Override public final boolean remove(Object o) {
-        	throw new UnsupportedOperationException();
+            if (o instanceof Map.Entry) {
+                Map.Entry<?,?> e = (Map.Entry<?,?>) o;
+                @SuppressWarnings("unchecked") K key = (K)e.getKey();
+                @SuppressWarnings("unchecked") V value = (V)e.getValue();
+                
+                return removeIfValue(key, value);
+            }
+            
+            return false;
         }
     }
 	
@@ -692,38 +739,21 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 		return WACollections.toForIterable(new ValueIterator());
 	}
 	
-	/**
-	 * A live-view iterator for entries in this map that is backed by the map
-	 * itself.
-	 * <p>
-	 * Items removed via {@link Iterator#remove()} are removed from the map itself.
-	 * <p>
-	 * It is also possible to change values via {@link Map.Entry#setValue(Object)}
-	 */
+	@Override
 	@Nonnull
 	public Iterator<Map.@Nonnull Entry<K, V>> liveEntries()
 	{
 		return new MapEntryIterator();
 	}
 	
-	/**
-	 * A live-view iterator for keys in this map that is backed by the map
-	 * itself.
-	 * <p>
-	 * Items removed via {@link Iterator#remove()} are removed from the map itself.
-	 */
+	@Override
 	@Nonnull
 	public Iterator<K> liveKeys()
 	{
 		return new KeyIterator();
 	}
 	
-	/**
-	 * A live-view iterator for values in this map that is backed by the map
-	 * itself.
-	 * <p>
-	 * Items removed via {@link Iterator#remove()} are removed from the map itself.
-	 */
+	@Override
 	@Nonnull
 	public Iterator<V> liveVals()
 	{
@@ -751,8 +781,49 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 		return entry.getValue();
 	}
 
+	/**
+	 * @deprecated this method has strange semantics, use {@link #putIfNoValue(Object, Object)}
+	 * 		instead or possibly {@link #putIfNoKey(Object, Object)} if you need
+	 * 		different semantics
+	 */
 	@Override
+	@Deprecated
 	public @Nullable V putIfAbsent(K key, V value)
+	{
+		if (key != null)
+		{
+			Entry<K, V> entry = nn(map.computeIfAbsent(key, RHashMap::createNullKeyValueEntry));
+			V old = entry.getValue(); // null if it was null or if it was just created
+			if (entry.getKey() == null) // null key value means we have a new entry, otherwise retain the old one
+				entry.setKey(key);
+			if (old == null)
+				entry.setValue(value);
+			
+			return old;
+		}
+		else
+		{
+			Entry<K, V> entry = nn(map.computeIfAbsent(key, RHashMap::createNonNullKeyNullValueEntry));
+			V old = entry.getValue(); // null if it was null or if it was just created
+			if (entry.getKey() != null) // non-null key value means we have a new entry, otherwise retain the old one
+				entry.setKey(key);
+			if (old == null)
+				entry.setValue(value);
+			
+			return old;
+		}
+	}
+
+
+	@Override
+	public @Nullable V putIfNoValue(K key, V value)
+	{
+		return putIfAbsent(key, value);
+	}
+
+
+	@Override
+	public @Nullable V putIfNoKey(K key, V value)
 	{
 		if (key != null)
 		{
@@ -779,27 +850,9 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 			return old;
 		}
 	}
+	
 
-    /**
-     * Exactly equivalent to {@link Map#remove(Object, Object)} but with better type-checking.
-     * <p>
-     * Removes the entry for the specified key only if it is currently
-     * mapped to the specified value.
-     *
-     * @param key key with which the specified value is associated
-     * @param value value expected to be associated with the specified key
-     * @return {@code true} if the value was removed
-     * @throws UnsupportedOperationException if the {@code remove} operation
-     *         is not supported by this map
-     *         (<a href="{@docRoot}/java.base/java/util/Collection.html#optional-restrictions">optional</a>)
-     * @throws ClassCastException if the key or value is of an inappropriate
-     *         type for this map
-     *         (<a href="{@docRoot}/java.base/java/util/Collection.html#optional-restrictions">optional</a>)
-     * @throws NullPointerException if the specified key or value is null,
-     *         and this map does not permit null keys or values
-     *         (<a href="{@docRoot}/java.base/java/util/Collection.html#optional-restrictions">optional</a>)
-     * @since 1.8
-     */
+	@Override
 	public boolean removeIfValue(K key, V value)
 	{
 		int preSize = map.size();
@@ -916,7 +969,7 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 	}
 
 	@Override
-	public @Nullable V merge(K key, @Nonnull V value,
+	public @Nullable V merge(K key, @Nonnull @NonNull V value,
 		BiFunction<@Nonnull ? super @Nonnull V, @Nonnull ? super @Nonnull V, @Nullable ? extends @Nullable V> remappingFunction)
 	{
 		Entry<K, V> entry = map.merge(key, new Entry<>(key, value), (Entry<K,V> mapEntry, Entry<K, @Nonnull V> newEntry) -> {
@@ -947,7 +1000,6 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements Cloneable, Seri
 	/**
 	 * Unmodifiable Java map facade for this instance.
 	 */
-	@ToString.Exclude
 	protected transient Map<K, V> unmodifiableJavaMap; 
 	
 	@Override

@@ -59,12 +59,12 @@ import lombok.ToString;
 import lombok.With;
 
 /**
- * Tests for {@link RHashMap}
+ * Tests for {@link BMap}
  *
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public class ExtraRHashMapTest
+public class ExtraBMapTest
 {
 	/**
 	 * Interface for checking that two items are fully-equal (not just via equals).
@@ -193,36 +193,45 @@ public class ExtraRHashMapTest
 	}
 	
 	/**
-	 * Tests {@link RHashMap}
+	 * Tests {@link BMap} various implementations.
 	 */
 	@Test
-	public void testRHashMap()
+	public void testBMap()
 	{
 		final TKeyWithValue key14_1 = new TKeyWithValue("14", 1);
 		final TKeyWithValue key15_2 = new TKeyWithValue("55", 2);
 
-		testRHashMapInternal(() -> new RHashMap<>(), null);
-		testRHashMapInternal(() -> new RHashMap<>(5), null);
-		testRHashMapInternal(() -> new RHashMap<>(7, 0.75f), null);
+		testBMapInternal(() -> new RHashMap<>(), null);
+		testBMapInternal(() -> new RHashMap<>(5), null);
+		testBMapInternal(() -> new RHashMap<>(7, 0.75f), null);
 
-		testRHashMapInternal(() -> RHashMap.create(), null);
-		testRHashMapInternal(() -> RHashMap.create(5), null);
-		testRHashMapInternal(() -> RHashMap.create(7, 0.75f), null);
+		testBMapInternal(() -> BHashMap.create(), null);
+		testBMapInternal(() -> BHashMap.create(5), null);
+		testBMapInternal(() -> BHashMap.create(7, 0.75f), null);
 		
-		Integer four = 4; 
-		testRHashMapInternal(() -> new RHashMap<>(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
-		testRHashMapInternal(() -> RHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> BHashMap2.create(), null);
+		testBMapInternal(() -> BHashMap2.create(5), null);
+		testBMapInternal(() -> BHashMap2.create(7, 0.75f), null);
 		
-		testRHashMapInternal(() -> new RHashMap<TKeyWithValue, Integer>(mapOf(key14_1, four, key15_2, 5)).clone(), mapOf(key14_1, four, key15_2, 5));
-		testRHashMapInternal(() -> RHashMap.<TKeyWithValue, Integer>create(mapOf(key14_1, four, key15_2, 5)).clone(), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> EHashMap.create(), null);
+		testBMapInternal(() -> EHashMap.create(5), null);
+		testBMapInternal(() -> EHashMap.create(7, 0.75f), null);
+		
+		final Integer four = 4; 
+		testBMapInternal(() -> new RHashMap<>(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> BHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> BHashMap2.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> EHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		
+		testBMapInternal(() -> new RHashMap<TKeyWithValue, Integer>(mapOf(key14_1, four, key15_2, 5)).clone(), mapOf(key14_1, four, key15_2, 5));
 	}
 	
 	/**
-	 * Tests {@link RHashMap}
+	 * Tests {@link BMap}
 	 */
 	@SuppressWarnings("deprecation")
 	@NonNullByDefault({})
-	private void testRHashMapInternal(@Nonnull Supplier<@Nonnull RHashMap<TKeyWithValue, Integer>> mapFactory, 
+	private void testBMapInternal(@Nonnull Supplier<@Nonnull SerializableBMap<TKeyWithValue, Integer>> mapFactory, 
 		@Nullable Map<TKeyWithValue, Integer> initialState)
 	{
 		final TKeyWithValue key1_1 = new TKeyWithValue("1", 1);
@@ -235,62 +244,149 @@ public class ExtraRHashMapTest
 //		final TKeyWithValue key4_2 = new TKeyWithValue("4", 2);
 		
 		{
-			RHashMap<TKeyWithValue, Integer> map = mapFactory.get();
+			SerializableBMap<TKeyWithValue, Integer> map = mapFactory.get();
 			compareRMapNonDestructively(map, initialState, mapOf());
 		}
 
 		{
-			RHashMap<TKeyWithValue, Integer> map = mapFactory.get();
-			assertNull(map.putRetainKey(key1_1, 1));
+			SerializableBMap<TKeyWithValue, Integer> map = mapFactory.get();
+			assertNull(map.put(key1_1, 1));
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1));
 		}
 
 		{
-			@SuppressWarnings("null") RHashMap<TKeyWithValue, @Nullable Integer> map = mapFactory.get();
-			assertNull(map.putRetainKey(key1_1, null));
+			@SuppressWarnings("null") SerializableBMap<TKeyWithValue, @Nullable Integer> map = mapFactory.get();
+			assertNull(map.put(key1_1, null));
 			compareRMapNonDestructively(map, TypeUtil.coerceNullable(initialState), mapOf(key1_1, null));
 		}
 
 		{
-			@SuppressWarnings("null") RHashMap<@Nullable TKeyWithValue, Integer> map = mapFactory.get();
-			assertNull(map.putRetainKey(null, 1));
+			@SuppressWarnings("null") SerializableBMap<@Nullable TKeyWithValue, Integer> map = mapFactory.get();
+			assertNull(map.put(null, 1));
 			compareRMapNonDestructively(map, TypeUtil.coerceNullable(initialState), mapOf(null, 1));
 		}
 
 		{
-			@SuppressWarnings("null") RHashMap<@Nullable TKeyWithValue, @Nullable Integer> map = mapFactory.get();
-			assertNull(map.putRetainKey(null, null));
+			@SuppressWarnings("null") SerializableBMap<@Nullable TKeyWithValue, @Nullable Integer> map = mapFactory.get();
+			assertNull(map.put(null, null));
 			compareRMapNonDestructively(map, TypeUtil.coerceNullable(initialState), mapOf(null, null));
+		}
+
+		{
+			SerializableBMap<TKeyWithValue, Integer> map = mapFactory.get();
+			assertNull(map.put(key1_1, 1));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1));
+			assertNull(map.putIfNoValue(key2_1, 2));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2));
+			assertEquals(map.putIfNoValue(key2_1, 5), (Integer)2);
+			assertEquals(map.putIfNoValue(key2_2, 5), (Integer)2);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2));
+			assertNull(map.put(key3_1, 3));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_1, 3));
+			assertEquals(map.put(key3_2, 5), (Integer)3);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_1, 5));
+			assertEquals(map.removeAndGet(key3_1), (Integer)5); // prototype code for RHashMap was replacing key here
+			assertEquals(map.put(key3_2, 5), null);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 5));
+			assertEquals(map.put(key3_1, 3), (Integer)5);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 3));
+			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
+			
+			assertEquals(map.putIfNoValue(key3_1, null), (Integer)3);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 3));
+			assertEquals(map.put(key3_1, null), (Integer)3);
+			assertEquals(map.putIfNoValue(key3_1, 7), null);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7));
+			assertNull(map.putIfNoValue(null, null));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, null));
+			assertNull(map.putIfNoValue(null, 4));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
+			assertEquals(map.putIfNoValue(null, 5), (Integer)4);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
+			assertEquals(map.putIfNoValue(null, null), (Integer)4);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
+			assertEquals(map.put(key3_1, null), (Integer)7);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
+
+			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
+		}
+
+		{
+			SerializableBMap<TKeyWithValue, Integer> map = mapFactory.get();
+			assertNull(map.put(key1_1, 1));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1));
+			assertNull(map.putIfNoKey(key2_1, 2));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2));
+			assertEquals(map.putIfNoKey(key2_1, 5), (Integer)2);
+			assertEquals(map.putIfNoKey(key2_2, 5), (Integer)2);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2));
+			assertNull(map.put(key3_1, 3));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_1, 3));
+			assertEquals(map.put(key3_2, 5), (Integer)3);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_1, 5));
+			assertEquals(map.removeAndGet(key3_1), (Integer)5); // prototype code for RHashMap was replacing key here
+			assertEquals(map.put(key3_2, 5), null);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 5));
+			assertEquals(map.put(key3_1, 3), (Integer)5);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 3));
+			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
+			
+			assertEquals(map.putIfNoKey(key3_1, null), (Integer)3);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 3));
+			assertEquals(map.put(key3_1, null), (Integer)3);
+			assertEquals(map.putIfNoKey(key3_1, 7), null);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null));
+			assertNull(map.putIfNoKey(null, null));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, null));
+			assertNull(map.putIfNoKey(null, 5));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, null));
+			assertNull(map.put(key3_1, 7));
+			assertNull(map.put(null, 4));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
+			assertEquals(map.putIfNoKey(null, 5), (Integer)4);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
+			assertEquals(map.putIfNoKey(null, null), (Integer)4);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
+			assertEquals(map.put(key3_1, null), (Integer)7);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
+
+			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
 		}
 		
 		{
-			RHashMap<TKeyWithValue, Integer> map = mapFactory.get();
-			assertNull(map.putRetainKey(key1_1, 1));
+			SerializableBMap<TKeyWithValue, Integer> map = mapFactory.get();
+			assertNull(map.put(key1_1, 1));
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1));
 			assertNull(map.putIfAbsent(key2_1, 2));
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2));
 			assertEquals(map.putIfAbsent(key2_1, 5), (Integer)2);
 			assertEquals(map.putIfAbsent(key2_2, 5), (Integer)2);
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2));
-			assertNull(map.putRetainKey(key3_1, 3));
+			assertNull(map.put(key3_1, 3));
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_1, 3));
-			assertEquals(map.putRetainKey(key3_2, 5), (Integer)3);
+			assertEquals(map.put(key3_2, 5), (Integer)3);
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_1, 5));
-			assertEquals(map.putWithNewKey(key3_2, 5), (Integer)5);
+			assertEquals(map.removeAndGet(key3_1), (Integer)5); // prototype code for RHashMap was replacing key here
+			assertEquals(map.put(key3_2, 5), null);
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 5));
 			assertEquals(map.put(key3_1, 3), (Integer)5);
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 3));
 			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
 			
 			assertEquals(map.putIfAbsent(key3_1, null), (Integer)3);
-			assertEquals(map.putRetainKey(key3_1, null), (Integer)3);
-			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 3));
+			assertEquals(map.put(key3_1, null), (Integer)3);
 			assertEquals(map.putIfAbsent(key3_1, 7), null);
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7));
-			assertEquals(map.put(key3_2, null), (Integer)7);
 			assertNull(map.putIfAbsent(null, 4));
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
 			assertEquals(map.putIfAbsent(null, 5), (Integer)4);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
 			assertEquals(map.putIfAbsent(null, null), (Integer)4);
+			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 7, null, 4));
+			assertEquals(map.put(key3_1, null), (Integer)7);
 			compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
 			
@@ -311,222 +407,249 @@ public class ExtraRHashMapTest
 			compareRMapNonDestructively(map, initialState, map.toUnmodifiableJavaMap());
 			
 			{
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
 				compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertEquals(rmap.getOrCreateValueNonNull(null, k -> 555), (Integer)4);
-				assertEquals(rmap.getOrCreateValueNonNull(key1_1, k -> 555), (Integer)1);
-				assertEquals(rmap.getOrCreateValueNonNull(key3_2, k -> 555), (Integer)555);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 555, null, 4));
-				assertEquals(rmap.getOrCreateValueNonNull(key4_1, k -> 444), (Integer)444);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 555, null, 4, key4_1, 444));
+				assertEquals(bmap.getOrCreateValueNonNull(null, k -> 555), (Integer)4);
+				assertEquals(bmap.getOrCreateValueNonNull(key1_1, k -> 555), (Integer)1);
+				assertEquals(bmap.getOrCreateValueNonNull(key3_2, k -> 555), (Integer)555);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 555, null, 4));
+				assertEquals(bmap.getOrCreateValueNonNull(key4_1, k -> 444), (Integer)444);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, 555, null, 4, key4_1, 444));
 				
-				rmap.putRetainKey(key3_2, null);
-				rmap.removeAndGet(key4_1);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				bmap.put(key3_2, null);
+				bmap.removeAndGet(key4_1);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertTrue(rmap.hasKey(key3_1));
-				assertTrue(rmap.hasKey(key3_2));
-				assertFailsWithSubstring(() -> rmap.getOrCreateValueNonNull(key3_1, k -> null), "Unexpected null value from producer");
+				assertTrue(bmap.hasKey(key3_1));
+				assertTrue(bmap.hasKey(key3_2));
+				assertFailsWithSubstring(() -> bmap.getOrCreateValueNonNull(key3_1, k -> null), "Unexpected null value from producer");
 				// key3_2 is removed after failure.
-				assertFalse(rmap.hasKey(key3_1));
-				assertFalse(rmap.hasKey(key3_2));
-				rmap.putRetainKey(key3_2, null);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				assertFalse(bmap.hasKey(key3_1));
+				assertFalse(bmap.hasKey(key3_2));
+				bmap.put(key3_2, null);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertFailsWithSubstring(() -> rmap.getOrCreateValueNonNull(key4_1, k -> null), "Unexpected null value from producer");
-				assertFalse(rmap.hasKey(key4_1));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				assertFailsWithSubstring(() -> bmap.getOrCreateValueNonNull(key4_1, k -> null), "Unexpected null value from producer");
+				assertFalse(bmap.hasKey(key4_1));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 			}
 			
 			{
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
 				compareRMapNonDestructively(map, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
-				assertFalse(rmap.removeIfValue(key4_1, 1));
-				assertFalse(rmap.remove(key4_1, 1));
-				assertFalse(rmap.removeIfValue(key2_1, 3));
-				assertFalse(rmap.remove(key2_1, null));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				assertFalse(bmap.removeIfValue(key4_1, 1));
+				assertFalse(bmap.remove(key4_1, 1));
+				assertFalse(bmap.removeIfValue(key2_1, 3));
+				assertFalse(bmap.remove(key2_1, null));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertTrue(rmap.removeIfValue(key3_2, null));
-				assertTrue(rmap.removeIfValue(null, 4));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2));
+				assertTrue(bmap.removeIfValue(key3_2, null));
+				assertTrue(bmap.removeIfValue(null, 4));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2));
 				
-				assertTrue(rmap.removeIfValue(key1_1, 1));
-				assertTrue(rmap.remove(key2_1, 2));
-				compareRMapNonDestructively(rmap, initialState, mapOf());
+				assertTrue(bmap.removeIfValue(key1_1, 1));
+				assertTrue(bmap.remove(key2_1, 2));
+				compareRMapNonDestructively(bmap, initialState, mapOf());
 			}
 			
 			{
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
 				
-				assertNull(rmap.replace(key4_1, 45));
-				assertEquals(rmap.replace(key2_2, 22), (Integer)2);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, null, null, 4));
+				assertNull(bmap.replace(key4_1, 45));
+				assertEquals(bmap.replace(key2_2, 22), (Integer)2);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, null, null, 4));
 				
-				assertEquals(rmap.replace(null, 44), (Integer)4);
-				assertEquals(rmap.replace(key3_1, 33), null);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33, null, 44));
+				assertEquals(bmap.replace(null, 44), (Integer)4);
+				assertEquals(bmap.replace(key3_1, 33), null);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33, null, 44));
 				
-				assertEquals(rmap.removeAndGet(null), (Integer)44);
-				assertNull(rmap.replace(null, 44));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33));
+				assertEquals(bmap.removeAndGet(null), (Integer)44);
+				assertNull(bmap.replace(null, 44));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33));
 			}
 			
 			{
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertFalse(rmap.replace(key4_1, 45, 45));
-				assertTrue(rmap.replace(key2_2, 2, 22));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, null, null, 4));
+				assertFalse(bmap.replace(key4_1, 45, 45));
+				assertTrue(bmap.replace(key2_2, 2, 22));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, null, null, 4));
 				
-				assertFalse(rmap.replace(null, 5, 7));
-				assertFalse(rmap.replace(key3_2, 8, 9));
-				assertFalse(rmap.replace(key1_1, null, 11));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, null, null, 4));
+				assertFalse(bmap.replace(null, 5, 7));
+				assertFalse(bmap.replace(key3_2, 8, 9));
+				assertFalse(bmap.replace(key1_1, null, 11));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, null, null, 4));
 				
-				assertTrue(rmap.replace(null, 4, 44));
-				assertTrue(rmap.replace(key3_2, null, 33));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33, null, 44));
+				assertTrue(bmap.replace(null, 4, 44));
+				assertTrue(bmap.replace(key3_2, null, 33));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33, null, 44));
 				
-				assertEquals(rmap.removeAndGet(null), (Integer)44);
-				assertFalse(rmap.replace(null, 44, 55));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33));
+				assertEquals(bmap.removeAndGet(null), (Integer)44);
+				assertFalse(bmap.replace(null, 44, 55));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 22, key3_2, 33));
 			}
 			
 			{
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertEquals(rmap.computeIfAbsent(key1_1, k -> 34), (Integer)1);
-				assertNull(rmap.computeIfAbsent(key4_1, k -> null));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				assertEquals(bmap.computeIfAbsent(key1_1, k -> 34), (Integer)1);
+				assertNull(bmap.computeIfAbsent(key4_1, k -> null));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertEquals(rmap.computeIfAbsent(key4_1, k -> k.equals(key4_1) ? 44 : 88), (Integer)44);
-				assertEquals(rmap.computeIfAbsent(null, k -> 55), (Integer)4);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4, key4_1, 44));
+				assertEquals(bmap.computeIfAbsent(key4_1, k -> k.equals(key4_1) ? 44 : 88), (Integer)44);
+				assertEquals(bmap.computeIfAbsent(null, k -> 55), (Integer)4);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4, key4_1, 44));
 				
-				assertEquals(rmap.removeAndGet(null), (Integer)4);
-				assertNull(rmap.computeIfAbsent(null, k -> null));
-				assertFalse(rmap.hasKey(null));
-				assertEquals(rmap.computeIfAbsent(null, k -> 77), (Integer)77);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 77, key4_1, 44));
+				assertEquals(bmap.removeAndGet(null), (Integer)4);
+				assertNull(bmap.computeIfAbsent(null, k -> null));
+				assertFalse(bmap.hasKey(null));
+				assertEquals(bmap.computeIfAbsent(null, k -> 77), (Integer)77);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 77, key4_1, 44));
 				
-				rmap.clear();
-				assertNull(rmap.computeIfAbsent(null, k -> null));
-				assertFalse(rmap.hasKey(null));
-				assertEquals(rmap.size(), 0);
-				assertEquals(rmap.computeIfAbsent(null, k -> 55), (Integer)55);
-				compareRMapNonDestructively(rmap, null, mapOf(null, 55));
+				bmap.clear();
+				assertNull(bmap.computeIfAbsent(null, k -> null));
+				assertFalse(bmap.hasKey(null));
+				assertEquals(bmap.size(), 0);
+				assertEquals(bmap.computeIfAbsent(null, k -> 55), (Integer)55);
+				compareRMapNonDestructively(bmap, null, mapOf(null, 55));
 			}
 			
 			{
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertNull(rmap.computeIfPresent(key4_1, (k,v) -> 123));
-				assertNull(rmap.computeIfPresent(key3_2, (k,v) -> 123));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				assertNull(bmap.computeIfPresent(key4_1, (k,v) -> 123));
+				assertNull(bmap.computeIfPresent(key3_2, (k,v) -> 123));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertEquals(rmap.computeIfPresent(key2_1, (k,v) -> v * 11), (Integer)22);
-				assertEquals(rmap.computeIfPresent(null, (k,v) -> 777), (Integer)777);
-				assertEquals(rmap.computeIfPresent(key3_2, (k,v) -> null), null); // does nothing!
-				assertEquals(rmap.computeIfPresent(key1_1, (k,v) -> k.equals(key1_1) ? null : 765), null); // removes
-				compareRMapNonDestructively(rmap, initialState, mapOf(key2_1, 22, null, 777, key3_2, null));
+				assertEquals(bmap.computeIfPresent(key2_1, (k,v) -> v * 11), (Integer)22);
+				assertEquals(bmap.computeIfPresent(null, (k,v) -> 777), (Integer)777);
+				assertEquals(bmap.computeIfPresent(key3_2, (k,v) -> null), null); // does nothing!
+				assertEquals(bmap.computeIfPresent(key1_1, (k,v) -> k.equals(key1_1) ? null : 765), null); // removes
+				compareRMapNonDestructively(bmap, initialState, mapOf(key2_1, 22, null, 777, key3_2, null));
 				
-				assertEquals(rmap.removeAndGet(null), (Integer)777);
-				assertEquals(rmap.computeIfPresent(null, (k,v) -> 777), null);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key2_1, 22, key3_2, null));
+				assertEquals(bmap.removeAndGet(null), (Integer)777);
+				assertEquals(bmap.computeIfPresent(null, (k,v) -> 777), null);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key2_1, 22, key3_2, null));
 				
-				rmap.clear();
-				assertNull(rmap.computeIfPresent(null, (k,v) -> 123));
-				assertFalse(rmap.hasKey(null));
-				assertEquals(rmap.size(), 0);
-				compareRMapNonDestructively(rmap, null, mapOf());
+				bmap.clear();
+				assertNull(bmap.computeIfPresent(null, (k,v) -> 123));
+				assertFalse(bmap.hasKey(null));
+				assertEquals(bmap.size(), 0);
+				compareRMapNonDestructively(bmap, null, mapOf());
 			}
 			
 			
 			{
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				assertEquals(rmap.compute(key4_1, (k,v) -> k.equals(key4_1) ? (v == null ? 44 : 55) : null), (Integer)44);
-				assertEquals(rmap.compute(key3_2, (k,v) -> k.equals(key3_2) ? (v == null ? 33 : 55) : null), (Integer)33);
-				assertEquals(rmap.compute(null, (k,v) -> k == null ? nn(v) * 22 : 3333), (Integer)88);
-				assertEquals(rmap.compute(key2_1, (k,v) -> null), null);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key3_2, 33, null, 88, key4_1, 44));
+				assertEquals(bmap.compute(key4_1, (k,v) -> k.equals(key4_1) ? (v == null ? 44 : 55) : null), (Integer)44);
+				assertEquals(bmap.compute(key3_2, (k,v) -> k.equals(key3_2) ? (v == null ? 33 : 55) : null), (Integer)33);
+				assertEquals(bmap.compute(null, (k,v) -> k == null ? nn(v) * 22 : 3333), (Integer)88);
+				assertEquals(bmap.compute(key2_1, (k,v) -> null), null);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key3_2, 33, null, 88, key4_1, 44));
 				
-				rmap.clear();
-				assertEquals(rmap.compute(null, (k,v) -> 123), (Integer)123);
-				assertTrue(rmap.hasKey(null));
-				assertEquals(rmap.size(), 1);
-				compareRMapNonDestructively(rmap, null, mapOf(null, 123));
+				bmap.clear();
+				assertEquals(bmap.compute(null, (k,v) -> 123), (Integer)123);
+				assertTrue(bmap.hasKey(null));
+				assertEquals(bmap.size(), 1);
+				compareRMapNonDestructively(bmap, null, mapOf(null, 123));
+			}
+
+			
+			{
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				
+				assertFailsWithSubstring(() -> bmap.merge(key4_1, fakeNonNull(), (v1, v2) -> 123), "NullPointerException");
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				assertNull(bmap.put(key4_1, null));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4, key4_1, null));
+				
+				assertEquals(bmap.merge(key2_1, 55, (v1, v2) -> v1 == 2 ? null : v2), null);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key3_2, null, null, 4, key4_1, null));
+				
+				assertEquals(bmap.merge(null, 55, (v1, v2) -> v1 * v2), (Integer)220);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key3_2, null, null, 220, key4_1, null));
+				
+				assertEquals(bmap.merge(key4_1, 1024, (v1, v2) -> {throw new AssertionException();}), (Integer)1024);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key3_2, null, null, 220, key4_1, 1024));
+				
+				bmap.clear();
+				assertEquals(bmap.merge(null, 7, (v1, v2) -> 123), (Integer)7);
+				assertTrue(bmap.hasKey(null));
+				assertEquals(bmap.size(), 1);
+				assertEquals(bmap.merge(null, 7, (v1, v2) -> v1 * v2), (Integer)49);
+				compareRMapNonDestructively(bmap, null, mapOf(null, 49));
 			}
 			
 			{
 				// Check clone decouple
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				RHashMap<TKeyWithValue, Integer> rmap2 = rmap.clone();
-				compareRMapNonDestructively(rmap2, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				SerializableBMap<TKeyWithValue, Integer> bmap2 = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap2, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
-				rmap2.putWithNewKey(key4_1, 444);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
-				compareRMapNonDestructively(rmap2, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4, key4_1, 444));
+				bmap2.put(key4_1, 444);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				compareRMapNonDestructively(bmap2, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4, key4_1, 444));
 				
-				rmap2.clear();
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
-				compareRMapNonDestructively(rmap2, null, mapOf());
+				bmap2.clear();
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				compareRMapNonDestructively(bmap2, null, mapOf());
 			}
 			
 			{
 				// Check entry set manipulation (removal)
-				RHashMap<TKeyWithValue, Integer> rmap = new RHashMap<>(map);
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				SerializableBMap<TKeyWithValue, Integer> bmap = cloneViaSerialization(map);
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
 				final Map.Entry<TKeyWithValue, Integer> nonExistingEntry =
 					new RHashMap.Entry<TKeyWithValue, Integer>(key4_1, null);
-				assertFalse(rmap.entrySet().remove(nonExistingEntry));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
+				assertFalse(bmap.entrySet().remove(nonExistingEntry));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key1_1, 1, key2_1, 2, key3_2, null, null, 4));
 				
 				{
 					List<@Nonnull Entry<TKeyWithValue, Integer>> entries = 
-						rmap.entrySet().stream().filter(e -> key1_1.equals(nn(e.getKey()))).collect(Collectors.toList());
+						bmap.entrySet().stream().filter(e -> key1_1.equals(nn(e.getKey()))).collect(Collectors.toList());
 					assertEquals(entries.size(), 1, "" + entries);
 					
 					Entry<TKeyWithValue, Integer> entry = entries.get(0);
-					assertTrue(rmap.entrySet().remove(entry));
-					compareRMapNonDestructively(rmap, initialState, mapOf(key2_1, 2, key3_2, null, null, 4));
+					assertTrue(bmap.entrySet().remove(entry));
+					compareRMapNonDestructively(bmap, initialState, mapOf(key2_1, 2, key3_2, null, null, 4));
 				}
 				
-				assertFalse(rmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key2_1, null)));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key2_1, 2, key3_2, null, null, 4));
-				assertTrue(rmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key2_1, 2)));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key3_2, null, null, 4));
+				assertFalse(bmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key2_1, null)));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key2_1, 2, key3_2, null, null, 4));
+				assertTrue(bmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key2_1, 2)));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key3_2, null, null, 4));
 				
-				assertFalse(rmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key3_2, 123)));
-				compareRMapNonDestructively(rmap, initialState, mapOf(key3_2, null, null, 4));
-				assertTrue(rmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key3_2, null)));
-				compareRMapNonDestructively(rmap, initialState, mapOf(null, 4));
+				assertFalse(bmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key3_2, 123)));
+				compareRMapNonDestructively(bmap, initialState, mapOf(key3_2, null, null, 4));
+				assertTrue(bmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(key3_2, null)));
+				compareRMapNonDestructively(bmap, initialState, mapOf(null, 4));
 				
-				assertFalse(rmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(null, null)));
-				compareRMapNonDestructively(rmap, initialState, mapOf(null, 4));
-				assertFalse(rmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(null, 123)));
-				compareRMapNonDestructively(rmap, initialState, mapOf(null, 4));
-				assertTrue(rmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(null, 4)));
-				compareRMapNonDestructively(rmap, initialState, mapOf());
+				assertFalse(bmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(null, null)));
+				compareRMapNonDestructively(bmap, initialState, mapOf(null, 4));
+				assertFalse(bmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(null, 123)));
+				compareRMapNonDestructively(bmap, initialState, mapOf(null, 4));
+				assertTrue(bmap.entrySet().remove(new RHashMap.Entry<TKeyWithValue, Integer>(null, 4)));
+				compareRMapNonDestructively(bmap, initialState, mapOf());
 			}
 		}
 	}
 	
 	/**
-	 * Checks that the given {@link RHashMap} is fully the same as initial state +
+	 * Checks that the given {@link SerializableBMap} is fully the same as initial state +
 	 * expected changes map (this check is non-destructive).
 	 */
 	@NonNullByDefault({})
-	private static <K, V> void compareRMapNonDestructively(@Nonnull RHashMap<K, V> srcMap, 
+	private static <K, V> void compareRMapNonDestructively(@Nonnull SerializableBMap<K, V> srcMap, 
 		@Nullable Map<K, V> initialState, @Nonnull Map<K, V> srcExpectedChanges)
 	{
 		Map<K, V> mergedMap;
@@ -542,11 +665,11 @@ public class ExtraRHashMapTest
 	}
 	
 	/**
-	 * Checks that the given {@link RHashMap} is fully the same as expected map
+	 * Checks that the given {@link SerializableBMap} is fully the same as expected map
 	 * (this check is non-destructive).
 	 */
 	@SuppressWarnings({"deprecation", "unlikely-arg-type"})
-	private static <K, V> void compareRMapNonDestructively(RHashMap<K, V> srcMap, Map<K, V> srcExpected)
+	private static <K, V> void compareRMapNonDestructively(SerializableBMap<K, V> srcMap, Map<K, V> srcExpected)
 	{
 		final boolean expectedNullKey;
 		final boolean expectedNullValue;
@@ -561,7 +684,7 @@ public class ExtraRHashMapTest
 		
 		{
 			// Non-destructive tests of argument map.
-			RHashMap<K, V> actual = srcMap;
+			SerializableBMap<K, V> actual = srcMap;
 			
 			{
 				Map<K, V> expected = srcExpected;
@@ -605,18 +728,9 @@ public class ExtraRHashMapTest
 					
 					assertNull(actual.get(nonEqualObject()));
 					assertNull(actual.getValue(nonEqualObject()));
-					assertNull(actual.getKey(nonEqualObject()));
-					assertNull(actual.getEntry(nonEqualObject()));
-					assertNull(actual.getLiveEntry(nonEqualObject()));
 					
 					assertEquals(actual.get(key), value);
 					assertEquals(actual.getValue(key), value);
-					assertKeyEquals(actual.getKey(key), key);
-					
-					assertKeyEquals(nn(actual.getEntry(key)).getKey(), key);
-					assertEquals(nn(actual.getEntry(key)).getValue(), value);
-					assertKeyEquals(nn(actual.getLiveEntry(key)).getKey(), key);
-					assertEquals(nn(actual.getLiveEntry(key)).getValue(), value);
 					
 					assertEquals(actual.getOrDefault(key, defaultObject()), value);
 					assertEquals(actual.getOrFallback(key, defaultObject()), value);
@@ -652,7 +766,7 @@ public class ExtraRHashMapTest
 				// Check via iterators w/ removal
 				for (int i = 0; i < 2; i++)
 				{
-					RHashMap<K, V> map = actual.clone();
+					SerializableBMap<K, V> map = cloneViaSerialization(actual);
 					Iterator<ReadOnlyEntry<K, V>> fIter = i == 0 ? map.iterator() : map.entries().iterator();
 					
 					HashMap<K, V> expected = new HashMap<>(srcExpected);
@@ -676,7 +790,7 @@ public class ExtraRHashMapTest
 			
 			{
 				// Hack a test for ForIterable.of(..) here as well
-				RHashMap<K, V> map = actual.clone();
+				SerializableBMap<K, V> map = cloneViaSerialization(actual);
 				ForIterable<Entry<K, V>> fi = ForIterable.of(map.entrySet());
 				{
 					Iterator<Entry<K, V>> iter = fi.iterator();
@@ -727,11 +841,11 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check via live entries
-			for (Function<RHashMap<K, V>, Iterator<Entry<K, V>>> factory : buildMapAccessors(
-				(RHashMap<K, V> m) -> m.liveEntries(), 
-				(RHashMap<K, V> m) -> m.entrySet().iterator()))
+			for (Function<SerializableBMap<K, V>, Iterator<Entry<K, V>>> factory : buildMapAccessors(
+				(SerializableBMap<K, V> m) -> m.liveEntries(), 
+				(SerializableBMap<K, V> m) -> m.entrySet().iterator()))
 			{
-				RHashMap<K, V> actual = new RHashMap<>(srcMap);
+				SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 				HashMap<K, V> expected = new HashMap<>(srcExpected);
 				
 				Iterator<Entry<K, V>> iter = factory.apply(actual);
@@ -764,12 +878,12 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check via live keys
-			for (Function<RHashMap<K, V>, Iterator<K>> factory : buildMapAccessors(
-				(RHashMap<K, V> m) -> m.liveKeys(), 
-				(RHashMap<K, V> m) -> m.keySet().iterator()
+			for (Function<SerializableBMap<K, V>, Iterator<K>> factory : buildMapAccessors(
+				(SerializableBMap<K, V> m) -> m.liveKeys(), 
+				(SerializableBMap<K, V> m) -> m.keySet().iterator()
 			))
 			{
-				RHashMap<K, V> actual = srcMap.clone();
+				SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 				HashMap<K, V> expected = new HashMap<>(srcExpected);
 				
 				Iterator<K> iter = factory.apply(actual);
@@ -798,12 +912,12 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check via live values
-			for (Function<RHashMap<K, V>, Iterator<V>> factory : buildMapAccessors(
-				(RHashMap<K, V> m) -> m.liveVals(), 
-				(RHashMap<K, V> m) -> m.values().iterator()
+			for (Function<SerializableBMap<K, V>, Iterator<V>> factory : buildMapAccessors(
+				(SerializableBMap<K, V> m) -> m.liveVals(), 
+				(SerializableBMap<K, V> m) -> m.values().iterator()
 			))
 			{
-				RHashMap<K, V> actual = cloneViaSerialization(srcMap);
+				SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 				HashMap<K, V> expected = new HashMap<>(srcExpected);
 				
 				Iterator<V> iter = factory.apply(actual);
@@ -826,7 +940,7 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check via EntrySet
-			RHashMap<K, V> actual = new RHashMap<>(srcMap);
+			SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 			HashMap<K, V> expected = new HashMap<>(srcExpected);
 			
 			Set<Entry<K, V>> aSet = actual.entrySet();
@@ -835,7 +949,7 @@ public class ExtraRHashMapTest
 			for (Entry<K, V> entry : expected.entrySet())
 				assertTrue(aSet.contains(entry));
 
-			actual = srcMap.clone();
+			actual = cloneViaSerialization(srcMap);
 			
 			for (Entry<K, V> entry : expected.entrySet())
 			{
@@ -848,7 +962,7 @@ public class ExtraRHashMapTest
 			}
 			
 			{
-				final RHashMap<K, V> map = actual;
+				final SerializableBMap<K, V> map = actual;
 				assertFalse(map.entrySet().remove(nonEqualObject()));
 			}
 			
@@ -859,7 +973,7 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check via KeySet
-			RHashMap<K, V> actual = srcMap.clone();
+			SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 			HashMap<K, V> expected = new HashMap<>(srcExpected);
 			
 			Set<K> aSet = actual.keySet();
@@ -873,7 +987,7 @@ public class ExtraRHashMapTest
 			
 			assertEquals(actual.size(), 0);
 
-			actual = srcMap.clone();
+			actual = cloneViaSerialization(srcMap);
 			
 			assertFalse(actual.keySet().remove(nonEqualObject()));
 			
@@ -884,7 +998,7 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check via values()
-			RHashMap<K, V> actual = cloneViaSerialization(srcMap);
+			SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 			HashMap<K, V> expected = new HashMap<>(srcExpected);
 			
 			Collection<V> values = actual.values();
@@ -893,7 +1007,7 @@ public class ExtraRHashMapTest
 			for (V value : expected.values())
 				assertTrue(values.contains(value));
 			
-			actual = srcMap.clone();
+			actual = cloneViaSerialization(srcMap);
 			
 			assertEquals(actual.size(), expected.size());
 			actual.values().clear();
@@ -902,7 +1016,7 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check remove
-			RHashMap<K, V> actual = cloneViaSerialization(srcMap);
+			SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 			HashMap<K, V> expected = new HashMap<>(srcExpected);
 			
 			assertNull(actual.remove(nonEqualObject()));
@@ -913,7 +1027,7 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check removeAndGet
-			RHashMap<K, V> actual = srcMap.clone();
+			SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 			HashMap<K, V> expected = new HashMap<>(srcExpected);
 
 			assertNull(actual.removeAndGet(nonEqualObject()));
@@ -924,12 +1038,18 @@ public class ExtraRHashMapTest
 		
 		{
 			// Check clear
-			RHashMap<K, V> actual = new RHashMap<>(srcMap);
+			SerializableBMap<K, V> actual = cloneViaSerialization(srcMap);
 
 			actual.clear();
 			
 			assertEquals(actual.size(), 0);
 		}
+		
+		// Final check using standard hashCode/Equals
+//		System.out.println("" + srcMap.getClass() + ": " + srcMap);{}
+		assertTrue(srcMap.equals(srcExpected), "" + srcMap + " : " + srcExpected);
+		assertTrue(srcExpected.equals(srcMap), "" + srcMap + " : " + srcExpected);
+		assertEquals(srcMap.hashCode(), srcExpected.hashCode(), "" + srcMap + " : " + srcExpected);
 	}
 	
 	/**
@@ -962,8 +1082,8 @@ public class ExtraRHashMapTest
 	 * Builds an iterable of map accessors.
 	 */
 	@SafeVarargs
-	private static <T, K, V> Iterable<Function<RHashMap<K, V>, T>> buildMapAccessors(
-		Function<RHashMap<K, V>, T>... funcs)
+	private static <T, K, V> Iterable<Function<SerializableBMap<K, V>, T>> buildMapAccessors(
+		Function<SerializableBMap<K, V>, T>... funcs)
 	{
 		return Arrays.asList(funcs);
 	}
@@ -987,9 +1107,6 @@ public class ExtraRHashMapTest
 		throw new IllegalStateException("no value " + value + " in: " + map);
 	}
 	
-	/**
-	 * Clones given serializable object via serialization-deserialization pair.
-	 */
 	private static <O extends Serializable> O cloneViaSerialization(O src)
 	{
 		try
