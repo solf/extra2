@@ -73,6 +73,10 @@ public class RRLConfig extends BaseDelegatingOptions
 	 */
 	@Getter
 	private final List<Long> delayQueues = getRawOptions().getTimeIntervalList("delayQueues", OptionConstraint.NON_EMPTY_COLLECTION, OptionConstraint.POSITIVE);
+	
+	/** Default: 1s; Grace period that allows a 'too long' delay queue to still be used (this accounts for processing delays when delay queue duration is equal to intended delay after an attempt) */
+	@Getter
+	private final long delayQueueTooLongGracePeriod = getRawOptions().getTimeInterval("delayQueueTooLongGracePeriod", "1s");
 
 	
 	/** Rate limiter's bucket size [starts empty] (maximum number of available tokens that can be stored); setting this to zero disables rate limiter -- requests are sent for execution asap */

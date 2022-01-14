@@ -1164,7 +1164,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		RRLDelayQueueData queue = delayQueues.get(0); // always has at least one item
 		for (RRLDelayQueueData dq : delayQueues)
 		{
-			if (dq.getDelayMs() > delayFor)
+			// insert some grace here so that when e.g. intended delay after
+			// failure is exactly equal to delay queue size, the processing
+			// delays won't cause it to 'fall down' to the shorter queue
+			if (dq.getDelayMs() > (delayFor + config.getDelayQueueTooLongGracePeriod()))
 				break; // this queue is too long, use previous one
 			
 			queue = dq; // this queue is a candidate
