@@ -100,7 +100,8 @@ public class RRLStatus
 	
 	
 	/**
-	 * Count of the requests currently being processed.
+	 * Count of the requests currently being processed (those are the requests
+	 * that have been submitted to the service and haven't completed yet).
 	 */
 	@Getter
 	private final int currentProcessingRequestsCount;
