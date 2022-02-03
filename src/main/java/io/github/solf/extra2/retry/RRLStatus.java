@@ -40,31 +40,23 @@ public class RRLStatus
 	private final long statusCreatedAt;
 	
 	/**
-	 * Whether service is alive (that is it was started and not stopped yet). 
+	 * Whether service is accepting requests (submit operations can be performed). 
 	 */
 	@Getter
-	private final boolean serviceAlive;
+	private final boolean acceptingRequests;
+
+	/**
+	 * Current service control state as object with detailed configuration, see
+	 * {@link RRLControlState}
+	 */
+	@Getter
+	private final RRLControlState serviceControlState;
 	
 	/**
-	 * Whether service is usable -- that is standard submit operations
-	 * can be performed; this can differ from {@link #isServiceAlive()} value 
-	 * for various reasons such as service shutdown in progress. 
+	 * Current service control state description -- NOT_STARTED, RUNNING, SHUTDOWN...
 	 */
 	@Getter
-	private final boolean serviceUsable;
-
-	// zzz add this
-//	/**
-//	 * Current cache control state as enum -- NOT_STARTED, RUNNING, SHUTDOWN...
-//	 */
-//	@Getter
-//	private final WBRBCacheControlState cacheControlState;
-//	
-//	/**
-//	 * Current cache control state as String (from WBRBCacheControlState) -- NOT_STARTED, RUNNING, SHUTDOWN...
-//	 */
-//	@Getter
-//	private final String cacheControlStateString;
+	private final String serviceControlStateDescription;
 	
 	/**
 	 * Whether thread is alive.
@@ -113,6 +105,11 @@ public class RRLStatus
 	private final int mainQueueSize;
 
 	
+	/**
+	 * An estimation of the number of tickets currently available in {@link RRLRateLimiter}.
+	 */
+	@Getter
+	private final long estimatedAvailableRateLimiterTickets;
 	
 	
 	/**
@@ -140,10 +137,8 @@ public class RRLStatus
 	@Getter
 	private final long configRequestEarlyProcessingGracePeriod;
 	
-	//zzz add rate limiter stuff
-	
 
-	//zzz consider adding counters for events or just rely on listener for that?
+	//TO-DO consider adding counters for events or just rely on listener for that?
 	
-	//zzz consider adding counts for e.g. assertion errors?
+	//TO-DO consider adding counts for e.g. assertion errors?
 }

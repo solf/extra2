@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.retry;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -30,34 +31,40 @@ import io.github.solf.extra2.exception.AssertionException;
 
 /**
  * Futures returned by {@link RetryAndRateLimitService}
- * 
- * zzz possibly/likely shouldn't extend Future at all as it is not fully
- * compatible
  *
  * @author Sergey Olefir
  */
 @NonNullByDefault
-public interface RRLFuture<Input, Output> extends Future<Output>
+public interface RRLFuture<Input, Output>
 {
 	/**
 	 * Returns true if this future completed successfully.
 	 */
 	boolean isSuccessful();
+
+    /**
+     * Returns {@code true} if this task was cancelled before it completed
+     * normally.
+     *
+     * @return {@code true} if this task was cancelled before it completed
+     */
+    boolean isCancelled();
+
+    /**
+     * Returns {@code true} if this task completed.
+     *
+     * Completion may be due to normal termination, an exception, or
+     * cancellation -- in all of these cases, this method will return
+     * {@code true}.
+     *
+     * @return {@code true} if this task completed
+     */
+    boolean isDone();
 	
 	/**
 	 * Gets the request/task that this future is for.
 	 */
 	Input getTask();
-	
-	/**
-	 * This future doesn't support proper semantics of cancel method, therefore
-	 * it is recommended to use {@link #requestCancellation()} for clarity.
-	 * 
-	 * @deprecated use {@link #requestCancellation()} instead
-	 */
-	@Deprecated
-	@Override
-	boolean cancel(boolean mayInterruptIfRunning);
 	
 	
 	/**
@@ -66,20 +73,16 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * <p>
 	 * Check {@link #isCancelled()} to determine if processing was cancelled
 	 * (eventually, it is unlikely to happen immediately).
-	 * 
-	 * @return false if the cancellation request couldn't be carried out (e.g.
-	 * 		if it was already done previously or task has been completed);
-	 * 		true if an attempt to request cancel succeeded (but no guarantee
-	 * 		that it will actually cancel)
 	 */
-	boolean requestCancellation();
+	void requestCancellation();
 
 	/**
 	 * A version of {@link Future#get(long, TimeUnit)} that replaces {@link ExecutionException}
 	 * with {@link ExecutionRuntimeException} and adds some more relevant
 	 * exceptions that help to debug the cause.
 	 * <p>
-	 * {@inheritDoc}
+     * Waits if necessary for at most the given time for the computation
+     * to complete, and then retrieves its result, if available.
 	 * 
 	 * @throws ExecutionInterruptedRuntimeException if the underlying request
 	 * 		processing was interrupted
@@ -90,16 +93,19 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
+	 * @throws CancellationException if the underlying request processing was
+	 * 		cancelled (see {@link #requestCancellation()})
+	 * @throws TimeoutException if timed out waiting for the result (request is
+	 * 		still processing by the time wait has expired)
+	 * @throws InterruptedException invoking thread was interrupted while waiting 
+	 * 		for the result
 	 */
-	@Override
 	Output get(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException,
-		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException;
+		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException, CancellationException;
 	
 	/**
 	 * A version of {@link #get(long, TimeUnit)} where time limit is always specified in milliseconds
 	 * 
-	 * @throws InterruptedException if the current thread was interrupted while waiting
-	 * @throws TimeoutException if the wait timed out
 	 * @throws ExecutionInterruptedRuntimeException if the underlying request
 	 * 		processing was interrupted
 	 * @throws RRLTimeoutException if the underlying request has timed out
@@ -109,10 +115,15 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
+	 * @throws CancellationException if the underlying request processing was
+	 * 		cancelled (see {@link #requestCancellation()})
+	 * @throws TimeoutException if timed out waiting for the result (request is
+	 * 		still processing by the time wait has expired)
+	 * @throws InterruptedException invoking thread was interrupted while waiting 
+	 * 		for the result
 	 */
-	@Nullable
 	default Output get(long timeoutMs) throws InterruptedException, TimeoutException,
-		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException
+		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException, CancellationException
 	{
 		return get(timeoutMs, TimeUnit.MILLISECONDS);
 	}
@@ -122,7 +133,8 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * with {@link ExecutionRuntimeException} and adds some more relevant
 	 * exceptions that help to debug the cause.
 	 * <p>
-	 * {@inheritDoc}
+     * Waits if necessary for the computation to complete, and then
+     * retrieves its result.
 	 * 
 	 * @throws ExecutionInterruptedRuntimeException if the underlying request
 	 * 		processing was interrupted
@@ -133,10 +145,14 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
+	 * @throws CancellationException if the underlying request processing was
+	 * 		cancelled (see {@link #requestCancellation()})
+	 * @throws InterruptedException invoking thread was interrupted while waiting 
+	 * 		for the result
 	 */
-	@Override
 	default Output get()
-		 throws InterruptedException, ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException
+		 throws InterruptedException, ExecutionInterruptedRuntimeException, 
+		 	RRLTimeoutException, ExecutionRuntimeException, CancellationException
 	{
 		try
 		{
@@ -152,7 +168,6 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * instead null is returned if data cannot be retrieved in the given time
 	 * window.
 	 * 
-	 * @throws InterruptedException if the current thread was interrupted while waiting
 	 * @throws ExecutionInterruptedRuntimeException if the underlying request
 	 * 		processing was interrupted
 	 * @throws RRLTimeoutException if the underlying request has timed out
@@ -162,10 +177,14 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
+	 * @throws CancellationException if the underlying request processing was
+	 * 		cancelled (see {@link #requestCancellation()})
+	 * @throws InterruptedException invoking thread was interrupted while waiting 
+	 * 		for the result
 	 */
 	@Nullable
 	default Output getOrNull(long timeout, TimeUnit unit) throws InterruptedException, 
-		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException
+		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException, CancellationException
 	{
 		try
 		{
@@ -181,7 +200,6 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * instead null is returned if data cannot be retrieved in the given time
 	 * window AND time limit is always specified in milliseconds
 	 * 
-	 * @throws InterruptedException if the current thread was interrupted while waiting
 	 * @throws ExecutionInterruptedRuntimeException if the underlying request
 	 * 		processing was interrupted
 	 * @throws RRLTimeoutException if the underlying request has timed out
@@ -191,10 +209,14 @@ public interface RRLFuture<Input, Output> extends Future<Output>
 	 * 		original exception can be retrieved via {@link ExecutionRuntimeException#getCause()};
 	 * 		the exception is wrapped in order to add the get(..) caller's stack trace,
 	 * 		otherwise it will be very difficult to trace
+	 * @throws CancellationException if the underlying request processing was
+	 * 		cancelled (see {@link #requestCancellation()})
+	 * @throws InterruptedException invoking thread was interrupted while waiting 
+	 * 		for the result
 	 */
 	@Nullable
 	default Output getOrNull(long timeoutMs) throws InterruptedException, 
-		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException
+		ExecutionInterruptedRuntimeException, RRLTimeoutException, ExecutionRuntimeException, CancellationException
 	{
 		try
 		{

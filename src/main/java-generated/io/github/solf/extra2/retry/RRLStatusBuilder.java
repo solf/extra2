@@ -38,7 +38,7 @@ public class RRLStatusBuilder {
         public RRLStatus buildRRLStatus();
     }
 
-    public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg14 {
+    public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg16 {
 
         /**
          * (Configuration) Grace period that allows requests to be processed this much earlier than intended.
@@ -46,103 +46,119 @@ public class RRLStatusBuilder {
         public ZBSI_RRLStatusBuilder_statusCreatedAt_builder configRequestEarlyProcessingGracePeriod(long configRequestEarlyProcessingGracePeriod);
     }
 
-    public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg13 {
+    public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg15 {
 
         /**
          * (Configuration) The maximum number of pending/in-flight requests that the service is allowed to handle.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg14 configMaxPendingRequests(int configMaxPendingRequests);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg16 configMaxPendingRequests(int configMaxPendingRequests);
+    }
+
+    public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg14 {
+
+        /**
+         * (Configuration) A list of delays applied after each subsequent failure in order.
+         */
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg15 configDelaysAfterFailure(List<Long> configDelaysAfterFailure);
+    }
+
+    public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg13 {
+
+        /**
+         * (Configuration) max attempts per request.
+         */
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg14 configMaxAttempts(int configMaxAttempts);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg12 {
 
         /**
-         * (Configuration) A list of delays applied after each subsequent failure in order.
+         * An estimation of the number of tickets currently available in {@link RRLRateLimiter}.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg13 configDelaysAfterFailure(List<Long> configDelaysAfterFailure);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg13 estimatedAvailableRateLimiterTickets(long estimatedAvailableRateLimiterTickets);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg11 {
 
         /**
-         * (Configuration) max attempts per request.
+         * Main processing queue size.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg12 configMaxAttempts(int configMaxAttempts);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg12 mainQueueSize(int mainQueueSize);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg10 {
 
         /**
-         * Main processing queue size.
+         * Count of the requests currently being processed (those are the requests
+         * that have been submitted to the service and haven't completed yet).
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg11 mainQueueSize(int mainQueueSize);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg11 currentProcessingRequestsCount(int currentProcessingRequestsCount);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg9 {
 
         /**
-         * Count of the requests currently being processed.
+         * Whether service itself AND all the threads & thread pools required for the
+         * service operation are still alive.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg10 currentProcessingRequestsCount(int currentProcessingRequestsCount);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg10 everythingAlive(boolean everythingAlive);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg8 {
 
         /**
-         * Whether service itself AND all the threads & thread pools required for the
-         * service operation are still alive.
+         * Number of currently active threads in the pool.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg9 everythingAlive(boolean everythingAlive);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg9 requestsExecutorServiceActiveThreads(int requestsExecutorServiceActiveThreads);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg7 {
 
         /**
-         * Number of currently active threads in the pool.
+         * Whether requests executor service is alive.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg8 requestsExecutorServiceActiveThreads(int requestsExecutorServiceActiveThreads);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg8 requestsExecutorServiceAlive(boolean requestsExecutorServiceAlive);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg6 {
 
         /**
-         * Whether requests executor service is alive.
+         * Whether all delay queue processing threads are alive.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg7 requestsExecutorServiceAlive(boolean requestsExecutorServiceAlive);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg7 delayQueueProcessingThreadsAreAlive(boolean delayQueueProcessingThreadsAreAlive);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg5 {
 
         /**
-         * Whether all delay queue processing threads are alive.
+         * Whether thread is alive.
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg6 delayQueueProcessingThreadsAreAlive(boolean delayQueueProcessingThreadsAreAlive);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg6 mainQueueProcessingThreadAlive(boolean mainQueueProcessingThreadAlive);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg4 {
 
         /**
-         * Whether thread is alive.
+         * Current service control state description -- NOT_STARTED, RUNNING, SHUTDOWN...
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg5 mainQueueProcessingThreadAlive(boolean mainQueueProcessingThreadAlive);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg5 serviceControlStateDescription(String serviceControlStateDescription);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg3 {
 
         /**
-         * Whether service is usable -- that is standard submit operations
-         * can be performed; this can differ from {@link #isServiceAlive()} value
-         * for various reasons such as service shutdown in progress.
+         * Current service control state as object with detailed configuration, see
+         * {@link RRLControlState}
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg4 serviceUsable(boolean serviceUsable);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg4 serviceControlState(RRLControlState serviceControlState);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg2 {
 
         /**
-         * Whether service is alive (that is it was started and not stopped yet).
+         * Whether service is accepting requests (submit operations can be performed).
          */
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg3 serviceAlive(boolean serviceAlive);
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg3 acceptingRequests(boolean acceptingRequests);
     }
 
     public interface ZBSI_RRLStatusBuilder_statusCreatedAt_arg1 {
@@ -153,7 +169,7 @@ public class RRLStatusBuilder {
         public ZBSI_RRLStatusBuilder_statusCreatedAt_arg2 statusCreatedAt(long statusCreatedAt);
     }
 
-    private static final class ZBSI_RRLStatusBuilder_statusCreatedAt_builderClass implements ZBSI_RRLStatusBuilder_statusCreatedAt_builder, ZBSI_RRLStatusBuilder_statusCreatedAt_arg14, ZBSI_RRLStatusBuilder_statusCreatedAt_arg13, ZBSI_RRLStatusBuilder_statusCreatedAt_arg12, ZBSI_RRLStatusBuilder_statusCreatedAt_arg11, ZBSI_RRLStatusBuilder_statusCreatedAt_arg10, ZBSI_RRLStatusBuilder_statusCreatedAt_arg9, ZBSI_RRLStatusBuilder_statusCreatedAt_arg8, ZBSI_RRLStatusBuilder_statusCreatedAt_arg7, ZBSI_RRLStatusBuilder_statusCreatedAt_arg6, ZBSI_RRLStatusBuilder_statusCreatedAt_arg5, ZBSI_RRLStatusBuilder_statusCreatedAt_arg4, ZBSI_RRLStatusBuilder_statusCreatedAt_arg3, ZBSI_RRLStatusBuilder_statusCreatedAt_arg2, ZBSI_RRLStatusBuilder_statusCreatedAt_arg1 {
+    private static final class ZBSI_RRLStatusBuilder_statusCreatedAt_builderClass implements ZBSI_RRLStatusBuilder_statusCreatedAt_builder, ZBSI_RRLStatusBuilder_statusCreatedAt_arg16, ZBSI_RRLStatusBuilder_statusCreatedAt_arg15, ZBSI_RRLStatusBuilder_statusCreatedAt_arg14, ZBSI_RRLStatusBuilder_statusCreatedAt_arg13, ZBSI_RRLStatusBuilder_statusCreatedAt_arg12, ZBSI_RRLStatusBuilder_statusCreatedAt_arg11, ZBSI_RRLStatusBuilder_statusCreatedAt_arg10, ZBSI_RRLStatusBuilder_statusCreatedAt_arg9, ZBSI_RRLStatusBuilder_statusCreatedAt_arg8, ZBSI_RRLStatusBuilder_statusCreatedAt_arg7, ZBSI_RRLStatusBuilder_statusCreatedAt_arg6, ZBSI_RRLStatusBuilder_statusCreatedAt_arg5, ZBSI_RRLStatusBuilder_statusCreatedAt_arg4, ZBSI_RRLStatusBuilder_statusCreatedAt_arg3, ZBSI_RRLStatusBuilder_statusCreatedAt_arg2, ZBSI_RRLStatusBuilder_statusCreatedAt_arg1 {
 
         @SuppressWarnings("all")
         private long configRequestEarlyProcessingGracePeriod;
@@ -166,6 +182,9 @@ public class RRLStatusBuilder {
 
         @SuppressWarnings("all")
         private int configMaxAttempts;
+
+        @SuppressWarnings("all")
+        private long estimatedAvailableRateLimiterTickets;
 
         @SuppressWarnings("all")
         private int mainQueueSize;
@@ -189,10 +208,13 @@ public class RRLStatusBuilder {
         private boolean mainQueueProcessingThreadAlive;
 
         @SuppressWarnings("all")
-        private boolean serviceUsable;
+        private String serviceControlStateDescription;
 
         @SuppressWarnings("all")
-        private boolean serviceAlive;
+        private RRLControlState serviceControlState;
+
+        @SuppressWarnings("all")
+        private boolean acceptingRequests;
 
         @SuppressWarnings("all")
         private long statusCreatedAt;
@@ -212,7 +234,7 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg14 configMaxPendingRequests(int configMaxPendingRequests) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg16 configMaxPendingRequests(int configMaxPendingRequests) {
             this.configMaxPendingRequests = configMaxPendingRequests;
             return this;
         }
@@ -222,7 +244,7 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg13 configDelaysAfterFailure(List<Long> configDelaysAfterFailure) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg15 configDelaysAfterFailure(List<Long> configDelaysAfterFailure) {
             this.configDelaysAfterFailure = configDelaysAfterFailure;
             return this;
         }
@@ -232,8 +254,18 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg12 configMaxAttempts(int configMaxAttempts) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg14 configMaxAttempts(int configMaxAttempts) {
             this.configMaxAttempts = configMaxAttempts;
+            return this;
+        }
+
+        /**
+         * An estimation of the number of tickets currently available in {@link RRLRateLimiter}.
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg13 estimatedAvailableRateLimiterTickets(long estimatedAvailableRateLimiterTickets) {
+            this.estimatedAvailableRateLimiterTickets = estimatedAvailableRateLimiterTickets;
             return this;
         }
 
@@ -242,17 +274,18 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg11 mainQueueSize(int mainQueueSize) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg12 mainQueueSize(int mainQueueSize) {
             this.mainQueueSize = mainQueueSize;
             return this;
         }
 
         /**
-         * Count of the requests currently being processed.
+         * Count of the requests currently being processed (those are the requests
+         * that have been submitted to the service and haven't completed yet).
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg10 currentProcessingRequestsCount(int currentProcessingRequestsCount) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg11 currentProcessingRequestsCount(int currentProcessingRequestsCount) {
             this.currentProcessingRequestsCount = currentProcessingRequestsCount;
             return this;
         }
@@ -263,7 +296,7 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg9 everythingAlive(boolean everythingAlive) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg10 everythingAlive(boolean everythingAlive) {
             this.everythingAlive = everythingAlive;
             return this;
         }
@@ -273,7 +306,7 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg8 requestsExecutorServiceActiveThreads(int requestsExecutorServiceActiveThreads) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg9 requestsExecutorServiceActiveThreads(int requestsExecutorServiceActiveThreads) {
             this.requestsExecutorServiceActiveThreads = requestsExecutorServiceActiveThreads;
             return this;
         }
@@ -283,7 +316,7 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg7 requestsExecutorServiceAlive(boolean requestsExecutorServiceAlive) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg8 requestsExecutorServiceAlive(boolean requestsExecutorServiceAlive) {
             this.requestsExecutorServiceAlive = requestsExecutorServiceAlive;
             return this;
         }
@@ -293,7 +326,7 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg6 delayQueueProcessingThreadsAreAlive(boolean delayQueueProcessingThreadsAreAlive) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg7 delayQueueProcessingThreadsAreAlive(boolean delayQueueProcessingThreadsAreAlive) {
             this.delayQueueProcessingThreadsAreAlive = delayQueueProcessingThreadsAreAlive;
             return this;
         }
@@ -303,30 +336,39 @@ public class RRLStatusBuilder {
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg5 mainQueueProcessingThreadAlive(boolean mainQueueProcessingThreadAlive) {
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg6 mainQueueProcessingThreadAlive(boolean mainQueueProcessingThreadAlive) {
             this.mainQueueProcessingThreadAlive = mainQueueProcessingThreadAlive;
             return this;
         }
 
         /**
-         * Whether service is usable -- that is standard submit operations
-         * can be performed; this can differ from {@link #isServiceAlive()} value
-         * for various reasons such as service shutdown in progress.
+         * Current service control state description -- NOT_STARTED, RUNNING, SHUTDOWN...
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg4 serviceUsable(boolean serviceUsable) {
-            this.serviceUsable = serviceUsable;
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg5 serviceControlStateDescription(String serviceControlStateDescription) {
+            this.serviceControlStateDescription = serviceControlStateDescription;
             return this;
         }
 
         /**
-         * Whether service is alive (that is it was started and not stopped yet).
+         * Current service control state as object with detailed configuration, see
+         * {@link RRLControlState}
          */
         @Override
         @SuppressWarnings("hiding")
-        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg3 serviceAlive(boolean serviceAlive) {
-            this.serviceAlive = serviceAlive;
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg4 serviceControlState(RRLControlState serviceControlState) {
+            this.serviceControlState = serviceControlState;
+            return this;
+        }
+
+        /**
+         * Whether service is accepting requests (submit operations can be performed).
+         */
+        @Override
+        @SuppressWarnings("hiding")
+        public ZBSI_RRLStatusBuilder_statusCreatedAt_arg3 acceptingRequests(boolean acceptingRequests) {
+            this.acceptingRequests = acceptingRequests;
             return this;
         }
 
@@ -342,7 +384,7 @@ public class RRLStatusBuilder {
 
         @Override
         public RRLStatus buildRRLStatus() {
-            return new RRLStatus(statusCreatedAt, serviceAlive, serviceUsable, mainQueueProcessingThreadAlive, delayQueueProcessingThreadsAreAlive, requestsExecutorServiceAlive, requestsExecutorServiceActiveThreads, everythingAlive, currentProcessingRequestsCount, mainQueueSize, configMaxAttempts, configDelaysAfterFailure, configMaxPendingRequests, configRequestEarlyProcessingGracePeriod);
+            return new RRLStatus(statusCreatedAt, acceptingRequests, serviceControlState, serviceControlStateDescription, mainQueueProcessingThreadAlive, delayQueueProcessingThreadsAreAlive, requestsExecutorServiceAlive, requestsExecutorServiceActiveThreads, everythingAlive, currentProcessingRequestsCount, mainQueueSize, estimatedAvailableRateLimiterTickets, configMaxAttempts, configDelaysAfterFailure, configMaxPendingRequests, configRequestEarlyProcessingGracePeriod);
         }
     }
 

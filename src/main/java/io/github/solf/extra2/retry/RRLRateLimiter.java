@@ -31,7 +31,8 @@ public interface RRLRateLimiter<Ticket>
 	 * Obtains (waiting if necessary) processing ticket required to process
 	 * a request.
 	 * 
-	 * @param maxWaitRealMs maximum wait time in real ms
+	 * @param maxWaitRealMs maximum wait time in real ms; CAN BE zero (do not
+	 * 		wait, return ticket if immediately available)
 	 * 
 	 * @return ticket representation (that can be passed to {@link #returnUnusedTicket(Object)})
 	 * 		if successful; null if timed out
@@ -49,4 +50,12 @@ public interface RRLRateLimiter<Ticket>
 	 * @param ticket instance of the ticket previously obtained from {@link #obtainTicket()}
 	 */
 	public void returnUnusedTicket(Ticket ticket);
+	
+	/**
+	 * Gets an estimation of the number of currently available tickets.
+	 * <p>
+	 * This is mostly useful for monitoring, should NOT be relied on for any
+	 * business logic.
+	 */
+	public long getAvailableTicketsEstimation();
 }

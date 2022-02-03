@@ -62,6 +62,13 @@ public class DefaultRRLEventListener<@Nonnull Input, Output> implements RRLEvent
 	}
 
 	@Override
+	public void errorShutdownSpooldownNotAchievedDataMayBeLost(
+		int remainingItemsCount)
+	{
+		log.error("POTENTIAL DATA LOSS: spool down not achieved during shutdown in {} RetryAndRateLimitService service, remaining in-flight item count: {}", getServiceName(), remainingItemsCount, new RuntimeException());
+	}
+
+	@Override
 	public void errorSpiMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t)
 	{
 		log.error("SPI method exception in {} RetryAndRateLimitService while processing: {}", getServiceName(), entry, t);
@@ -93,6 +100,12 @@ public class DefaultRRLEventListener<@Nonnull Input, Output> implements RRLEvent
 	
 	@Override
 	public void requestFinalTimeout(RRLEntry<Input, Output> entry, long remainingValidityTime)
+	{
+		// empty
+	}
+
+	@Override
+	public void requestCancelled(RRLEntry<@Nonnull Input, Output> entry)
 	{
 		// empty
 	}
@@ -173,6 +186,12 @@ public class DefaultRRLEventListener<@Nonnull Input, Output> implements RRLEvent
 	@Override
 	public void delayQueueDecisionAfterDelayStep(@Nullable RRLEntry<Input, Output> entry, long queueDelayMs, 
 		RRLDelayQueueProcessingDecision decision, long sleptFor, long remainingDelay)
+	{
+		// empty
+	}
+
+	@Override
+	public void serviceControlStateChanged(RRLControlState newState)
 	{
 		// empty
 	}

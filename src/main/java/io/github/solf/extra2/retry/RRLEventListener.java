@@ -37,6 +37,11 @@ import io.github.solf.extra2.retry.RetryAndRateLimitService.RRLMainQueueProcessi
 public interface RRLEventListener<@Nonnull Input, Output>
 {
 	/**
+	 * Service control state has been changed.
+	 */
+	public void serviceControlStateChanged(RRLControlState newState);
+	
+	/**
 	 * Reports an assertion error in the code.
 	 */
 	public void errorAssertionError(@Nullable RRLEntry<Input, Output> entry, String message);
@@ -70,6 +75,13 @@ public interface RRLEventListener<@Nonnull Input, Output>
 	public void errorUnexpectedRuntimeException(RuntimeException e, String message);
 	
 	/**
+	 * Indicates that during shutdown complete items spool down was not achieved --
+	 * some data might be lost (because some items were still 'in processing' 
+	 * when all processing threads were terminated).
+	 */
+	public void errorShutdownSpooldownNotAchievedDataMayBeLost(int remainingItemsCount);
+	
+	/**
 	 * Final failure of request processing (request never completed without
 	 * errors).
 	 * 
@@ -88,6 +100,12 @@ public interface RRLEventListener<@Nonnull Input, Output>
 	 * 		or zero/close-to-zero (negative means request is past validity time)
 	 */
 	public void requestFinalTimeout(RRLEntry<Input, Output> entry, long remainingValidityTime);
+	
+	/**
+	 * Request processing was cancelled (request never completed without
+	 * errors before and request to cancel it was honored).
+	 */
+	public void requestCancelled(RRLEntry<Input, Output> entry);
 	
 	/**
 	 * Final timeout of request processing (request never completed without

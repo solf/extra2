@@ -66,19 +66,11 @@ import lombok.Setter;
 	{
 		return entry.getInput();
 	}
-	
-	@Deprecated
-	@Override
-	public boolean cancel(boolean mayInterruptIfRunning)
-	{
-		return requestCancellation();
-	}
 
 	@Override
-	public boolean requestCancellation()
+	public void requestCancellation()
 	{
-		// zzz needs impl
-		return false;
+		entry.setCancelRequested(true);
 	}
 
 	@Override

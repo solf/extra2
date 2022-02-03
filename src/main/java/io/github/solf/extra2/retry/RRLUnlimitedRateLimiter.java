@@ -41,4 +41,10 @@ public class RRLUnlimitedRateLimiter implements RRLRateLimiter<String>
 	{
 		// nothing
 	}
+
+	@Override
+	public long getAvailableTicketsEstimation()
+	{
+		return Integer.MAX_VALUE; // A LOT
+	}
 }

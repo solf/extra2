@@ -101,6 +101,20 @@ public class RRLConfig extends BaseDelegatingOptions
 	private final int requestProcessingThreadPriority = getRawOptions().getIntPositive("requestProcessingThreadPriority", Thread.NORM_PRIORITY);
 	
 	
+	/** Default: 500ms; THIS IS IN 'REAL MS' (not affected by time factors) -- no thread is allowed to sleep/wait for blocking operation longer than this time at a time; this helps with e.g. handling shutdown and/or changing time factor and possibly other issues; you might want to increase this if your read/write methods routinely wait for longer */
+	@Getter
+	private final long maxSleepTime = getRawOptions().getTimeIntervalPositive("maxSleepTime", "500ms");
+	
+
+	/** Default: 5; percent time allocated during shutdown to cover 'processing delays' -- i.e. target shutdown time will be actually less than requested time by this amount (in percents) */
+	@Getter
+	private final int shutdownBufferTimePerc = getRawOptions().getIntNonNegative("shutdownBufferTimePerc", 5);
+	{
+		if (shutdownBufferTimePerc > 100)
+			throw new IllegalStateException("shutdownBufferTimePerc value must be 0-100 (in percent), got: " + shutdownBufferTimePerc);
+	}
+	
+	
 	/** Default: 6 (Thread.NORM_PRIORITY + 1); priority to be used for main queue processing thread */ 
 	@Getter
 	private final int mainQueueProcessingThreadPriority = getRawOptions().getIntPositive("mainQueueProcessingThreadPriority", Thread.NORM_PRIORITY + 1);

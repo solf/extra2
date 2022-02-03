@@ -47,6 +47,7 @@ import io.github.solf.extra2.concurrent.InterruptableSupplier;
 import io.github.solf.extra2.concurrent.WAThreadPoolExecutor;
 import io.github.solf.extra2.concurrent.exception.InterruptedRuntimeException;
 import io.github.solf.extra2.lambda.BooleanObjectWrapper;
+import io.github.solf.extra2.lambda.ObjectWrapper;
 import io.github.solf.extra2.lambda.SimpleLongCounter;
 import io.github.solf.extra2.nullable.NonNullOptional;
 import io.github.solf.extra2.nullable.NullableOptional;
@@ -60,18 +61,27 @@ import lombok.SneakyThrows;
 import lombok.ToString;
 
 /**
- * zzz - class description
- * 
- * zzz - note about after* methods
- * zzz - note about spi* methods
- * 
- * zzz - add cancel option
- * zzz -- spool/flush
- * zzz -- shutdown (option to ignore tickets?)
- * 
- * zzz comments about what exception is a timeout exception
- * 
- * zzz add synopsis to readme
+ * Service for asynchronously processing requests that might need to be retried
+ * and/or rate-limited (which might well be the case for external services).
+ * <p>
+ * Default rate-limiting (which can be overridden) relies on Bucket4j flat-rate
+ * limiter.
+ * <p>
+ * Default strategy for retries (which can be overriden) relies on limiting
+ * number of attempts and configurable delay after each attempt.
+ * <p>
+ * Please see project's README.TXT for more details on the service.
+ * <p>
+ * Note about after* methods: these provide various hooks to be notified after
+ * events occur (e.g. request addded, request removed); they are duplicated by
+ * various {@link RRLEventListener} request* methods, however they might be
+ * useful for separation of concerns.
+ * <p>
+ * Note about spi* methods: these are various extension points -- subclasses
+ * may override these methods to alter service functionality (SPI stands for
+ * 'service provider interface').
+ * <p>
+ * <b>Some unfinished stuff is marked with TO-DO and CCC</b>
  *
  * @author Sergey Olefir
  */
@@ -85,16 +95,47 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	protected final RRLConfig config;
 	
 	/**
-	 * Pre-prepared common naming prefix, e.g. "RRLService[cacheName]"
-	 * zzz fix comment
+	 * Pre-prepared common naming prefix, e.g. "RRLService[serviceName]"
 	 */
 	protected final String commonNamingPrefix;
 	
 	/**
 	 * Number of requests currently in the processing pipeline.
-	 * zzz make sure items count is tested
 	 */
 	protected final AtomicInteger processingRequestsCount = new AtomicInteger(0);
+	
+	/**
+	 * Control state of the service (affects what operations and how are performed).
+	 * 
+	 * @deprecated use {@link #getControlState()} instead
+	 */
+	@Deprecated
+	protected volatile RRLControlState controlState = RRLControlState.NOT_STARTED;
+	/**
+	 * Control state of the service (affects what operations and how are performed).
+	 */
+	public RRLControlState getControlState() { return controlState; }
+	/**
+	 * Changes control state of this service.
+	 * <p>
+	 * NOTE: this should be done VERY carefully (if at all); normally service
+	 * control state is controlled by {@link #start()} and various shutdown
+	 * methods.
+	 */
+	public <T extends RetryAndRateLimitService<Input, Output>> T setControlState(RRLControlState newState)
+	{
+		this.controlState = newState;
+		try
+		{
+			guardedEventListenerInvocation(evListener -> evListener.serviceControlStateChanged(newState));
+		} catch (InterruptedException e)
+		{
+			// We don't expect this to happen.
+			logAssertionError(null, "Unexpected InterruptedException in setControlState(..");
+		}
+		
+		return TypeUtil.coerce(this);
+	}
 	
 	/**
 	 * Cached status of the service if previously calculated.
@@ -132,7 +173,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	
 
 	/**
-	 * Thread group used for this cache.
+	 * Thread group used for this service.
 	 */
 	protected final ThreadGroup threadGroup;
 	
@@ -153,40 +194,6 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 */
 	protected final RRLRateLimiter<?> rateLimiter;
 	
-	
-	/**
-	 * Possible service control statuses (not_started, running, shutdown...)
-	 */
-	public static enum RRLServiceControlState
-	{
-		/**
-		 * Cache hasn't been started yet.
-		 */
-		NOT_STARTED,
-		/**
-		 * Cache is running (can handle access operations).
-		 */
-		RUNNING,
-		/**
-		 * Cache is flushing -- this is mainly useful for tests, tries to flush
-		 * all data from cache as soon as possible (similar to shutdown) but does
-		 * not shut down cache at the end.
-		 * <p>
-		 * Standard cache operations (read/write) are NOT allowed during flushing
-		 * as it will interfere with flushing itself.
-		 * zzz check this is used?
-		 */
-		FLUSHING,
-		/**
-		 * Cache shutdown is in progress.
-		 */
-		SHUTDOWN_IN_PROGRESS,
-		/**
-		 * Cache has been fully shutdown.
-		 */
-		SHUTDOWN_COMPLETED,
-		;
-	}
 	
 	/**
 	 * Decision for the item processed from the delay queue.
@@ -212,10 +219,22 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 */
 	public static enum RRLMainQueueProcessingDecision
 	{
-		//zzz comments
+		/**
+		 * Item should be delayed; this must be accompanied by the delay amount.
+		 */
 		DELAY,
+		/**
+		 * Proceed with item processing; this is accompanied by the remaining validity time.
+		 */
 		PROCEED,
+		/**
+		 * Timeout the item processing; this is accompanied by the remaining validity time.
+		 */
 		TIMEOUT,
+		/**
+		 * Cancel the item processing; this is accompanied by the remaining validity time.
+		 */
+		CANCEL,
 		/**
 		 * NOTE: using this will result in {@link RRLFinalFailureDecisionException}
 		 * registered in {@link RRLFuture} (as there's no other exception
@@ -238,8 +257,6 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	
 	/**
 	 * Single request entry handled by this service.
-	 * zzz probably needs 'custom client/impl object'
-	 * zzz probably needs reference to service (for e.g. event listener and what not)
 	 */
 	@ToString
 	// public because needs to be accessible in event listeners
@@ -275,7 +292,14 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		 * cancellation.
 		 */
 		@Getter
-		private final RRLCompletableFuture<Input, Output> future; 
+		private final RRLCompletableFuture<Input, Output> future;
+		
+		/**
+		 * Whether cancel was requested for this future (note: this is a volatile
+		 * field).
+		 */
+		@Getter @Setter
+		private volatile boolean cancelRequested;
 		
 		/**
 		 * Time when entry was placed in delay queue, negative values indicate
@@ -367,6 +391,14 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		private long totalProcessingTime = -1;
 		
 		/**
+		 * Data object that can be used by custom implementation to store
+		 * additional information with the entries if needed.
+		 */
+		@Getter @Setter
+		@Nullable
+		private Object customData = null;
+		
+		/**
 		 * Constructor.
 		 */
 		public RRLEntry(RetryAndRateLimitService<Input, Output> service,
@@ -418,6 +450,14 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			
 			queue.add(entry);
 		}
+		
+		/**
+		 * Gets queue size.
+		 */
+		public int size()
+		{
+			return queue.size();
+		}
 	}
 	
 	/**
@@ -465,7 +505,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	
 	
 	/**
-	 * Overriding this method allows to change how cache processes time internally.
+	 * Overriding this method allows to change how service processes time internally.
 	 * <p>
 	 * Time 'passes' at the speed of actual time * this factor (i.e. numbers over
 	 * 1 'speed up' the time, numbers under 1 'slow' it down).
@@ -473,10 +513,11 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * This is probably mostly useful for testing.
 	 * <p>
 	 * Default implementation returns {@link Float#NaN}
+	 * <p>
+	 * <b>NB: must be thread-safe!</b>
 	 * 
 	 * @return time factor or {@link Float#NaN} to indicate that time flow should
 	 * 		be 'standard'
-	 * zzz note that time stuff should be thread-safe
 	 */
 	protected float timeFactor()
 	{
@@ -489,6 +530,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * <p>
 	 * Default implementation returns {@link System#currentTimeMillis()}
 	 * TO-DO make sure there are no other references to system.currentime
+	 * <p>
+	 * <b>NB: must be thread-safe!</b>
 	 */
 	protected long timeNow()
 	{
@@ -505,6 +548,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * This never returns 0 unless both arguments are exactly equal.
 	 * <p>
 	 * The 'inverse' of this method is {@link #timeAddVirtualIntervalToRealWorldTime(long, long)}
+	 * <p>
+	 * <b>NB: must be thread-safe!</b>
 	 */
 	protected long timeGapVirtual(long realWorldStartTime, long realWorldEndTime)
 	{
@@ -537,6 +582,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * This never returns the same real-world timestamp unless interval is zero.
 	 * <p>
 	 * The 'inverse' of this method is {@link #timeGapVirtual(long, long)}	 
+	 * <p>
+	 * <b>NB: must be thread-safe!</b>
 	 */
 	protected long timeAddVirtualIntervalToRealWorldTime(long realWorldTime, long virtualInterval)
 	{
@@ -558,6 +605,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * into account {@link #timeFactor()})
 	 * <p>
 	 * This never returns zero unless given virtual interval is zero.
+	 * <p>
+	 * <b>NB: must be thread-safe!</b>
 	 */
 	protected long timeRealWorldInterval(long virtualInterval)
 	{
@@ -627,6 +676,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		guardedEventListenerInvocation(evListener -> evListener.requestRemoved(entry));
 		
 		guardedSpiInvocationNoResult(() -> afterRequestFinalFailure(entry, t), entry);
+		guardedSpiInvocationNoResult(() -> afterRequestRemoved(entry), entry);
 	}
 	
 	/**
@@ -646,6 +696,28 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		guardedEventListenerInvocation(evListener -> evListener.requestRemoved(entry));
 		
 		guardedSpiInvocationNoResult(() -> afterRequestFinalTimeout(entry, remainingValidityTime), entry);
+		guardedSpiInvocationNoResult(() -> afterRequestRemoved(entry), entry);
+	}
+	
+	/**
+	 * Handles cancellation of entry processing.
+	 * <p>
+	 * Takes care of updating request size counters, updates future, fires
+	 * events.
+	 */
+	protected void handleCancel(RRLEntry<Input, Output> entry)
+		throws InterruptedException
+	{
+		decrementRequestsCountAndSetTotalProcessingTime(entry); // item is removed from processing
+		
+		if (!entry.getFuture().cancel(false))
+			logAssertionError(entry, "Future.cancel() returned false.");
+
+		guardedEventListenerInvocation(evListener -> evListener.requestCancelled(entry));
+		guardedEventListenerInvocation(evListener -> evListener.requestRemoved(entry));
+		
+		guardedSpiInvocationNoResult(() -> afterRequestCancellation(entry), entry);
+		guardedSpiInvocationNoResult(() -> afterRequestRemoved(entry), entry);
 	}
 	
 	/**
@@ -668,6 +740,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		guardedEventListenerInvocation(evListener -> evListener.requestRemoved(entry));
 		
 		guardedSpiInvocationNoResult(() -> afterRequestSuccess(entry, result, attemptNumber, requestAttemptDuration), entry);
+		guardedSpiInvocationNoResult(() -> afterRequestRemoved(entry), entry);
 	}
 	
 	/**
@@ -682,7 +755,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	@SneakyThrows(InterruptedException.class) 
 	protected void logAssertionError(@Nullable RRLEntry<Input, Output> entry, String message)
 	{
-		//zzz add some counter/error tracking too?
+		//TO-DO add some counter/error tracking too?
 		guardedEventListenerInvocation(evListener -> evListener.errorAssertionError(entry, message));
 		
 	}
@@ -693,7 +766,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 */
 	protected void logSpiMethodException(@Nullable RRLEntry<Input, Output> entry, Throwable t) throws InterruptedException
 	{
-		//zzz add some counter/error tracking too?
+		//TO-DO add some counter/error tracking too?
 		guardedEventListenerInvocation(evListener -> evListener.errorSpiMethodException(entry, t));
 	}
 	
@@ -747,7 +820,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	
 
 
-	//zzz comment
+	/**
+	 * 'Final failure' main queue decision that is used as fallback when other
+	 * decision is not available.
+	 */
 	protected static final Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> MQ_FINAL_FAILURE_DECISION =
 		new Pair<>(RRLMainQueueProcessingDecision.FINAL_FAILURE, -1L);
 	
@@ -795,7 +871,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						// return ticket that was unused
 						final RRLEntry<@Nonnull Input, Output> entry = inflightEntry;
 						final Object ticket = readyToUseTicket;
-						guardedSpiInvocationNoResult(() -> spiReturnUnusedTicket(entry, ticket), entry);
+						guardedSpiInvocationNoResult(() -> spiReturnUnusedTicketPossiblyFake(entry, ticket), entry);
 					}
 					
 					// Log item processing duration if needed
@@ -813,10 +889,13 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				inflightEntrySince = itemProcessingSince;
 				
 				final SynchronousQueue<RRLEntry<Input, Output>> commQueue = new SynchronousQueue<>();
+				// indicator as to whether there were any failures trying to obtain resources
+				ObjectWrapper<Boolean> hadResourceFailures = ObjectWrapper.of(false);
 				while (true) // the code is iterated until all required resources are obtained
 				{
 					NonNullOptional<@Nonnull Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long>> decisionOptional = 
-						guardedSpiInvocationAsOptional(() -> spiMainQueueProcessingDecision(entry, false, false), entry);
+						guardedSpiInvocationAsOptional(() -> 
+							spiMainQueueProcessingDecisionHandleControlState(entry, false, false, hadResourceFailures.get()), entry);
 					
 					Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> decision = 
 						decisionOptional.getOrElse(MQ_FINAL_FAILURE_DECISION);
@@ -833,6 +912,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 							
 						case TIMEOUT:
 							handleTimeout(entry, millisFromDecision);
+							continue mainLoop; // go to next element
+							
+						case CANCEL:
+							handleCancel(entry);
 							continue mainLoop; // go to next element
 							
 						case DELAY:
@@ -854,6 +937,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 					
 					
 					// Need to ensure we have all the appropriate resources for request
+					boolean resourceObtained;
 					if (readyForProcessingThreadFuture == null)
 					{
 						final long before = timeNow();
@@ -866,16 +950,15 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						if (result.isEmpty())
 						{
 							// must be an error -- and it should've been logged already in guarded* method
-							mainQueue.add(entry); // try again later
+							spiMainQueueRequeueItem(entry, false, readyToUseTicket != null); // try again later
 							continue mainLoop; // go to next element
 						}
 						
 						readyForProcessingThreadFuture = result.get();
 						
 						// Wait for thread to be ready.
-						//zzz use maxsleeptime
-						RRLEntry<@Nonnull Input, Output> ready = 
-							commQueue.poll(remainingValidityRealMs, TimeUnit.MILLISECONDS);
+						RRLEntry<@Nonnull Input, Output> ready = spiMainQueueWaitForThreadToBeReady(
+							commQueue, remainingValidityRealMs);
 						
 						if (ready == null)
 						{
@@ -889,7 +972,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 							{
 								logAssertionError(entry, "Object received from processing thread isn't READY_TO_WORK_OBJECT: " + ready);
 								
-								mainQueue.add(entry); // try again later
+								spiMainQueueRequeueItem(entry, false, readyToUseTicket != null); // try again later
 								continue mainLoop; // go to next element; thread future will be cancelled in the loop's beginning
 							}
 						}
@@ -902,19 +985,19 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						guardedEventListenerInvocation(evListener -> 
 							evListener.mainQueueThreadObtainAttempt(entry, itemProcessingSince, threadObtained, duration));
 						
+						resourceObtained = threadObtained;
 					} 
 					else if (readyToUseTicket == null)
 					{
 						final long before = timeNow();
 						
-						//zzz use maxsleeptime
 						NullableOptional<@Nullable Object> result = guardedSpiInvocationAsNullableOptional(
-							() -> spiObtainTicket(entry, remainingValidityRealMs), entry);
+							() -> spiObtainTicketHandleMaxSleepAndControlState(entry, remainingValidityRealMs), entry);
 						
 						if (result.isEmpty())
 						{
 							// must be an error -- and it should've been logged already in guarded* method
-							mainQueue.add(entry); // try again later
+							spiMainQueueRequeueItem(entry, true, false); // try again later
 							continue mainLoop; // go to next element
 						}
 						
@@ -928,6 +1011,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						boolean ticketObtained = (readyToUseTicket != null);
 						guardedEventListenerInvocation(evListener -> 
 							evListener.mainQueueTicketObtainAttempt(entry, itemProcessingSince, ticketObtained, duration));
+						
+						resourceObtained = ticketObtained;
 					}
 					else
 					{
@@ -940,7 +1025,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						{
 							// something is really wrong
 							logAssertionError(entry, "Failed to hand over request to processing thread, max wait time is: " + config.getMainQueueMaxRequestHandoverWaitTime());
-							mainQueue.add(entry); // try again later
+							spiMainQueueRequeueItem(entry, true, true); // try again later
 							continue mainLoop; // go to next element
 						}
 						
@@ -952,6 +1037,9 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 						
 						continue mainLoop; // go to next element in the queue 
 					}
+					
+					if (!resourceObtained)
+						hadResourceFailures.set(true);
 				} // end resource collection loop
 			} // end main loop
 		} finally
@@ -959,14 +1047,14 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			if (inflightEntry != null)
 			{
 				// Put entry back into main queue to avoid data loss.
-				mainQueue.add(inflightEntry);
+				spiMainQueueRequeueItem(inflightEntry, readyForProcessingThreadFuture != null, readyToUseTicket != null);
 				
 				if (readyToUseTicket != null)
 				{
 					// return ticket that was unused
 					final RRLEntry<@Nonnull Input, Output> entry = inflightEntry;
 					final Object ticket = readyToUseTicket;
-					guardedSpiInvocationNoResult(() -> spiReturnUnusedTicket(entry, ticket), entry);
+					guardedSpiInvocationNoResult(() -> spiReturnUnusedTicketPossiblyFake(entry, ticket), entry);
 				}
 			}
 			
@@ -978,6 +1066,58 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			
 		}
 		
+	}
+
+	/**
+	 * Waits until thread becomes available to handle the requests (this is via
+	 * commQueue, when thread is ready, it puts value on this queue).
+	 * <p>
+	 * This takes care of handling max sleep and control state stuff.
+	 * <p>
+	 * <b>NOTE: unexpected exceptions throw by this method will trigger
+	 * 'unexpected exception in main queue processing' handling which counts
+	 * against {@link RRLConfig#getMainQueueRuntimeExceptionLimit()} and will
+	 * potentially crash the service very quickly.</b>
+	 */
+	@Nullable
+	protected RRLEntry<@Nonnull Input, Output> spiMainQueueWaitForThreadToBeReady(
+		final SynchronousQueue<RRLEntry<Input, Output>> commQueue,
+		final long remainingValidityRealMs)
+		throws InterruptedException
+	{
+		final long maxWaitTimestamp = timeNow() + remainingValidityRealMs;
+		long maxWaitSpooldownLimit = Long.MAX_VALUE; // limit on how long we can wait based on spooldown
+		
+		while (true) 
+		{
+			RRLControlState cState = getControlState();
+			if (cState.isTimeoutAllPendingRequests())
+				return null; // we are time-outing everything in-flight
+			
+			long spoolTargetTimestamp = cState.getSpooldownTargetTimestamp();
+			final long now = timeNow();
+			long remainingWait = maxWaitTimestamp - now;
+			if ((maxWaitSpooldownLimit == Long.MAX_VALUE) && cState.isLimitWaitingForProcessingThread() && (spoolTargetTimestamp > 0))
+			{
+				// If spooldown target is set and waiting is limited, we calculate target time ONCE
+				// (otherwise it'll keep adjusting to use however little time is remaining)
+				long remainingTime = spoolTargetTimestamp - now;
+				long remainingTimePerItem = remainingTime / (estimateSizeOfAllQueues() + 1 /*inflight entry*/);
+				
+				maxWaitSpooldownLimit = timeNow() + remainingTimePerItem;
+			}
+			if (maxWaitSpooldownLimit != Long.MAX_VALUE)
+				remainingWait = Math.min(remainingWait, maxWaitSpooldownLimit - now);
+			
+			if (remainingWait <= 0)
+				return null; // done waiting, timeout
+			
+			long maxWait = Math.min(remainingWait, config.getMaxSleepTime());
+			
+			RRLEntry<@Nonnull Input, Output> ready = commQueue.poll(maxWait, TimeUnit.MILLISECONDS);
+			if (ready != null)
+				return ready;
+		}
 	}
 	
 	
@@ -1084,7 +1224,6 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			long delayAnchor = entry.getDelayAnchor();
 			long delayFor = entry.getDelayFor();
 			
-			// zzz make use of flush state too?
 			// Using counter here because variable needs to be final for use in closures. 
 			final SimpleLongCounter remainingDelay = new SimpleLongCounter(-1);
 			if (inDelayQueueSince < 0)
@@ -1112,13 +1251,28 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 					{
 						toSleep = Math.min(remainingDelay.get(), allowedDelay);
 						long realSleep = timeRealWorldInterval(toSleep);
-						Thread.sleep(realSleep); // zzz needs some kind of maxsleep
+						
+						long remainingRealSleep = realSleep;
+						while(remainingRealSleep > 0)
+						{
+							if (getControlState().isIgnoreDelays())
+								break;
+							
+							long sleepRealMs = Math.min(remainingRealSleep, config.getMaxSleepTime());
+							Thread.sleep(sleepRealMs);
+							
+							remainingRealSleep -= sleepRealMs;
+						}
 					}
 				}
 				
 				sleptFor = toSleep;
 			}
-			remainingDelay.decrementByAndGet(sleptFor); 
+
+			{
+				long timePassed = timeGapVirtual(delayAnchor, timeNow());
+				remainingDelay.set(delayFor - timePassed);
+			}
 			
 			RRLDelayQueueProcessingDecision decision;
 			decision = guardedSpiInvocation(
@@ -1190,7 +1344,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		return true;
 	}
 	
-	//zzz comments
+	/**
+	 * Code executed by individual request processing threads (those are typically
+	 * from a thread pool).
+	 */
 	protected Void runnableRequestProcessor(SynchronousQueue<RRLEntry<Input, Output>> commQueue)
 		throws InterruptedException
 	{
@@ -1579,7 +1736,9 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * step (i.e. delay no longer than queueDelayMs) has been performed.
 	 * <p>
 	 * Default implementation returns {@link RRLDelayQueueProcessingDecision#DELAY_AGAIN}
-	 * only if remaining time exceeds queueDelayMs.
+	 * only if remaining time exceeds queueDelayMs; ALSO checks
+	 * {@link RRLControlState#isRespectDelays()} -- if delays are not respected,
+	 * then {@link RRLDelayQueueProcessingDecision#MAIN_QUEUE} is returned.
 	 * <p>
 	 * Custom implementations may consider grace periods for improving performance.
 	 */
@@ -1589,7 +1748,12 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		if (remainingDelay < queueDelayMs)
 			return RRLDelayQueueProcessingDecision.MAIN_QUEUE;
 		else
-			return RRLDelayQueueProcessingDecision.DELAY_AGAIN;
+		{
+			if (getControlState().isIgnoreDelays())
+				return RRLDelayQueueProcessingDecision.MAIN_QUEUE;
+			else
+				return RRLDelayQueueProcessingDecision.DELAY_AGAIN;
+		}
 	}
 	
 	
@@ -1639,6 +1803,26 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		return runtimeExceptionsCount <= config.getDelayQueueRuntimeExceptionLimit();
 	}
 	
+	/**
+	 * When main queue processing decides that an entry should be re-queued into
+	 * main queue -- this method is called and should carry this out.
+	 * <p>
+	 * This implementation takes care of respecting {@link RRLControlState#isTimeoutRequestsAfterFailedAttempt()}
+	 * (will timeout entries instead of re-queueing if the value is set).
+	 * <p>
+	 * <b>NOTE: unexpected exceptions throw by this method will trigger
+	 * 'unexpected exception in main queue processing' handling which counts
+	 * against {@link RRLConfig#getMainQueueRuntimeExceptionLimit()} and will
+	 * potentially crash the service very quickly.</b>
+	 */
+	protected void spiMainQueueRequeueItem(RRLEntry<Input, Output> entry,
+		@SuppressWarnings("unused") boolean hadThreadReady, @SuppressWarnings("unused") boolean hadTicket) throws InterruptedException
+	{
+		if (getControlState().isTimeoutRequestsAfterFailedAttempt())
+			handleTimeout(entry, Integer.MIN_VALUE); // use big negative so they stand out
+		else
+			mainQueue.add(entry);
+	}
 	
 	/**
 	 * Makes decision in case unexpected {@link InterruptedException} happens
@@ -1685,6 +1869,46 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	}
 	
 	/**
+	 * Wrapper over {@link #spiMainQueueProcessingDecision(RRLEntry, boolean, boolean)}
+	 * that handles issues related to {@link RRLControlState}
+	 * 
+	 * @param hadResourceFailures if a previous attempt to obtain thread or
+	 * 		ticket has already failed at least once for this entry in this iteration
+	 */
+	protected Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> spiMainQueueProcessingDecisionHandleControlState(
+		final RRLEntry<Input, Output> entry, boolean hasThread, boolean hasTicket, boolean hadResourceFailures
+		)
+	{
+		RRLControlState cState = getControlState();
+		
+		if (   cState.isTimeoutAllPendingRequests()
+			|| (hadResourceFailures && cState.isTimeoutRequestsAfterFailedAttempt()))
+			return new Pair<>(RRLMainQueueProcessingDecision.TIMEOUT, (long)Integer.MIN_VALUE); // use big negative so they stand out
+		
+		Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> result = 
+			spiMainQueueProcessingDecision(entry, hasThread, hasTicket, hadResourceFailures);
+		
+		switch (result.getValue0())
+		{
+			case DELAY:
+				if (cState.isIgnoreDelays())
+					return new Pair<>(RRLMainQueueProcessingDecision.PROCEED, Math.max(result.getValue1(), cState.getSpooldownTargetTimestamp()));
+				else
+					return result;
+				
+			case FINAL_FAILURE:
+			case PROCEED:
+			case TIMEOUT:
+			case CANCEL:
+				return result;
+		}
+		
+		logAssertionError(entry, "This code should not be reacheable.");
+		return MQ_FINAL_FAILURE_DECISION;
+	}
+	
+	
+	/**
 	 * Makes decision for an item being processed from the main queue -- multiple
 	 * invocations of this method happen for each 'processing cycle' as there
 	 * are multiple delays involved in processing and time passing can have
@@ -1697,6 +1921,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * 		for request processing (required to implement requests rate limiting);
 	 *		this is done after thread has been already obtained so there's no
 	 *		additional waiting after ticket is obtained
+	 * @param hadResourceFailures if a previous attempt to obtain thread or
+	 * 		ticket has already failed at least once for this entry in this iteration
 	 *
 	 * @return decision and second milliseconds argument; the second argument
 	 * 		indicates (virtual) time allotted -- for delay it is the length
@@ -1704,12 +1930,16 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * 		validity time for the request (can be negative in case of timeout)
 	 */
 	protected Pair<@Nonnull RRLMainQueueProcessingDecision, @Nonnull Long> spiMainQueueProcessingDecision(
-		final RRLEntry<Input, Output> entry, boolean hasThread, boolean hasTicket
+		final RRLEntry<Input, Output> entry, boolean hasThread, boolean hasTicket, 
+		@SuppressWarnings("unused") boolean hadResourceFailures
 		)
 	{
 		long remainingValidityTime = spiMainQueueCalculateRemainingValidityTime(entry, hasThread, hasTicket);
 		if (remainingValidityTime <= 0)
 			return new Pair<>(RRLMainQueueProcessingDecision.TIMEOUT, remainingValidityTime);
+		
+		if (entry.isCancelRequested())
+			return  new Pair<>(RRLMainQueueProcessingDecision.CANCEL, remainingValidityTime);
 		
 		long remainingDelay = spiMainQueueCalculateRemainingDelay(entry, hasThread, hasTicket);
 		if (remainingDelay > 0)
@@ -1760,7 +1990,10 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		return timeDelay;
 	}
 	
-	//zzz comment
+	/**
+	 * 'Final failure' 'after request' decision that is used as fallback and 
+	 * to actually report a 'final failure' decision.
+	 */
 	protected static final Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long> AR_FINAL_FAILURE_DECISION =
 		new Pair<>(RRLAfterRequestAttemptFailedDecision.FINAL_FAILURE, -1L);
 	
@@ -1768,7 +2001,9 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * Makes decision for an item after request attempt has failed (with an
 	 * exception).
 	 * 
-	 * zzz clarify meaning of second return arg
+	 * @return pair: decision & milliseconds relevant to decision (for retry it
+	 * 		is delay before the next attempt; for others it's mostly informational,
+	 * 		such as remaining validity time (negative in case of timeout))
 	 */
 	protected Pair<@Nonnull RRLAfterRequestAttemptFailedDecision, @Nonnull Long> spiAfterRequestAttemptFailedDecision(
 		final RRLEntry<Input, Output> entry, Exception exception, 
@@ -1786,6 +2021,9 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		// timeout right now, however it may be unexpected at the client 
 		// (timeout before time actually expired), so we delay until time
 		// actually expires
+		
+		if (getControlState().isTimeoutRequestsAfterFailedAttempt())
+			return new Pair<>(RRLAfterRequestAttemptFailedDecision.TIMEOUT, (long)Integer.MIN_VALUE); // use big negative so they stand out			
 		
 		// May retry
 		return new Pair<>(RRLAfterRequestAttemptFailedDecision.RETRY,
@@ -1824,7 +2062,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	{
 		List<@Nonnull Long> delaysList = config.getDelaysAfterFailure();
 		
-		int index = Math.min(failedAttemptNumber, delaysList.size()) - 1; //zzz test this
+		int index = Math.min(failedAttemptNumber, delaysList.size()) - 1;
 		
 		return delaysList.get(index);
 	}
@@ -1876,15 +2114,132 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	}
 	
 	/**
+	 * Fake ticket that can be used when tickets are not needed (as per control
+	 * state).
+	 */
+	private final static Object FAKE_TICKET = new Object();
+	/**
+	 * Wrapper over 'obtain ticket' ({@link #spiObtainTicket(RRLEntry, long)}) 
+	 * implementation that handles max sleep and potentially disabled tickets 
+	 * in {@link RRLControlState#getWaitForTickets()} 
+	 * 
+	 * @param maxWaitRealMs maximum wait time in real ms; CAN BE zero (do not
+	 * 		wait, return ticket if immediately available)
+	 * 
+	 * @return object representing a ticket if ticket was obtained; null if
+	 * 		ticket was not obtained in the time allotted; {@link #FAKE_TICKET}
+	 * 		if tickets are disabled
+	 */
+	@Nullable
+	protected Object spiObtainTicketHandleMaxSleepAndControlState(RRLEntry<Input, Output> entry, final long maxWaitRealMs)
+		throws InterruptedException
+	{
+		final long maxWaitTimestamp = timeNow() + maxWaitRealMs;
+		long maxWaitSpooldownLimit = Long.MAX_VALUE; // limit on how long we can wait based on spooldown
+		
+		while (true) 
+		{
+			RRLControlState cState = getControlState();
+			if (cState.isTimeoutAllPendingRequests())
+				return null; // we are time-outing everything in-flight
+			Boolean waitForTickets = cState.getWaitForTickets();
+			if (waitForTickets == null)
+				return FAKE_TICKET; // tickets are being ignored
+			
+			long spoolTargetTimestamp = cState.getSpooldownTargetTimestamp();
+			final long now = timeNow();
+			long remainingWait = maxWaitTimestamp - now;
+			if ((maxWaitSpooldownLimit == Long.MAX_VALUE) && cState.isLimitWaitingForTicket() && (spoolTargetTimestamp > 0))
+			{
+				// If spooldown target is set and waiting is limited, we calculate target time ONCE
+				// (otherwise it'll keep adjusting to use however little time is remaining)
+				long remainingTime = spoolTargetTimestamp - now;
+				long remainingTimePerItem = remainingTime / (estimateSizeOfAllQueues() + 1 /*inflight entry*/);
+				
+				maxWaitSpooldownLimit = timeNow() + remainingTimePerItem;
+			}
+			if (maxWaitSpooldownLimit != Long.MAX_VALUE)
+				remainingWait = Math.min(remainingWait, maxWaitSpooldownLimit - now);
+			
+			if (waitForTickets == false)
+				remainingWait = Math.min(remainingWait, 0); // only obtain ticket if immediately available
+			
+			if (remainingWait < 0)
+				return null; // done waiting, timeout
+			
+			long maxWait = Math.min(remainingWait, config.getMaxSleepTime());
+			
+			Object ticket = spiObtainTicketWithWait(entry, maxWait);
+			if (ticket != null)
+				return ticket;
+			
+			if (remainingWait == 0)
+				return null; // no ticket immediately available and remaining wait is zero
+		}
+	}
+	
+	/**
+	 * Wrapper over {@link #spiObtainTicket(RRLEntry, long)} which makes sure
+	 * that it waits (sleeps) even if underlying ticketing mechanism immediately
+	 * returns 'not enough tickets' without waiting.
+	 * 
+	 * @param maxWaitRealMs maximum wait time in real ms; CAN BE zero (do not
+	 * 		wait, return ticket if immediately available)
+	 * 
+	 * @return object representing a ticket if ticket was obtained; null if
+	 * 		ticket was not obtained in the time allotted
+	 */
+	@Nullable
+	protected Object spiObtainTicketWithWait(RRLEntry<Input, Output> entry, long maxWaitRealMs)
+		throws InterruptedException
+	{
+		// we deal with real milliseconds here, so not using timeNow()
+		final long waitUntilForNoTicket = System.currentTimeMillis() + maxWaitRealMs;
+		
+		Object result = spiObtainTicket(entry, maxWaitRealMs);
+		if (result != null)
+			return result;
+		
+		final long remaining = waitUntilForNoTicket - System.currentTimeMillis();
+		if (remaining > 0)
+			Thread.sleep(remaining);
+		
+		return result;
+	}
+	
+	/**
 	 * Used to obtain ticked needed for request processing.
 	 * <p>
 	 * Default implementation tries to obtain ticket from {@link #rateLimiter}
+	 * <p>
+	 * NOTE: this method may return immediately with 'not enough tickets'
+	 * (without respecting wait time); see {@link #spiObtainTicketWithWait(RRLEntry, long)}
+	 * if wait is necessary.
+	 * 
+	 * @param maxWaitRealMs maximum wait time in real ms; CAN BE zero (do not
+	 * 		wait, return ticket if immediately available)
+	 * 
+	 * @return object representing a ticket if ticket was obtained; null if
+	 * 		ticket was not obtained in the time allotted
 	 */
 	@Nullable
 	protected Object spiObtainTicket(@SuppressWarnings("unused") RRLEntry<Input, Output> entry, long maxWaitRealMs)
 		throws InterruptedException
 	{
 		return rateLimiter.obtainTicket(maxWaitRealMs);
+	}
+	
+	/**
+	 * Used to return unused ticked.
+	 * <p>
+	 * Takes care of handling (ignoring) {@link #FAKE_TICKET}
+	 */
+	protected void spiReturnUnusedTicketPossiblyFake(RRLEntry<Input, Output> entry, Object unusedTicket)
+	{
+		if (unusedTicket == FAKE_TICKET)
+			return;
+		
+		spiReturnUnusedTicket(entry, unusedTicket);
 	}
 	
 	/**
@@ -1901,7 +2256,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * Determines whether service may accept a new incoming request.
 	 * <p>
 	 * Default implementation compares currently processing request count against
-	 * {@link RRLConfig#getMaxPendingRequests()}
+	 * {@link RRLConfig#getMaxPendingRequests()} AND makes sure requests are
+	 * allowed to be accepted in {@link #getControlState()}
 	 * 
 	 * @return null if request may be accepted; string error message in case
 	 * 		request should be rejected with {@link RejectedExecutionException}
@@ -1912,7 +2268,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	{
 		int count = processingRequestsCount.get();
 		if (count < config.getMaxPendingRequests())
-			return null;
+			return getControlState().getRejectRequestsString();
 		else
 			return "Too many already-processing requests, current count is: " + count;
 	}
@@ -1953,6 +2309,19 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	}
 	
 	/**
+	 * Invoked after request processing was cancelled (request never completed without
+	 * errors before and request to cancel it was honored).
+	 * <p>
+	 * This is somewhat duplicated by {@link RRLEventListener#requestCancelled(RRLEntry)},
+	 * but it also present here for potentially better separation of concerns.
+	 */
+	@SuppressWarnings("unused")
+	protected void afterRequestCancellation(RRLEntry<Input, Output> entry)
+	{
+		// blank
+	}
+	
+	/**
 	 * Invoked after request succeeded.
 	 * <p>
 	 * This is somewhat duplicated by {@link RRLEventListener#requestSuccess(RRLEntry, Object, int, long)},
@@ -1960,6 +2329,34 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 */
 	@SuppressWarnings("unused")
 	protected void afterRequestSuccess(RRLEntry<Input, Output> entry, Output result, int attemptNumber, long requestAttemptDuration)
+	{
+		// blank
+	}
+	
+	/**
+	 * Invoked after request removed -- either due to completion or any of
+	 * possible errors/timeouts/etc.
+	 * <p>
+	 * This kind of duplicates {@link #afterRequestSuccess(RRLEntry, Object, int, long)}
+	 * etc. but sometimes it is more convenient to handle stuff in one place.
+	 * <p>
+	 * This is somewhat duplicated by {@link RRLEventListener#requestRemoved(RRLEntry)},
+	 * but it also present here for potentially better separation of concerns.
+	 */
+	@SuppressWarnings("unused")
+	protected void afterRequestRemoved(RRLEntry<Input, Output> entry)
+	{
+		// blank
+	}
+	
+	/**
+	 * Invoked after request is added to processing.
+	 * <p>
+	 * This is somewhat duplicated by {@link RRLEventListener#requestAdded(RRLEntry)},
+	 * but it also present here for potentially better separation of concerns.
+	 */
+	@SuppressWarnings("unused")
+	protected void afterRequestAdded(RRLEntry<Input, Output> entry)
 	{
 		// blank
 	}
@@ -1976,24 +2373,64 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		// blank
 	}
 	
-	//zzz comment
+	/**
+	 * A wrapper/extension point over {@link #processRequest(Object, int)} that
+	 * allows implementations to access relevant {@link RRLEntry}
+	 */
 	protected Output spiProcessRequest(RRLEntry<Input, Output> entry, int attemptNumber) throws InterruptedException, Exception
 	{
 		return processRequest(entry.getInput(), attemptNumber);
 	}
 	
-	//zzz comment
-	//zzz this is allowed to return null
+	/**
+	 * The actual method that makes a request processing attempt.
+	 * <p>
+	 * If this method throws exception, then the default decision implementation
+	 * assumes that the method should be retried (if there are remaining attempts
+	 * and enough remaining time to do so).
+	 * <p>
+	 * If no exception is thrown, then the request is assumed to complete
+	 * successfully and the result is available in the future (null results
+	 * are supported).
+	 */
 	protected abstract Output processRequest(Input input, int attemptNumber) throws InterruptedException, Exception;
 	
 	
-	//zzz must take into account current state!
-	public <T extends RetryAndRateLimitService<Input, Output>> T start()
+	/**
+	 * Estimates total size of all queues (main + all delay queues).
+	 */
+	protected int estimateSizeOfAllQueues()
 	{
+		int total = 0;
+		
+		total += mainQueue.size();
+		
+		for (RRLDelayQueueData dq : delayQueues)
+			total += dq.size();
+		
+		return total;
+	}
+	
+	/**
+	 * Starts the service -- starts all the underlying threads and sets the
+	 * service control state to {@link RRLControlState#RUNNING}
+	 * <p>
+	 * NOTE: this can only be performed in {@link RRLControlState#NOT_STARTED}
+	 * control state; otherwise {@link IllegalStateException} will occur.
+	 */
+	public <T extends RetryAndRateLimitService<Input, Output>> T start()
+		throws IllegalStateException
+	{
+		RRLControlState cState = getControlState();
+		if (cState != RRLControlState.NOT_STARTED)
+			throw new IllegalStateException("Unable to start service which is not in NON_STARTED state: " + cState);
+		
 		mainQueueProcessingThread.start();
 		
 		for (RRLDelayQueueData dq : delayQueues)
 			dq.getProcessingThread().start();
+		
+		setControlState(RRLControlState.RUNNING);
 		
 		return TypeUtil.coerce(this);
 	}
@@ -2015,8 +2452,6 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	protected RRLEntry<Input, Output> internalSubmit(Input request, long timeLimitMs, long delayBeforeFirstAttempMs)
 		throws IllegalArgumentException, RejectedExecutionException
 	{
-		//zzz must also check cache state (started/shutdown) before accepting
-		
 		if (nullable(request) == null)
 			throw new IllegalArgumentException("request is null");
 		if (timeLimitMs <= 0)
@@ -2060,6 +2495,14 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		processingRequestsCount.incrementAndGet();
 		
 		sneakyGuardedEventListenerInvocation(evListener -> evListener.requestAdded(entry));
+		
+		try
+		{
+			guardedSpiInvocationNoResult(() -> afterRequestAdded(entry), entry);
+		} catch (InterruptedException e)
+		{
+			logAssertionError(entry, "Unexpected InterruptedException from afterRequestAdded(..)");
+		}
 		
 		return entry;
 	}
@@ -2157,6 +2600,273 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		return internalSubmit(request, timeLimitMs, delayFor).getFuture();
 	}
 	
+
+	/**
+	 * Whether service is accepting requests (submit operations can be performed). 
+	 */
+	public boolean isAcceptingRequests()
+	{
+		RRLControlState cState = getControlState();
+		
+		return cState.getRejectRequestsString() == null;
+	}
+	
+	/**
+	 * Attempts to wait for the service 'spooldown' -- that is for when there's
+	 * no more in-flight requests (all requests are processed).
+	 * <p>
+	 * This is most useful if control state is changed accordingly, e.g. during
+	 * a shutdown.
+	 * <p>
+	 * Checks for the remaining items count are performed with {@link RRLConfig#getMaxSleepTime()}
+	 * frequency.
+	 * 
+	 * @param spooldownLimitTimestamp maximum timestamp for how long to wait for
+	 * 		zero remaining items (if zero is reached sooner, method returns
+	 * 		sooner, doesn't wait until timestamp expires) 
+	 * 
+	 * @return number of the in-flight items remaining at the time of this
+	 * 		method completion; will be zero if spooldown is 'successful'
+	 * 
+	 * @throws InterruptedException if thread is interrupted during the wait
+	 */
+	public int spooldown(final long spooldownLimitTimestamp)
+		throws InterruptedException
+	{
+		while (true)
+		{
+			int remainingCount = processingRequestsCount.get();
+			if (remainingCount == 0)
+				return 0;
+			
+			long remainingTime = spooldownLimitTimestamp - timeNow();
+			
+			long toSleep = Math.min(remainingTime, config.getMaxSleepTime());
+			
+			if (toSleep <= 0)
+				return remainingCount; // spool timeout
+			
+			Thread.sleep(toSleep);
+		}
+	}
+	
+	/**
+	 * Internal method to perform a shutdown on the service.
+	 * <p>
+	 * Fails with {@link IllegalStateException} if called after service is already
+	 * in {@link RRLControlState#SHUTDOWN} state.
+	 * <p>
+	 * Sets service to the provided control state (after adjusting the spool time
+	 * limit on it) and waits for in-flight items to drop to zero for up to the
+	 * given timestamp.
+	 * <p>
+	 * Then terminates all the service worker threads.
+	 * 
+	 * @return number of remaining in-flight items at the end; if everything
+	 * 		manages to spool out, it should be zero
+	 * 
+	 * @throws IllegalStateException if attempting to shutdown when it's been
+	 * 		shutdown already
+	 * @throws InterruptedException if thread is interrupted during the wait
+	 */
+	protected int internalShutdown(RRLControlState shutdownInProgressState, final long shutdownLimitTimestamp)
+		throws IllegalStateException, InterruptedException
+	{
+		RRLControlState cState = getControlState();
+		if (getControlState() == RRLControlState.SHUTDOWN)
+			throw new IllegalStateException("Attempt to shutdown service that is already shutdown: " + cState);
+		
+		final long now = timeNow();
+		final long spoolTimeLimit = now + ((shutdownLimitTimestamp - now) * (100 - config.getShutdownBufferTimePerc()) / 100);
+		
+		setControlState(shutdownInProgressState
+			.withSpooldownTargetTimestamp(spoolTimeLimit)); // use shorter limit to cover 'processing delays'
+		
+		spooldown(shutdownLimitTimestamp); // use full time limit waiting for spooldown
+		
+		mainQueueProcessingThread.exitAsap();
+		
+		for (RRLDelayQueueData dq : delayQueues)
+			dq.getProcessingThread().exitAsap();
+		
+		// Let's take count before shutting down executor as we have no idea
+		// if stuff in the executors will process correctly or not after its shutdown
+		int remainingCount = processingRequestsCount.get();
+		
+		{
+			ExecutorService res = requestsExecutorService;
+			if (res != null)
+				res.shutdownNow();
+		}
+		
+		setControlState(RRLControlState.SHUTDOWN);
+		
+		if (remainingCount > 0)
+			guardedEventListenerInvocation(evListener -> evListener.errorShutdownSpooldownNotAchievedDataMayBeLost(remainingCount));
+		
+		return remainingCount;
+	}
+	
+	/**
+	 * Perform a shutdown on the service.
+	 * <p>
+	 * Fails with {@link IllegalStateException} if called after service is already
+	 * in {@link RRLControlState#SHUTDOWN} state.
+	 * <p>
+	 * Sets service flags in accordance with provided parameters, disables
+	 * accepting new requests and waits for in-flight items to drop to zero 
+	 * for up to the given timestamp.
+	 * <p>
+	 * When using this method, any failed attempts are immediately marked as
+	 * 'timed out' (they are never retried).
+	 * <p>
+	 * Then terminates all the service worker threads.
+	 * 
+	 * @param shutdownLimitTimestamp timestamp defining how long to wait at a
+	 * 		maximum for items to drop to zero
+	 * @param ignoreDelays if true, then internal delays are ignored (such as
+	 * 		after an error or if 'submit with delay' methods are used)
+	 * @param ignoreTickets if true, then rate limiter is ignored, all requests
+	 * 		proceed immediately as if they have a valid ticket
+	 * 
+	 * @return number of remaining in-flight items at the end; if everything
+	 * 		manages to spool out, it should be zero
+	 * 
+	 * @throws IllegalStateException if attempting to shutdown when it's been
+	 * 		shutdown already
+	 * @throws InterruptedException if thread is interrupted during the wait
+	 * 
+	 * @see RRLControlState#SHUTDOWN_IN_PROGRESS for more information about
+	 * 		specific control flags used by this method
+	 */
+	public int shutdownUntil(final long shutdownLimitTimestamp, boolean ignoreDelays, boolean ignoreTickets)
+		throws IllegalStateException, InterruptedException
+	{
+		return internalShutdown(
+			RRLControlState.SHUTDOWN_IN_PROGRESS
+				.withIgnoreDelays(ignoreDelays)
+				.withWaitForTickets(ignoreTickets ? null : true), 
+			shutdownLimitTimestamp);
+	}
+	
+	
+	/**
+	 * Perform a shutdown on the service.
+	 * <p>
+	 * Fails with {@link IllegalStateException} if called after service is already
+	 * in {@link RRLControlState#SHUTDOWN} state.
+	 * <p>
+	 * Sets service flags in accordance with provided parameters, disables
+	 * accepting new requests and waits for in-flight items to drop to zero 
+	 * for up to the given timestamp.
+	 * <p>
+	 * When using this method, any failed attempts are immediately marked as
+	 * 'timed out' (they are never retried).
+	 * <p>
+	 * Then terminates all the service worker threads.
+	 * 
+	 * @param maxWaitVirtualMs virtual milliseconds to wait for maximum wait for
+	 * 		a complete spooldown
+	 * @param ignoreDelays if true, then internal delays are ignored (such as
+	 * 		after an error or if 'submit with delay' methods are used)
+	 * @param ignoreTickets if true, then rate limiter is ignored, all requests
+	 * 		proceed immediately as if they have a valid ticket
+	 * 
+	 * @return number of remaining in-flight items at the end; if everything
+	 * 		manages to spool out, it should be zero
+	 * 
+	 * @throws IllegalStateException if attempting to shutdown when it's been
+	 * 		shutdown already
+	 * @throws InterruptedException if thread is interrupted during the wait
+	 * 
+	 * @see RRLControlState#SHUTDOWN_IN_PROGRESS for more information about
+	 * 		specific control flags used by this method
+	 */
+	public int shutdownFor(final long maxWaitVirtualMs, boolean ignoreDelays, boolean ignoreTickets)
+		throws IllegalStateException, InterruptedException
+	{
+		long untilTime = timeAddVirtualIntervalToRealWorldTime(timeNow(), maxWaitVirtualMs);
+		
+		return shutdownUntil(untilTime, ignoreDelays, ignoreTickets);
+	}
+	
+	
+	/**
+	 * Perform a shutdown on the service.
+	 * <p>
+	 * Fails with {@link IllegalStateException} if called after service is already
+	 * in {@link RRLControlState#SHUTDOWN} state.
+	 * <p>
+	 * Sets service state in accordance with provided state (after adjusting
+	 * target spooldown timestamp) and waits for in-flight items to drop to zero 
+	 * for up to the given timestamp.
+	 * <p>
+	 * When using this method, any failed attempts are immediately marked as
+	 * 'timed out' (they are never retried).
+	 * <p>
+	 * Then terminates all the service worker threads.
+	 * 
+	 * @param shutdownLimitTimestamp timestamp defining how long to wait at a
+	 * 		maximum for items to drop to zero
+	 * @param stateDuringShutdown specific service state to use during shutdown
+	 * 		process
+	 * 
+	 * @return number of remaining in-flight items at the end; if everything
+	 * 		manages to spool out, it should be zero
+	 * 
+	 * @throws IllegalStateException if attempting to shutdown when it's been
+	 * 		shutdown already
+	 * @throws InterruptedException if thread is interrupted during the wait
+	 * 
+	 * @see RRLControlState#SHUTDOWN_IN_PROGRESS for more information about
+	 * 		specific control flags used by this method
+	 */
+	public int shutdownUntil(final long shutdownLimitTimestamp, RRLControlState stateDuringShutdown)
+		throws IllegalStateException, InterruptedException
+	{
+		return internalShutdown(
+			stateDuringShutdown, 
+			shutdownLimitTimestamp);
+	}
+	
+	
+	/**
+	 * Perform a shutdown on the service.
+	 * <p>
+	 * Fails with {@link IllegalStateException} if called after service is already
+	 * in {@link RRLControlState#SHUTDOWN} state.
+	 * <p>
+	 * Sets service state in accordance with provided state (after adjusting
+	 * target spooldown timestamp) and waits for in-flight items to drop to zero 
+	 * for up to the given timestamp.
+	 * <p>
+	 * When using this method, any failed attempts are immediately marked as
+	 * 'timed out' (they are never retried).
+	 * <p>
+	 * Then terminates all the service worker threads.
+	 * 
+	 * @param maxWaitVirtualMs virtual milliseconds to wait for maximum wait for
+	 * 		a complete spooldown
+	 * @param stateDuringShutdown specific service state to use during shutdown
+	 * 		process
+	 * 
+	 * @return number of remaining in-flight items at the end; if everything
+	 * 		manages to spool out, it should be zero
+	 * 
+	 * @throws IllegalStateException if attempting to shutdown when it's been
+	 * 		shutdown already
+	 * @throws InterruptedException if thread is interrupted during the wait
+	 * 
+	 * @see RRLControlState#SHUTDOWN_IN_PROGRESS for more information about
+	 * 		specific control flags used by this method
+	 */
+	public int shutdownFor(final long maxWaitVirtualMs, RRLControlState stateDuringShutdown)
+		throws IllegalStateException, InterruptedException
+	{
+		long untilTime = timeAddVirtualIntervalToRealWorldTime(timeNow(), maxWaitVirtualMs);
+		
+		return shutdownUntil(untilTime, stateDuringShutdown);
+	}
 	
 	
 	/**
@@ -2243,10 +2953,13 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				}
 			};
 			
+			RRLControlState cState = getControlState();
+			
 			RRLStatus status = RRLStatusBuilder
 				.statusCreatedAt(now)
-				.serviceAlive(resetEverythingAliveIfFalse.apply(true)) //zzz impl actual status
-				.serviceUsable(true) // zzz impl actual
+				.acceptingRequests(isAcceptingRequests())
+				.serviceControlState(cState)
+				.serviceControlStateDescription(cState.getDescription())
 				.mainQueueProcessingThreadAlive(       resetEverythingAliveIfThreadIsDead.apply(mainQueueProcessingThread))
 				.delayQueueProcessingThreadsAreAlive(  resetEverythingAliveIfFalse.apply(isAllDelayQueuesAlive()))
 				.requestsExecutorServiceAlive(         resetEverythingAliveIfFalse.apply(
@@ -2260,6 +2973,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 				
 				.currentProcessingRequestsCount(processingRequestsCount.get())
 				.mainQueueSize(mainQueue.size())
+				
+				.estimatedAvailableRateLimiterTickets(rateLimiter.getAvailableTicketsEstimation())
 				
 				.configMaxAttempts(config.getMaxAttempts())
 				.configDelaysAfterFailure(config.getDelaysAfterFailure())

@@ -255,9 +255,8 @@ overloading the target system).
   statistics etc.
 . There are also various hooks that can be used to customize behavior.
 
-NOTE: the service is functional but it is not 'complete' -- there are missing
-Javadocs and some functionality (such as requesting cancellation of a pending
-request) is not yet available.
+See ExampleAsyncHttpSubmitterService and ExampleAsyncHttpSubmitterServiceUsage
+for basic example on how to use the service.
 
 
 - io.github.solf.extra2.stacktrace

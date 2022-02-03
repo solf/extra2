@@ -17,6 +17,7 @@ package io.github.solf.extra2.retry;
 
 import static io.github.solf.extra2.testutil.AssertExtra.assertBetweenInclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertContains;
+import static io.github.solf.extra2.testutil.AssertExtra.assertFails;
 import static io.github.solf.extra2.testutil.AssertExtra.assertFailsWithSubstring;
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static org.testng.Assert.assertEquals;
@@ -33,10 +34,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,8 +51,10 @@ import org.joda.time.LocalDateTime;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import io.github.solf.extra2.concurrent.ConsumerWithException;
 import io.github.solf.extra2.concurrent.exception.ExecutionRuntimeException;
 import io.github.solf.extra2.config.Configuration;
+import io.github.solf.extra2.config.FlatConfiguration;
 import io.github.solf.extra2.config.OverrideFlatConfiguration;
 import io.github.solf.extra2.lambda.TriConsumer;
 import io.github.solf.extra2.retry.RRLConfig;
@@ -56,6 +63,8 @@ import io.github.solf.extra2.retry.RRLFuture;
 import io.github.solf.extra2.retry.RRLStatus;
 import io.github.solf.extra2.retry.RRLTimeoutException;
 import io.github.solf.extra2.retry.RetryAndRateLimitService;
+import io.github.solf.extra2.testutil.TestUtil;
+import io.github.solf.extra2.testutil.TestUtil.AsyncTestRunner;
 import io.github.solf.extra2.util.TypeUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -105,7 +114,7 @@ public class TestRRL
 		
 		Thread.sleep(150);
 		
-		//zzz shutdown?
+		service.shutdownFor(500, true, true);
 	}
 	
 	/**
@@ -198,57 +207,21 @@ public class TestRRL
 	@Test
 	public void simpleCasesTest() throws InterruptedException
 	{
-		//zzz test all the different flavours of future#get
-		
 		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
 		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
 		
 		final AtomicInteger failUntilAttempt = new AtomicInteger(3);
 		
 		RRLConfig config = new RRLConfig(Configuration.fromPropertiesFile("retry/simpleCasesTest"));
-		RetryAndRateLimitService<String, String> service = new RetryAndRateLimitService<String, String>(config)
-		{
-			@Override
-			protected String processRequest(String input, int attemptNumber) throws InterruptedException
-			{
-//				System.out.println("" + new Date() + " " + attemptNumber + ": " + System.currentTimeMillis());{}
-				
-				String result = null;
-				if (attemptNumber >= failUntilAttempt.get())
-					result = "success: " + input;
-					
-				Thread.sleep(20);
-				
-				attempts.add(new AttemptRecord<>(System.currentTimeMillis(), attemptNumber, input, result));
-					
-				if (result == null)
-					throw new IllegalStateException("attempt: " + attemptNumber);
-				
-				return result;
-			}
-
-			@SuppressWarnings("hiding")
-			@Override
-			protected RRLEventListener<String, String> spiCreateEventListener(
-				RRLConfig config, String commonNamingPrefix,
-				ThreadGroup threadGroup)
-			{
-				return createEventListenerProxy(
-					(proxy, method, methodArgs) -> {
-						events.add(new EventListenerEvent(proxy, method, methodArgs));
-//						System.out.println("" + new LocalDateTime() + " " + "[" + method.getName() + "]: " + Arrays.toString(methodArgs));{}
-					});
-			}
-			
-			
-		};
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 20, failUntilAttempt, attempts, events);
 		
 		final RRLStatus beforeStartStatus = service.getStatus(0);
 		{
 			assertBetweenInclusive(beforeStartStatus.getStatusCreatedAt(), System.currentTimeMillis() - 15, System.currentTimeMillis());
 			
-//zzz			assertFalse(beforeStartStatus.isServiceAlive());
-//zzz			assertFalse(beforeStartStatus.isServiceUsable());
+			assertFalse(beforeStartStatus.isAcceptingRequests());
+			assertEquals(beforeStartStatus.getCurrentProcessingRequestsCount(), 0);
 			
 			assertFalse(beforeStartStatus.isEverythingAlive());
 			assertFalse(beforeStartStatus.isMainQueueProcessingThreadAlive());
@@ -264,8 +237,8 @@ public class TestRRL
 			RRLStatus status = service.getStatus(2000);
 			assertEquals(status, beforeStartStatus);
 			
-			//zzz			assertFalse(status.isServiceAlive());
-			//zzz			assertFalse(status.isServiceUsable());
+			assertFalse(status.isAcceptingRequests());
+			assertEquals(status.getCurrentProcessingRequestsCount(), 0);
 						
 			assertFalse(status.isEverythingAlive());
 			assertFalse(status.isMainQueueProcessingThreadAlive());
@@ -281,8 +254,8 @@ public class TestRRL
 			assertNotEquals(status, beforeStartStatus);
 			assertBetweenInclusive(status.getStatusCreatedAt(), System.currentTimeMillis() - 15, System.currentTimeMillis());
 			
-			//zzz			assertTrue(status.isServiceAlive());
-			//zzz			assertTrue(status.isServiceUsable());
+			assertTrue(status.isAcceptingRequests());
+			assertEquals(status.getCurrentProcessingRequestsCount(), 0);
 						
 			assertTrue(status.isEverythingAlive());
 			assertTrue(status.isMainQueueProcessingThreadAlive());
@@ -312,7 +285,7 @@ public class TestRRL
 			checkAttempt(attempts.poll(), 3, "request", "success: request", start + 940, start + 1140);
 			assertNull(attempts.poll());
 			
-	//zzz		checkEvent(events.poll(), "requestAdded"); need to do checkEvent tests
+	//TO-DO		checkEvent(events.poll(), "requestAdded"); need to do checkEvent tests
 			
 			
 			{
@@ -321,8 +294,8 @@ public class TestRRL
 				RRLStatus status = service.getStatus(5);
 				assertBetweenInclusive(status.getStatusCreatedAt(), System.currentTimeMillis() - 15, System.currentTimeMillis());
 				
-				//zzz			assertTrue(status.isServiceAlive());
-				//zzz			assertTrue(status.isServiceUsable());
+				assertTrue(status.isAcceptingRequests());
+				assertEquals(status.getCurrentProcessingRequestsCount(), 0);
 							
 				assertTrue(status.isEverythingAlive());
 				assertTrue(status.isMainQueueProcessingThreadAlive());
@@ -415,8 +388,8 @@ public class TestRRL
 			RRLStatus status = service.getStatus(0);
 			assertBetweenInclusive(status.getStatusCreatedAt(), System.currentTimeMillis() - 15, System.currentTimeMillis());
 			
-			//zzz			assertTrue(status.isServiceAlive());
-			//zzz			assertTrue(status.isServiceUsable());
+			assertTrue(status.isAcceptingRequests());
+			assertEquals(status.getCurrentProcessingRequestsCount(), 0);
 						
 			assertTrue(status.isEverythingAlive());
 			assertTrue(status.isMainQueueProcessingThreadAlive());
@@ -443,6 +416,59 @@ public class TestRRL
 			assertFailsWithSubstring(() -> service.submitFor("request too many", 1000), 
 				"java.util.concurrent.RejectedExecutionException: Too many already-processing requests");
 		}
+	}
+
+	/**
+	 * Creates a basic RRL service for testing.
+	 * 
+	 * @param config configuration for service
+	 * @param failUntilAttempt all attempts with lower number than this will fail
+	 * @param attempts where to store attempts
+	 * @param events where to store events
+	 */
+	private RetryAndRateLimitService<String, String> createBasicService(
+		RRLConfig config, final long processingDelay, final AtomicInteger failUntilAttempt,
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts,
+		final LinkedBlockingQueue<EventListenerEvent> events)
+	{
+		RetryAndRateLimitService<String, String> service = new RetryAndRateLimitService<String, String>(config)
+		{
+			@Override
+			protected String processRequest(String input, int attemptNumber) throws InterruptedException
+			{
+//				System.out.println("" + new Date() + " " + attemptNumber + ": " + System.currentTimeMillis());{}
+				
+				String result = null;
+				if (attemptNumber >= failUntilAttempt.get())
+					result = "success: " + input;
+					
+				if (processingDelay > 0)
+					Thread.sleep(processingDelay);
+				
+				attempts.add(new AttemptRecord<>(System.currentTimeMillis(), attemptNumber, input, result));
+					
+				if (result == null)
+					throw new IllegalStateException("attempt: " + attemptNumber);
+				
+				return result;
+			}
+
+			@SuppressWarnings("hiding")
+			@Override
+			protected RRLEventListener<String, String> spiCreateEventListener(
+				RRLConfig config, String commonNamingPrefix,
+				ThreadGroup threadGroup)
+			{
+				return createEventListenerProxy(
+					(proxy, method, methodArgs) -> {
+						events.add(new EventListenerEvent(proxy, method, methodArgs));
+//						System.out.println("" + new LocalDateTime() + " " + "[" + method.getName() + "]: " + Arrays.toString(methodArgs));{}
+					});
+			}
+			
+			
+		};
+		return service;
 	}
 	
 	
@@ -573,7 +599,9 @@ public class TestRRL
 		}
 	}
 	
-	//zzz comment
+	/**
+	 * Different processing options for full test items.
+	 */
 	private static enum FullTestItemMode
 	{
 		NOT_EARLIER_THAN,
@@ -587,7 +615,9 @@ public class TestRRL
 	}
 	
 	
-	//zzz comment
+	/**
+	 * Input class used for full test.
+	 */
 	@RequiredArgsConstructor
 	@ToString(doNotUseGetters = true)
 	private static class FullTestItem
@@ -942,4 +972,701 @@ public class TestRRL
 			}));
 		
 	}
+	
+	
+	/**
+	 * Tests for the case when shutdown still respects delays and stuff doesn't 
+	 * spool out because of the initial delays required.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestDelayRespected1() throws InterruptedException, TimeoutException, ExecutionException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(0);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		RRLConfig config = new RRLConfig(baseConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		{
+			RRLStatus status = service.getStatus(0);
+			assertEquals(status.getServiceControlStateDescription(), "NOT_STARTED");
+			assertFalse(status.isAcceptingRequests());
+			assertFalse(status.isEverythingAlive());
+			assertFalse(status.isDelayQueueProcessingThreadsAreAlive());
+			assertFalse(status.isMainQueueProcessingThreadAlive());
+			assertTrue(status.isRequestsExecutorServiceAlive());
+		}
+		
+		assertFailsWithSubstring(() -> service.submitFor("r", 123), "Service has not been started yet");
+		service.start();
+		assertFailsWithSubstring(() -> service.start(), "Unable to start service which is not in NON_STARTED state");
+		{
+			RRLStatus status = service.getStatus(0);
+			assertEquals(status.getServiceControlStateDescription(), "RUNNING");
+			assertTrue(status.isAcceptingRequests());
+			assertTrue(status.isEverythingAlive());
+			assertTrue(status.isDelayQueueProcessingThreadsAreAlive());
+			assertTrue(status.isMainQueueProcessingThreadAlive());
+			assertTrue(status.isRequestsExecutorServiceAlive());
+		}
+		
+		RRLFuture<String, String> f1 = service.submitForWithDelayFor("1", 10000, 1000);
+		RRLFuture<String, String> f2 = service.submitForWithDelayFor("2", 10000, 1000);
+		
+		AsyncTestRunner<Integer> sf = TestUtil.callAsynchronously(() -> service.shutdownFor(500, false, false));
+		Thread.sleep(100); // async shutdown must initiate
+		{
+			RRLStatus status = service.getStatus(0);
+			assertEquals(status.getServiceControlStateDescription(), "SHUTDOWN_IN_PROGRESS");
+			assertFalse(status.isAcceptingRequests());
+			assertTrue(status.isEverythingAlive());
+			assertTrue(status.isDelayQueueProcessingThreadsAreAlive());
+			assertTrue(status.isMainQueueProcessingThreadAlive());
+			assertTrue(status.isRequestsExecutorServiceAlive());
+		}
+
+		assertFailsWithSubstring(() -> service.submitFor("r", 123), "Service is being shut down");
+		assertFailsWithSubstring(() -> service.start(), "Unable to start service which is not in NON_STARTED state");
+		
+		assertEquals((int)sf.getResult(700), 2);
+		
+		assertNull(f1.getOrNull(0));
+		assertFailsWithSubstring(() -> f2.get(0), "java.util.concurrent.TimeoutException");
+		
+		assertFailsWithSubstring(() -> service.submitFor("r", 123), "Service has been shut down");
+		assertFailsWithSubstring(() -> service.start(), "Unable to start service which is not in NON_STARTED state");
+		
+		{
+			RRLStatus status = service.getStatus(0);
+			assertEquals(status.getServiceControlStateDescription(), "SHUTDOWN");
+			assertFalse(status.isAcceptingRequests());
+			assertFalse(status.isEverythingAlive());
+			assertFalse(status.isDelayQueueProcessingThreadsAreAlive());
+			assertFalse(status.isMainQueueProcessingThreadAlive());
+			assertFalse(status.isRequestsExecutorServiceAlive());
+		}
+	}
+	
+	/**
+	 * Tests for the case when shutdown still respects delays and stuff doesn't 
+	 * spool out because of the retry delays required.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestDelayRespected2() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(2);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		RRLConfig config = new RRLConfig(baseConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitForWithDelayFor("1", 10000, 1000);
+		RRLFuture<String, String> f2 = service.submitForWithDelayFor("2", 10000, 1000);
+		Thread.sleep(50); // let initial failures happen
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, false, false), 2);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 400L, 600L);
+		
+		assertNull(f1.getOrNull(0));
+		assertFailsWithSubstring(() -> f2.get(0), "TimeoutException");
+	}
+	
+	/**
+	 * Tests for the case when shutdown doesn't respects delays.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestNoDelaySuccess() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(2);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		RRLConfig config = new RRLConfig(baseConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		Thread.sleep(50); // let initial failures happen
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, true, false), 0);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 0L, 150L);
+		
+		assertEquals(f1.getOrNull(0), "success: 1");
+		assertEquals(f2.getOrNull(0), "success: 2");
+	}
+	
+	/**
+	 * Tests for the case when shutdown doesn't respects delays but requests
+	 * still fail.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestNoDelayFailAfterAttempts() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(3);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		RRLConfig config = new RRLConfig(baseConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		Thread.sleep(50); // let initial failures happen
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, true, false), 0);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 0L, 150L);
+		
+		{
+			RRLTimeoutException to = assertFails(() -> f1.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+		{
+			RRLTimeoutException to = assertFails(() -> f2.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+	}
+	
+	/**
+	 * Tests for the case when shutdown respects tokens and there's not enough.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestOutOfTokens() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(2);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+		oConfig.override("rateLimiterRefillInterval", "1000s");
+		oConfig.override("rateLimiterRefillRate", "1");
+		
+		RRLConfig config = new RRLConfig(oConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		Thread.sleep(50); // let initial failures happen
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, true, false), 0);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 400L, 600L);
+		
+		{
+			RRLTimeoutException to = assertFails(() -> f1.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 200L, 400L);
+		}
+		{
+			RRLTimeoutException to = assertFails(() -> f2.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 400L, 600L);
+		}
+	}
+	
+	/**
+	 * Tests for the case when shutdown ignores tokens (even though there are
+	 * not enough) but the requests fail, so they are timed-out.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestIgnoreTokensFailAfterAttempts() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(2);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+		oConfig.override("rateLimiterRefillInterval", "1000s");
+		oConfig.override("rateLimiterRefillRate", "1");
+		
+		RRLConfig config = new RRLConfig(oConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		Thread.sleep(50); // let initial failures happen
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, true, true), 0);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 0L, 100L);
+		
+		{
+			RRLTimeoutException to = assertFails(() -> f1.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+		{
+			RRLTimeoutException to = assertFails(() -> f2.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+	}
+	
+	/**
+	 * Tests for the case when shutdown ignores tokens (even though there are
+	 * not enough) -- and the requests succeed.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestIgnoreTokensSuccess() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(1);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+		oConfig.override("rateLimiterRefillInterval", "1000s");
+		oConfig.override("rateLimiterRefillRate", "1");
+		
+		RRLConfig config = new RRLConfig(oConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		Thread.sleep(50); // let initial failures happen
+		
+		assertNull(f1.getOrNull(0));
+		assertNull(f2.getOrNull(0));
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, true, true), 0);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 0L, 100L);
+		
+		assertEquals(f1.getOrNull(0), "success: 1");
+		assertEquals(f2.getOrNull(0), "success: 2");
+	}
+	
+	/**
+	 * Tests for the case when shutdown doesn't wait for tokens (only uses 
+	 * immediately available) -- and the requests timeout.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestDontWaitForTokensTimeouts() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(1);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+		oConfig.override("rateLimiterRefillInterval", "1000s");
+		oConfig.override("rateLimiterRefillRate", "1");
+		
+		RRLConfig config = new RRLConfig(oConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		Thread.sleep(50); // let initial failures happen
+		
+		assertNull(f1.getOrNull(0));
+		assertNull(f2.getOrNull(0));
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, 
+			RRLControlState.SHUTDOWN_IN_PROGRESS.withWaitForTickets(false)), 0);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 0L, 100L);
+		
+		{
+			RRLTimeoutException to = assertFails(() -> f1.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+		{
+			RRLTimeoutException to = assertFails(() -> f2.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+	}
+	
+	/**
+	 * Tests for the case when there's not enough threads available during shutdown.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestOutOfThreads() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(2);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+		oConfig.override("requestProcessingThreadPoolConfig", "1,1");
+		
+		RRLConfig config = new RRLConfig(oConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 999999999/*thread is stuck 'forever'*/, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		RRLFuture<String, String> f3 = service.submitFor("3", 10000);
+		Thread.sleep(50); // let initial processing happen
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, true, false), 1);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 400L, 600L);
+		
+		// this may fail in different ways depending on specifics, e.g. thread can be interrupted by shutdown
+		assertFails(() -> f1.getOrNull(0));
+		
+		{
+			RRLTimeoutException to = assertFails(() -> f2.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 200L, 400L);
+		}
+		{
+			RRLTimeoutException to = assertFails(() -> f3.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 400L, 600L);
+		}
+	}
+	
+	/**
+	 * Tests for the case when shutdown timeouts all pending requests immediately.
+	 * 
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void shutdownTestTimeoutAllImmediately() throws InterruptedException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(2);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/shutdownTest");
+		
+		OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+		oConfig.override("rateLimiterRefillInterval", "1000s");
+		oConfig.override("rateLimiterRefillRate", "1");
+		
+		RRLConfig config = new RRLConfig(oConfig);
+		RetryAndRateLimitService<String, String> service = createBasicService(
+			config, 0, failUntilAttempt, attempts, events);
+		service.start();
+		
+		RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+		RRLFuture<String, String> f2 = service.submitFor("2", 10000);
+		Thread.sleep(50); // let initial failures happen
+		
+		long startShutdown = System.currentTimeMillis();
+		assertEquals(service.shutdownFor(500, RRLControlStateBuilder
+			.description("SHUTDOWN_IN_PROGRESS")
+			.rejectRequestsString("Service is being shut down.")
+			.ignoreDelays(true)
+			.timeoutAllPendingRequests(true) // this is what we test
+			.timeoutRequestsAfterFailedAttempt(true)
+			.spooldownTargetTimestamp(-1)
+			.limitWaitingForProcessingThread(true)
+			.limitWaitingForTicket(true)
+			.waitForTickets(true)
+			.buildRRLControlState()
+			), 0);
+		assertBetweenInclusive(System.currentTimeMillis() - startShutdown, 0L, 100L);
+		
+		{
+			RRLTimeoutException to = assertFails(() -> f1.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+		{
+			RRLTimeoutException to = assertFails(() -> f2.getOrNull(0));
+			assertBetweenInclusive(to.getTotalProcessingTime(), 50L, 200L);
+		}
+	}
+	
+	
+	/**
+	 * Tests for all the different flavors of the {@link RRLFuture} access.
+	 * @throws ExecutionException 
+	 * @throws TimeoutException 
+	 */
+	@Test
+	public void futureTests() throws InterruptedException, TimeoutException, ExecutionException
+	{
+		final LinkedBlockingQueue<AttemptRecord<String, String>> attempts = new LinkedBlockingQueue<>();
+		final LinkedBlockingQueue<EventListenerEvent> events = new LinkedBlockingQueue<>();
+		
+		final AtomicInteger failUntilAttempt = new AtomicInteger(0);
+		
+		final FlatConfiguration baseConfig = Configuration.fromPropertiesFile("retry/futureTest");
+		
+		{
+			// Test 'wait for result' timeouts (request hasn't completed yet by the time wait time expired)
+			failUntilAttempt.set(0);
+			OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+			
+			RRLConfig config = new RRLConfig(oConfig);
+			RetryAndRateLimitService<String, String> service = createBasicService(
+				config, 999999999/*forever*/, failUntilAttempt, attempts, events);
+			service.start();
+			
+			RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+			
+			AsyncTestRunner<String> a1 = TestUtil.callAsynchronously(() -> f1.get());
+			AsyncTestRunner<String> a2 = TestUtil.callAsynchronously(() -> f1.get(150));
+			AsyncTestRunner<String> a3 = TestUtil.callAsynchronously(() -> f1.get(150, TimeUnit.MILLISECONDS));
+			AsyncTestRunner<@Nullable String> a4 = TestUtil.callAsynchronously(() -> f1.getOrNull(150));
+			AsyncTestRunner<@Nullable String> a5 = TestUtil.callAsynchronously(() -> f1.getOrNull(150, TimeUnit.MILLISECONDS));
+			
+			Thread.sleep(250); // longer that async timeouts
+			
+			assertFailsWithSubstring(() -> a1.getResult(0, false), "Asyncronous execution didn't finish");
+			{
+				ExecutionException e = assertFails(() -> a2.getResult(0));
+				assertTrue(e.getCause() instanceof TimeoutException, e.toString()); 
+			}
+			{
+				ExecutionException e = assertFails(() -> a3.getResult(0));
+				assertTrue(e.getCause() instanceof TimeoutException, e.toString()); 
+			}
+			assertNull(a4.getResult(0));
+			assertNull(a5.getResult(0));
+			
+			assertFalse(f1.isCancelled());
+			assertFalse(f1.isDone());
+			assertFalse(f1.isSuccessful());
+			
+			service.shutdownFor(50, true, true);
+		}
+		
+		{
+			// Test 'processing successful' stuff.
+			failUntilAttempt.set(0);
+			OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+			
+			RRLConfig config = new RRLConfig(oConfig);
+			RetryAndRateLimitService<String, String> service = createBasicService(
+				config, 0, failUntilAttempt, attempts, events);
+			service.start();
+			
+			{
+				RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+			
+				final long start = System.currentTimeMillis();
+				assertEquals(f1.get(), "success: 1");
+				assertBetweenInclusive(System.currentTimeMillis() - start, 0L, 150L);
+				assertFalse(f1.isCancelled());
+				assertTrue(f1.isDone());
+				assertTrue(f1.isSuccessful());
+			}
+			{
+				RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+				assertEquals(f1.get(150), "success: 1");
+				assertFalse(f1.isCancelled());
+				assertTrue(f1.isDone());
+				assertTrue(f1.isSuccessful());
+			}
+			{
+				RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+				assertEquals(f1.get(150, TimeUnit.MILLISECONDS), "success: 1");
+				assertFalse(f1.isCancelled());
+				assertTrue(f1.isDone());
+				assertTrue(f1.isSuccessful());
+			}
+			{
+				RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+				assertEquals(f1.getOrNull(150), "success: 1");
+				assertFalse(f1.isCancelled());
+				assertTrue(f1.isDone());
+				assertTrue(f1.isSuccessful());
+			}
+			{
+				RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+				assertEquals(f1.getOrNull(150, TimeUnit.MILLISECONDS), "success: 1");
+				assertFalse(f1.isCancelled());
+				assertTrue(f1.isDone());
+				assertTrue(f1.isSuccessful());
+			}
+			
+			service.shutdownFor(50, true, true);
+		}
+		
+		{
+			// Test 'processing failed' stuff.
+			failUntilAttempt.set(10);
+			OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+			
+			RRLConfig config = new RRLConfig(oConfig);
+			RetryAndRateLimitService<String, String> service = createBasicService(
+				config, 0, failUntilAttempt, attempts, events);
+			service.start();
+			
+			Consumer<ConsumerWithException<RRLFuture<String, String>>> executor = new Consumer<ConsumerWithException<RRLFuture<String, String>>>()
+			{
+				@Override
+				public void accept(ConsumerWithException<RRLFuture<String, String>> f)
+				{
+					RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+					assertFailsWithSubstring(() -> f.accept(f1), "ExecutionRuntimeException: java.lang.IllegalStateException: attempt: 1");
+					assertFalse(f1.isCancelled());
+					assertTrue(f1.isDone());
+					assertFalse(f1.isSuccessful());
+				}
+			};
+			
+			{
+				final long start = System.currentTimeMillis();
+				executor.accept(f -> f.get());
+				assertBetweenInclusive(System.currentTimeMillis() - start, 0L, 150L);
+			}
+			executor.accept(f -> f.get(150));
+			executor.accept(f -> f.get(150, TimeUnit.MILLISECONDS));
+			executor.accept(f -> f.getOrNull(150));
+			executor.accept(f -> f.getOrNull(150, TimeUnit.MILLISECONDS));
+			
+			service.shutdownFor(50, true, true);
+		}
+		
+		{
+			// Test underlying request timing out (expired w/o success)
+			failUntilAttempt.set(10);
+			OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+			oConfig.override("maxAttempts", "10");
+			
+			RRLConfig config = new RRLConfig(oConfig);
+			RetryAndRateLimitService<String, String> service = createBasicService(
+				config, 0, failUntilAttempt, attempts, events);
+			service.start();
+			
+			RRLFuture<String, String> f1 = service.submitFor("1", 50/*very short validity*/);
+			
+			Consumer<ConsumerWithException<RRLFuture<String, String>>> executor = new Consumer<ConsumerWithException<RRLFuture<String, String>>>()
+			{
+				@Override
+				public void accept(ConsumerWithException<RRLFuture<String, String>> f)
+				{
+					RRLTimeoutException e = assertFails(() -> f.accept(f1));
+					assertBetweenInclusive(e.getTotalProcessingTime(), 50L, 125L);
+					assertFalse(f1.isCancelled());
+					assertTrue(f1.isDone());
+					assertFalse(f1.isSuccessful());
+				}
+			};
+			
+			{
+				final long start = System.currentTimeMillis();
+				executor.accept(f -> f.get());
+				assertBetweenInclusive(System.currentTimeMillis() - start, 0L, 150L);
+			}
+			executor.accept(f -> f.get(150));
+			executor.accept(f -> f.get(150, TimeUnit.MILLISECONDS));
+			executor.accept(f -> f.getOrNull(150));
+			executor.accept(f -> f.getOrNull(150, TimeUnit.MILLISECONDS));
+			
+			service.shutdownFor(50, true, true);
+		}
+		
+		{
+			// Test underlying request cancellation
+			failUntilAttempt.set(10);
+			OverrideFlatConfiguration oConfig = new OverrideFlatConfiguration(baseConfig);
+			oConfig.override("maxAttempts", "10");
+			oConfig.override("delaysAfterFailure", "25ms");
+			
+			RRLConfig config = new RRLConfig(oConfig);
+			RetryAndRateLimitService<String, String> service = createBasicService(
+				config, 0, failUntilAttempt, attempts, events);
+			service.start();
+			
+			
+			Consumer<ConsumerWithException<RRLFuture<String, String>>> executor = new Consumer<ConsumerWithException<RRLFuture<String, String>>>()
+			{
+				@Override
+				public void accept(ConsumerWithException<RRLFuture<String, String>> f)
+				{
+					final long start = System.currentTimeMillis();
+					
+					RRLFuture<String, String> f1 = service.submitFor("1", 10000);
+					try
+					{
+						Thread.sleep(25);
+					} catch( InterruptedException e1 )
+					{
+						fail();
+					}
+					f1.requestCancellation();
+					
+					CancellationException e = assertFails(() -> f.accept(f1));
+					assertContains(e.toString(), "java.util.concurrent.CancellationException");
+					assertTrue(f1.isCancelled());
+					assertTrue(f1.isDone());
+					assertFalse(f1.isSuccessful());
+					
+					assertBetweenInclusive(System.currentTimeMillis() - start, 25L, 150L);
+				}
+			};
+			
+			executor.accept(f -> f.get());
+			executor.accept(f -> f.get(150));
+			executor.accept(f -> f.get(150, TimeUnit.MILLISECONDS));
+			executor.accept(f -> f.getOrNull(150));
+			executor.accept(f -> f.getOrNull(150, TimeUnit.MILLISECONDS));
+			
+			service.shutdownFor(50, true, true);
+		}
+	}
+	
 }

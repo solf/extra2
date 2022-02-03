@@ -62,7 +62,11 @@ public class RRLBucket4jFlatRateLimiter implements RRLRateLimiter<Object>
 	public @Nullable Object obtainTicket(long maxWaitRealMs)
 		throws InterruptedException
 	{
-		boolean success = bucket.asScheduler().tryConsume(1, Duration.ofMillis(maxWaitRealMs));
+		boolean success;
+		if (maxWaitRealMs > 0)
+			success = bucket.asScheduler().tryConsume(1, Duration.ofMillis(maxWaitRealMs));
+		else
+			success = bucket.tryConsume(1);
 		
 		if (success)
 			return TICKET_INSTANCE;
@@ -79,4 +83,9 @@ public class RRLBucket4jFlatRateLimiter implements RRLRateLimiter<Object>
 		bucket.addTokens(1);
 	}
 
+	@Override
+	public long getAvailableTicketsEstimation()
+	{
+		return bucket.getAvailableTokens();
+	}
 }
