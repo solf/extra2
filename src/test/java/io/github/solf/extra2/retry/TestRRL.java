@@ -1044,6 +1044,7 @@ public class TestRRL
 		assertFailsWithSubstring(() -> service.start(), "Unable to start service which is not in NON_STARTED state");
 		
 		{
+			Thread.sleep(75); // give service processing threads time to quit after the shutdown
 			RRLStatus status = service.getStatus(0);
 			assertEquals(status.getServiceControlStateDescription(), "SHUTDOWN");
 			assertFalse(status.isAcceptingRequests());
