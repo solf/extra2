@@ -39,6 +39,10 @@ public class RRLConfig extends BaseDelegatingOptions
 	@Getter
 	private final String serviceName = getRawOptions().getString("serviceName");
 	
+	/** Whether service should use daemon threads; using daemon threads increases risk of data loss (since service won't prevent JVM from exiting) but similarly it may unexpectedly prevent JVM from exiting */
+	@Getter
+	private final boolean useDaemonThreads = getRawOptions().getBoolean("useDaemonThreads");
+	
 	
 	/** Maximum allowed number of attempts for one requests -- if request doesn't complete successfully in this many attempts, it is abandoned (considired 'failed final') */ 
 	@Getter

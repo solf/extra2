@@ -491,6 +491,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		this.commonNamingPrefix = "RRLService[" + config.getServiceName() + "]";
 		
 		this.threadGroup = new ThreadGroup(commonNamingPrefix + " Thread Group");
+		this.threadGroup.setDaemon(config.isUseDaemonThreads());
 		
 		this.eventListener = eventListener != null ? eventListener : 
 			spiCreateEventListener(config, commonNamingPrefix, threadGroup);
@@ -813,6 +814,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			}
 		};
 		
+		thread.setDaemon(config.isUseDaemonThreads());
 		thread.setPriority(config.getMainQueueProcessingThreadPriority());
 		
 		return thread;
@@ -1199,6 +1201,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 			}
 		};
 		
+		thread.setDaemon(config.isUseDaemonThreads());
 		thread.setPriority(config.getDelayQueueProcessingThreadPriority());
 		
 		return thread;
@@ -1662,7 +1665,7 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		
 		return new WAThreadPoolExecutor(minSize, maxSize, 
 			commonNamingPrefix + " Requests Executor",
-			true/*is daemon*/, 
+			config.isUseDaemonThreads(), 
 			config.getRequestProcessingThreadPriority(), 
 			threadGroup);
 	}
