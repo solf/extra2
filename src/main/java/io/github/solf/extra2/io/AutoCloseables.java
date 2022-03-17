@@ -59,6 +59,30 @@ public class AutoCloseables implements AutoCloseable
 	}
 	
 	/**
+	 * Wraps a collection of {@link AutoCloseable}s into a single {@link AutoCloseableUnchecked}.
+	 * <p>
+	 * Any checked exceptions from {@link AutoCloseable#close()} are re-thrown as
+	 * unchecked {@link RuntimeException} instead; any unchecked exceptions are
+	 * thrown 'as is'.
+	 */
+	public static AutoCloseableUnchecked ofUnchecked(Collection<AutoCloseable> wrappedCloseables)
+	{
+		return AutoCloseableUnchecked.wrap(of(wrappedCloseables));
+	}
+	
+	/**
+	 * Wraps a collection of {@link AutoCloseable}s into a single {@link AutoCloseableUnchecked}.
+	 * <p>
+	 * Any checked exceptions from {@link AutoCloseable#close()} are re-thrown as
+	 * unchecked {@link RuntimeException} instead; any unchecked exceptions are
+	 * thrown 'as is'.
+	 */
+	public static AutoCloseableUnchecked ofUnchecked(AutoCloseable... wrappedCloseables)
+	{
+		return AutoCloseableUnchecked.wrap(of(wrappedCloseables));
+	}
+	
+	/**
 	 * Closeables wrapped in this aggregate.
 	 */
 	@Getter
