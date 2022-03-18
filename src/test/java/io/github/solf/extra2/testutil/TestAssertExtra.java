@@ -39,14 +39,19 @@ import static io.github.solf.extra2.testutil.AssertExtra.assertNotBetweenExclusi
 import static io.github.solf.extra2.testutil.AssertExtra.assertNotBetweenInclusive;
 import static io.github.solf.extra2.testutil.AssertExtra.assertNotContains;
 import static io.github.solf.extra2.testutil.AssertExtra.assertNotContainsIgnoreCase;
+import static io.github.solf.extra2.testutil.AssertExtra.assertPasses;
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
+
+import java.util.concurrent.Callable;
 
 import javax.annotation.Nonnull;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
+
+import io.github.solf.extra2.concurrent.RunnableWithException;
 
 /**
  * Tests for {@link AssertExtra}
@@ -105,6 +110,17 @@ public class TestAssertExtra
 		mustFailWithException(() -> assertFailsWithSubstring(() -> {throw new Exception("asd");}, "qasd", "msgF"));
 		mustFailWithException(() -> assertFailsWithSubstringIgnoreCase(() -> {throw new Exception("asd");}, "substring"));
 		mustFailWithException(() -> assertFailsWithSubstringIgnoreCase(() -> {throw new Exception("asd");}, "substring", "msgF"));
+		
+		assertEquals((int)assertPasses(() -> 1), 1);
+		assertEquals((int)assertPasses(() -> 2, "msgF"), 2);
+		assertPasses(() -> {System.currentTimeMillis();});
+		assertPasses(() -> {System.currentTimeMillis();}, "msgF");
+		assertFailsWithSubstring(() -> assertPasses(() -> {if (System.currentTimeMillis() > 0) throw new Exception("qwe"); return 1;}), "code block failed: java.lang.Exception: qwe");
+		assertFailsWithSubstring(() -> assertPasses(() -> {if (System.currentTimeMillis() > 0) throw new Exception("qwe"); return 1;}, "msgF"), "code block failed: : [msgF]: java.lang.Exception: qwe");
+		assertFailsWithSubstring(() -> assertPasses(() -> {if (System.currentTimeMillis() > 0) throw new Exception("zxc");}), "code block failed: java.lang.Exception: zxc");
+		assertFailsWithSubstring(() -> assertPasses(() -> {if (System.currentTimeMillis() > 0) throw new Exception("zxc");}, "msgF"), "code block failed: : [msgF]: java.lang.Exception: zxc");
+		assertFailsWithSubstring(() -> assertPasses((RunnableWithException)fakeNonNull()), "Parameter code block must not be null");
+		assertFailsWithSubstring(() -> assertPasses((Callable<?>)fakeNonNull()), "Parameter code block must not be null");
 		
 		mustFailWithException(() -> assertGreater(0, 0));
 		mustFailWithException(() -> assertGreater(0, 0, "msg"));

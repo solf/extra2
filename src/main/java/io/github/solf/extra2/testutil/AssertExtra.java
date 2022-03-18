@@ -259,7 +259,40 @@ public class AssertExtra
 		return result;
 	}
 
+	/**
+	 * Assert that given code block doesn't throw any exceptions.
+	 * <p>
+	 * Useful to e.g. wrap checked-exception-throwing blocks so that they don't
+	 * throw any checked exception.s
+	 */
+	public static void assertPasses(RunnableWithException r, String @Nullable... messages)
+	{
+		if (nullable(r) == null)
+			throw new IllegalArgumentException("Parameter code block must not be null.");
+		
+		assertPasses(() -> {r.run(); return null;}, messages);
+	}
 
+	/**
+	 * Assert that given code block doesn't throw any exceptions.
+	 * <p>
+	 * Useful to e.g. wrap checked-exception-throwing blocks so that they don't
+	 * throw any checked exception.s
+	 */
+	public static <T> T assertPasses(Callable<T> c, String @Nullable... messages)
+	{
+		if (nullable(c) == null)
+			throw new IllegalArgumentException("Parameter code block must not be null.");
+		
+		try
+		{
+			return c.call();
+		} catch (Exception e)
+		{
+			throw new IllegalStateException("code block failed: " + (((messages == null) || (messages.length == 0)) ? "" : ": " + Arrays.toString(messages) + ": ")  + e, e);
+		}
+	}
+	
 	/**
 	 * Asserts that haystack (via toString()) contains needle.
 	 * <p>
