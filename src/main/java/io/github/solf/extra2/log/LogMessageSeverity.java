@@ -44,6 +44,13 @@ public enum LogMessageSeverity
 	 */
 	EXTERNAL_WARN(440),
 	/**
+	 * Indicates a problem caused by invalid user input.
+	 * <p>
+	 * These messages usually indicate that there was no data loss (aside from
+	 * the invalid input itself which may be lost).
+	 */
+	INVALID_USER_INPUT(450),
+	/**
 	 * Indicates problem that is probably caused by internal somewhat-known
 	 * factors, such as potential concurrency/race conditions (which normally
 	 * are not expected to occur).
@@ -58,6 +65,17 @@ public enum LogMessageSeverity
 	 * These messages usually indicate that there was no data loss (yet).
 	 */
 	EXTERNAL_ERROR(540),
+	/**
+	 * Indicates an error caused by security issues, such as client failing to
+	 * provide proper access key or user failing to provide the correct password
+	 * (that last one could also reasonably be considered {@link #INVALID_USER_INPUT},
+	 * however in many cases it is desirable to separate security issues in order
+	 * to monitor attacks and such).
+	 * <p>
+	 * These messages usually indicate that there was no data loss (aside from
+	 * the potentially lost data in the input that had security issue).
+	 */
+	SECURITY_ERROR(550),
 	/**
 	 * Indicates an error which is likely to be caused by the 
 	 * problems and/or unexpected behavior in the program code itself.

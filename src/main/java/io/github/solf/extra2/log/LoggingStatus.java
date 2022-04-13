@@ -61,6 +61,15 @@ public class LoggingStatus
 	private final long loggedExternalWarnCount;
 	
 	/**
+	 * Indicates a problem caused by invalid user input.
+	 * <p>
+	 * These messages usually indicate that there was no data loss (aside from
+	 * the invalid input itself which may be lost).
+	 */
+	@Getter
+	private final long loggedInvalidUserInputCount;
+	
+	/**
 	 * Indicates an error probably caused by external factors, such
 	 * as underlying storage failing.
 	 * <p>
@@ -78,6 +87,19 @@ public class LoggingStatus
 	 */
 	@Getter
 	private final long loggedExternalDataLossCount;
+	
+	/**
+	 * Indicates an error caused by security issues, such as client failing to
+	 * provide proper access key or user failing to provide the correct password
+	 * (that last one could also reasonably be considered {@link #INVALID_USER_INPUT},
+	 * however in many cases it is desirable to separate security issues in order
+	 * to monitor attacks and such).
+	 * <p>
+	 * These messages usually indicate that there was no data loss (aside from
+	 * the potentially lost data in the input that had security issue).
+	 */
+	@Getter
+	private final long loggedSecurityErrorCount;
 	
 	/**
 	 * Indicates an error which is likely to be caused by the 

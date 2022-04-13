@@ -62,8 +62,12 @@ public class TestLoggingUtilitity
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_INFO", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
+		logger.log(ExampleLogMessage.TEST_INVALID_USER_INPUT, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_INVALID_USER_INPUT", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
+		logger.log(ExampleLogMessage.TEST_SECURITY_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_SECURITY_ERROR", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_DATA_LOSS, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_DATA_LOSS", 1);
 		logger.log(ExampleLogMessage.TEST_ERROR, null);
@@ -123,6 +127,8 @@ public class TestLoggingUtilitity
 		Thread.sleep(3); // advance time
 		logger.log(ExampleLogMessage.TEST_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_WARN", 1);
+		logger.log(ExampleLogMessage.TEST_INVALID_USER_INPUT, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_INVALID_USER_INPUT", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
@@ -135,6 +141,8 @@ public class TestLoggingUtilitity
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 
 		Thread.sleep(3); // advance time
+		logger.log(ExampleLogMessage.TEST_INVALID_USER_INPUT, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_INVALID_USER_INPUT", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_WARN, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_WARN", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
@@ -147,6 +155,8 @@ public class TestLoggingUtilitity
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 
 		Thread.sleep(3); // advance time
+		logger.log(ExampleLogMessage.TEST_INVALID_USER_INPUT, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_INVALID_USER_INPUT", 1);
 		logger.log(ExampleLogMessage.TEST_EXTERNAL_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_EXTERNAL_ERROR", 1);
 		logger.log(ExampleLogMessage.TEST_DATA_LOSS, null);
@@ -165,12 +175,16 @@ public class TestLoggingUtilitity
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 
 		Thread.sleep(3); // advance time
+		logger.log(ExampleLogMessage.TEST_SECURITY_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_SECURITY_ERROR", 1);
 		logger.log(ExampleLogMessage.TEST_ERROR, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_ERROR", 1);
 		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 		
 		Thread.sleep(3); // advance time
+		logger.log(ExampleLogMessage.TEST_SECURITY_ERROR, null);
+		assertLoggerContainsAndClear(logger, 1, "TEST_SECURITY_ERROR", 1);
 		logger.log(ExampleLogMessage.TEST_CRITICAL, null);
 		assertLoggerContainsAndClear(logger, 1, "TEST_CRITICAL", 1);
 		
@@ -184,20 +198,22 @@ public class TestLoggingUtilitity
 		assertBetweenInclusive(status.getLastLoggedDataLossTimestamp(), start, afterFirstStatus);
 		assertBetweenInclusive(status.getLastLoggedCriticalTimestamp(), start, afterFirstStatus);
 		
-		assertContains(status.getLastLoggedWarnText(), "TEST_EXTERNAL_WARN");
-		assertContains(status.getLastLoggedErrorText(), "TEST_ERROR");
+		assertContains(status.getLastLoggedWarnText(), "TEST_INVALID_USER_INPUT");
+		assertContains(status.getLastLoggedErrorText(), "TEST_SECURITY_ERROR");
 		assertContains(status.getLastLoggedDataLossText(), "TEST_DATA_LOSS");
 		assertContains(status.getLastLoggedCriticalText(), "TEST_CRITICAL");
 		
 		assertEquals(status.getLoggedWarnCount(), 1);
 		assertEquals(status.getLoggedExternalWarnCount(), 2);
+		assertEquals(status.getLoggedInvalidUserInputCount(), 3);
 		assertEquals(status.getLoggedExternalErrorCount(), 3);
+		assertEquals(status.getLoggedSecurityErrorCount(), 2);
 		assertEquals(status.getLoggedExternalDataLossCount(), 2);
 		assertEquals(status.getLoggedErrorCount(), 21); // 5 + 15 in a loop + 1 to reset throttling
 		assertEquals(status.getLoggedDataLossCount(), 2);
 		assertEquals(status.getLoggedCriticalCount(), 6);
-		assertEquals(status.getLoggedTotalWarnOrHigherCount(), 37);
-		assertEquals(status.getLoggedTotalErrorOrHigherCount(), 34);
+		assertEquals(status.getLoggedTotalWarnOrHigherCount(), 42);
+		assertEquals(status.getLoggedTotalErrorOrHigherCount(), 36);
 		assertEquals(status.getLoggedTotalDataLossOrHigherCount(), 10);
 		
 		Thread.sleep(5);
@@ -237,8 +253,8 @@ public class TestLoggingUtilitity
 		assertEquals(status2.getLoggedErrorCount(), 22); // 5 + 15 in a loop + 1 to reset throttling + 1 extra logged
 		assertEquals(status2.getLoggedDataLossCount(), 2);
 		assertEquals(status2.getLoggedCriticalCount(), 7);
-		assertEquals(status2.getLoggedTotalWarnOrHigherCount(), 41);
-		assertEquals(status2.getLoggedTotalErrorOrHigherCount(), 37);
+		assertEquals(status2.getLoggedTotalWarnOrHigherCount(), 46);
+		assertEquals(status2.getLoggedTotalErrorOrHigherCount(), 39);
 		assertEquals(status2.getLoggedTotalDataLossOrHigherCount(), 12);
 		
 		// ====================== TEST NON-CLASSIFIED LOGGING BELOW ===================

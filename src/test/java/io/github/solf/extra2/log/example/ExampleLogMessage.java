@@ -24,6 +24,8 @@ import static io.github.solf.extra2.log.LogMessageSeverity.EXTERNAL_ERROR;
 import static io.github.solf.extra2.log.LogMessageSeverity.EXTERNAL_INFO;
 import static io.github.solf.extra2.log.LogMessageSeverity.EXTERNAL_WARN;
 import static io.github.solf.extra2.log.LogMessageSeverity.INFO;
+import static io.github.solf.extra2.log.LogMessageSeverity.INVALID_USER_INPUT;
+import static io.github.solf.extra2.log.LogMessageSeverity.SECURITY_ERROR;
 import static io.github.solf.extra2.log.LogMessageSeverity.TRACE;
 import static io.github.solf.extra2.log.LogMessageSeverity.WARN;
 
@@ -159,7 +161,33 @@ public enum ExampleLogMessage
 	 * 		{@link BaseLoggingUtility#logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)}
 	 */
 	@Deprecated
+	NON_CLASSIFIED_INVALID_USER_INPUT(INVALID_USER_INPUT, false),
+	
+	/**
+	 * Used to log non-classified messages (usually not a good idea) with the given
+	 * severity.
+	 * <p>
+	 * Non-classified messages are supposed to specify their own String classifiers 
+	 * (e.g. for throttling).
+	 * 
+	 * @deprecated these aren't supposed to be used directly, instead look into
+	 * 		{@link BaseLoggingUtility#logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)}
+	 */
+	@Deprecated
 	NON_CLASSIFIED_EXTERNAL_ERROR(EXTERNAL_ERROR, false),
+	
+	/**
+	 * Used to log non-classified messages (usually not a good idea) with the given
+	 * severity.
+	 * <p>
+	 * Non-classified messages are supposed to specify their own String classifiers 
+	 * (e.g. for throttling).
+	 * 
+	 * @deprecated these aren't supposed to be used directly, instead look into
+	 * 		{@link BaseLoggingUtility#logNonClassifiedMessage(LogMessageSeverity, String, Throwable, Object...)}
+	 */
+	@Deprecated
+	NON_CLASSIFIED_SECURITY_ERROR(SECURITY_ERROR, false),
 	
 	/**
 	 * Used to log non-classified messages (usually not a good idea) with the given
@@ -236,7 +264,9 @@ public enum ExampleLogMessage
 	TEST_WARN(WARN),
 	TEST_EXTERNAL_INFO(EXTERNAL_INFO),
 	TEST_EXTERNAL_WARN(EXTERNAL_WARN),
+	TEST_INVALID_USER_INPUT(INVALID_USER_INPUT),
 	TEST_EXTERNAL_ERROR(EXTERNAL_ERROR),
+	TEST_SECURITY_ERROR(SECURITY_ERROR),
 	TEST_EXTERNAL_DATA_LOSS(EXTERNAL_DATA_LOSS),
 	TEST_ERROR(ERROR),
 	TEST_DATA_LOSS(DATA_LOSS),

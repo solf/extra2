@@ -147,8 +147,14 @@ public class ExampleLoggingUtility extends BaseLoggingUtility<ExampleLogMessage>
 				return ExampleLogMessage.NON_CLASSIFIED_FATAL;
 			case INFO:
 				return ExampleLogMessage.NON_CLASSIFIED_INFO;
+			case INVALID_USER_INPUT:
+				return ExampleLogMessage.NON_CLASSIFIED_INVALID_USER_INPUT;
+			case SECURITY_ERROR:
+				return ExampleLogMessage.NON_CLASSIFIED_SECURITY_ERROR;
 			case WARN:
 				return ExampleLogMessage.NON_CLASSIFIED_WARN;
+			default:
+				break;
 		}
 		
 		throw new AssertionException("This code should not be reacheable!");

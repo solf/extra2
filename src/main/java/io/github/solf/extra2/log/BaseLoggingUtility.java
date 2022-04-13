@@ -162,12 +162,32 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 		public AtomicLong msgExternalWarnCount = new AtomicLong(0);
 		
 		/**
+		 * Indicates a problem caused by invalid user input.
+		 * <p>
+		 * These messages usually indicate that there was no data loss (aside from
+		 * the invalid input itself which may be lost).
+		 */
+		public AtomicLong msgInvalidUserInputCount = new AtomicLong(0);
+		
+		/**
 		 * Indicates an error probably caused by external factors, such
 		 * as underlying storage failing.
 		 * <p>
 		 * These messages usually indicate that there was no data loss (yet).
 		 */
 		public AtomicLong msgExternalErrorCount = new AtomicLong(0);
+		
+		/**
+		 * Indicates an error caused by security issues, such as client failing to
+		 * provide proper access key or user failing to provide the correct password
+		 * (that last one could also reasonably be considered {@link #INVALID_USER_INPUT},
+		 * however in many cases it is desirable to separate security issues in order
+		 * to monitor attacks and such).
+		 * <p>
+		 * These messages usually indicate that there was no data loss (aside from
+		 * the potentially lost data in the input that had security issue).
+		 */
+		public AtomicLong msgSecurityErrorCount = new AtomicLong(0);
 		
 		/**
 		 * Indicates an error probably caused by external factors, such
@@ -340,6 +360,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				break;
 			case WARN:
 			case EXTERNAL_WARN:
+			case INVALID_USER_INPUT:
 				if (!theLog.isWarnEnabled())
 					return;
 				break;
@@ -347,6 +368,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 			case DATA_LOSS:
 			case EXTERNAL_DATA_LOSS:
 			case EXTERNAL_ERROR:
+			case SECURITY_ERROR:
 			case CRITICAL:
 				if (!theLog.isErrorEnabled())
 					return;
@@ -401,6 +423,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				break;
 			case WARN:
 			case EXTERNAL_WARN:
+			case INVALID_USER_INPUT:
 				if (exception != null)
 					theLog.warn(formattedMsg, exception);
 				else
@@ -408,6 +431,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				break;
 			case ERROR:
 			case EXTERNAL_ERROR:
+			case SECURITY_ERROR:
 				if (exception != null)
 					theLog.error(formattedMsg, exception);
 				else
@@ -648,8 +672,14 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 					case EXTERNAL_WARN:
 						getStats().msgExternalWarnCount.incrementAndGet();
 						break;
+					case INVALID_USER_INPUT:
+						getStats().msgInvalidUserInputCount.incrementAndGet();
+						break;
 					case EXTERNAL_ERROR:
 						getStats().msgExternalErrorCount.incrementAndGet();
+						break;
+					case SECURITY_ERROR:
+						getStats().msgSecurityErrorCount.incrementAndGet();
 						break;
 					case EXTERNAL_DATA_LOSS:
 						getStats().msgExternalDataLossCount.incrementAndGet();
@@ -993,10 +1023,12 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 			// Need to build a new status
 			long msgWarnCount = cacheStats.msgWarnCount.get();
 			long msgExternalWarnCount = cacheStats.msgExternalWarnCount.get();
+			long msgInvalidUserInputCount = cacheStats.msgInvalidUserInputCount.get();
 			long msgExternalErrorCount = cacheStats.msgExternalErrorCount.get();
 			long msgExternalDataLossCount = cacheStats.msgExternalDataLossCount.get();
 			long msgDataLossCount = cacheStats.msgDataLossCount.get();
 			long msgErrorCount = cacheStats.msgErrorCount.get();
+			long msgSecurityErrorCount = cacheStats.msgSecurityErrorCount.get();
 			long msgCriticalCount = cacheStats.msgCriticalCount.get();
 			
 			long[] lastTimestampMsgPerSeverityOrdinal = new long[cacheStats.lastTimestampMsgPerSeverityOrdinal.length];
@@ -1027,6 +1059,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 						continue;
 					case EXTERNAL_WARN:
 					case WARN:
+					case INVALID_USER_INPUT:
 						{
 							long ts = lastTimestampMsgPerSeverityOrdinal[index];
 							if (ts > lastWarnMsgTimestamp)
@@ -1038,6 +1071,7 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 						continue;
 					case ERROR:
 					case EXTERNAL_ERROR:
+					case SECURITY_ERROR:
 						{
 							long ts = lastTimestampMsgPerSeverityOrdinal[index];
 							if (ts > lastErrorMsgTimestamp)
@@ -1073,18 +1107,23 @@ public abstract class BaseLoggingUtility<@Nonnull LogMessageType>
 				throw new AssertionException("code should not be reachable");
 			}
 			
+			final long totalDataLossOrHigherCount = msgExternalDataLossCount + msgDataLossCount + msgCriticalCount;
+			final long totalErrorOrHigherCount = totalDataLossOrHigherCount + msgExternalErrorCount + msgErrorCount + msgSecurityErrorCount;
+			final long totalWarnOrHigherCount = totalErrorOrHigherCount + msgWarnCount + msgExternalWarnCount + msgInvalidUserInputCount; 
 			LoggingStatus status = LoggingStatusBuilder
 				.statusCreatedAt(now)
 				.loggedWarnCount(msgWarnCount)
 				.loggedExternalWarnCount(msgExternalWarnCount)
+				.loggedInvalidUserInputCount(msgInvalidUserInputCount)
 				.loggedExternalErrorCount(msgExternalErrorCount)
 				.loggedExternalDataLossCount(msgExternalDataLossCount)
+				.loggedSecurityErrorCount(msgSecurityErrorCount)
 				.loggedErrorCount(msgErrorCount)
 				.loggedDataLossCount(msgDataLossCount)
 				.loggedCriticalCount(msgCriticalCount)
-				.loggedTotalWarnOrHigherCount(msgWarnCount + msgExternalWarnCount + msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgDataLossCount + msgCriticalCount)
-				.loggedTotalErrorOrHigherCount(msgExternalErrorCount + msgExternalDataLossCount + msgErrorCount + msgDataLossCount + msgCriticalCount)
-				.loggedTotalDataLossOrHigherCount(msgExternalDataLossCount + msgDataLossCount + msgCriticalCount)
+				.loggedTotalWarnOrHigherCount(totalWarnOrHigherCount)
+				.loggedTotalErrorOrHigherCount(totalErrorOrHigherCount)
+				.loggedTotalDataLossOrHigherCount(totalDataLossOrHigherCount)
 				
 				.lastLoggedTimestampPerSeverityOrdinal(lastTimestampMsgPerSeverityOrdinal)
 				.lastLoggedTextPerSeverityOrdinal(lastLoggedTextMsgPerSeverityOrdinal)
