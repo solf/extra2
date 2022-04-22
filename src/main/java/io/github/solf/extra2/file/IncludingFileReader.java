@@ -30,7 +30,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * <p>
  * Externally it all looks just like a collection of lines.
  * <p>
- *  * NOT thread-safe.
+ * NB!!: NOT thread-safe.
+ * <p>
+ * You can override {@link #findIncludedFile(File, String)} 
+ * (or even {@link #createContainerForIncludedFile(Container, String)}) in
+ * order to modify how included files are looked up.
  *
  * @author Sergey Olefir
  */
@@ -58,4 +62,28 @@ public class IncludingFileReader extends SimpleFileReader
 		super(fileName, true);
 	}
 	
+	
+	/**
+	 * Creates container based on given (probably relative) file name and container
+	 * that is used to determine current directory.
+	 */
+	@Override
+	protected Container createContainerForIncludedFile(Container parentContainer, String fileName) throws IllegalStateException
+	{
+		return createContainer(findIncludedFile(parentContainer.file, fileName));
+	}
+	
+	/**
+	 * Based on the 'parent file' (file currently being read) and included file
+	 * name must create a {@link File} instance that will be used to read
+	 * included file.
+	 * <p>
+	 * This method is provided specifically as an extension point so that
+	 * custom file lookup implementations are easily possible.
+	 */
+	protected File findIncludedFile(File parentFile, String fileName) throws IllegalStateException
+	{
+		return new File(parentFile.getParentFile(), fileName);
+	}
+
 }

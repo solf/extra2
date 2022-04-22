@@ -87,7 +87,7 @@ public class SimpleFileReader implements Closeable
 	 * Container for file & reader.
 	 */
 	@AllArgsConstructor
-	private static class Container
+	protected static class Container
 	{
 		public final File file;
 		public final BufferedReader reader;
@@ -129,7 +129,7 @@ public class SimpleFileReader implements Closeable
 	/**
 	 * Creates file reader.
 	 */
-	private static BufferedReader createReader(File file) throws IllegalStateException
+	protected static BufferedReader createReader(File file) throws IllegalStateException
 	{
 		if (!file.exists())
 			throw new IllegalStateException("File doesn't exist: " + file);
@@ -148,7 +148,7 @@ public class SimpleFileReader implements Closeable
 	/**
 	 * Creates container for a given file.
 	 */
-	private static Container createContainer(File file) throws IllegalStateException
+	protected static Container createContainer(File file) throws IllegalStateException
 	{
 		return new Container(file, createReader(file));
 	}
@@ -157,9 +157,10 @@ public class SimpleFileReader implements Closeable
 	 * Creates container based on given (probably relative) file name and container
 	 * that is used to determine current directory.
 	 */
-	private static Container createContainer(Container parentContainer, String fileName) throws IllegalStateException
+	@SuppressWarnings("unused")
+	protected Container createContainerForIncludedFile(Container parentContainer, String fileName) throws IllegalStateException
 	{
-		return createContainer(new File(parentContainer.file.getParentFile(), fileName));
+		throw new UnsupportedOperationException();
 	}
 	
 	/**
@@ -173,6 +174,40 @@ public class SimpleFileReader implements Closeable
 		lastReadLine = internalReadLine();
 		
 		return lastReadLine;
+	}
+	
+	/**
+	 * Reads all remaining lines and separates them by '\n' (last line doesn't
+	 * get '\n' at the end).
+	 * <p>
+	 * Throws exception if there are no lines to read.
+	 * <p>
+	 * After using this method you don't need to close the reader (it's auto-closed),
+	 * though you still may do so.
+	 */
+	public String readAllRemainingLines() throws IllegalStateException
+	{
+		StringBuilder sb = new StringBuilder(2048);
+		
+		boolean firstLine = true;
+		while (true)
+		{
+			String line = readLine();
+			if (line == null)
+				break;
+			
+			if (firstLine)
+				firstLine = false;
+			else
+				sb.append('\n');
+			
+			sb.append(line);
+		}
+		
+		if (firstLine)
+			throw new IllegalStateException("There were no lines available.");
+		
+		return sb.toString();
 	}
 	
 	/**
@@ -216,7 +251,7 @@ public class SimpleFileReader implements Closeable
 			{
 				// Handle file inclusion.
 				String includedFileName = nnChecked(matcher.group(1));
-				readerStack.push(createContainer(container, includedFileName));
+				readerStack.push(createContainerForIncludedFile(container, includedFileName));
 				
 				// Recursively re-invoke so we read line from the included file.
 				return readLine();
