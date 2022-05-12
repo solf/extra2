@@ -105,6 +105,8 @@ public class CryptoUtil
 	 * The encryption uses {@value #aesEncryptionAlgo} algorithm.
 	 * <p> 
 	 * The format of encrypted data is: [hibyte iv length][low byte iv length][iv][encryptedData]
+	 * 
+	 * @param dataToEncrypt can't be null, but can be empty
 	 */
 	public byte[] aesEncrypt(@NonNull byte[] dataToEncrypt, @NonNull byte[] aesKeyBytes) throws GeneralSecurityException
 	{
@@ -117,6 +119,8 @@ public class CryptoUtil
 	 * The encryption uses {@value #aesEncryptionAlgo} algorithm.
 	 * <p> 
 	 * The format of encrypted data is: [hibyte iv length][low byte iv length][iv][encryptedData]
+	 * 
+	 * @param dataToEncrypt can't be null, but can be empty
 	 */
 	public byte[] aesEncrypt(@NonNull byte[] dataToEncrypt, @NonNull SecretKey aesKey) throws GeneralSecurityException
 	{
@@ -149,6 +153,8 @@ public class CryptoUtil
 	 * Decrypts given data using provided AES key (in its serialized form).
 	 * <p>
 	 * See {@link #aesEncrypt(byte[], SecretKey)} for format description.
+	 * 
+	 * @return returned array can't be null, but can be empty
 	 */
 	public byte[] aesDecrypt(@NonNull byte[] aesEncryptedData, @NonNull byte[] aesKeyBytes) throws GeneralSecurityException
 	{
@@ -159,6 +165,8 @@ public class CryptoUtil
 	 * Decrypts given data using provided AES key.
 	 * <p>
 	 * See {@link #aesEncrypt(byte[], SecretKey)} for format description.
+	 * 
+	 * @return returned array can't be null, but can be empty
 	 */
 	public byte[] aesDecrypt(@NonNull byte[] aesEncryptedData, @NonNull SecretKey aesKey) throws GeneralSecurityException
 	{
@@ -218,8 +226,6 @@ public class CryptoUtil
 	 * Default password salt used in case no other salt is specified, it's: {1, 2, 3}
 	 */
 	private final static byte[] defaultPasswordSalt = new byte[] {1, 2, 3};
-	
-	
 	/**
 	 * Generates AES key from the provided passphrase using optional salt (if
 	 * salt is not specified, then preset salt of [1, 2, 3] is used).
@@ -251,6 +257,8 @@ public class CryptoUtil
 	 * @deprecated RSA encryption is very slow and can only handle data sizes
 	 * 		smaller than RSA key itself; for general-purpose assymetric
 	 * 		encryption see {@link #rsaWithAesEncrypt(byte[], PublicKey)}
+	 * 
+	 * @param dataToEncrypt can't be null, but can be empty
 	 */
 	@Deprecated
 	public byte[] rsaEncrypt(@NonNull byte[] dataToEncrypt, @NonNull byte[] publicKeyBytes) throws GeneralSecurityException
@@ -264,6 +272,8 @@ public class CryptoUtil
 	 * @deprecated RSA encryption is very slow and can only handle data sizes
 	 * 		smaller than RSA key itself; for general-purpose asymmetric
 	 * 		encryption see {@link #rsaWithAesEncrypt(byte[], PublicKey)}
+	 * 
+	 * @param dataToEncrypt can't be null, but can be empty
 	 */
 	@Deprecated
 	public byte[] rsaEncrypt(@NonNull byte[] dataToEncrypt, @NonNull PublicKey publicKey) throws GeneralSecurityException
@@ -281,6 +291,8 @@ public class CryptoUtil
 	 * <p>
 	 * NOTE: for general-purpose asymmetric encryption/decryption see instead
 	 * {@link #rsaWithAesDecrypt(byte[], PrivateKey)}, {@link #rsaWithAesEncrypt(byte[], PublicKey)}
+	 * 
+	 * @return returned array can't be null, but can be empty
 	 */
 	public byte[] rsaDecrypt(@NonNull byte[] rsaEncryptedData, @NonNull byte[] privateKeyBytes) throws GeneralSecurityException
 	{
@@ -293,6 +305,8 @@ public class CryptoUtil
 	 * <p>
 	 * NOTE: for general-purpose asymmetric encryption/decryption see instead
 	 * {@link #rsaWithAesDecrypt(byte[], PrivateKey)}, {@link #rsaWithAesEncrypt(byte[], PublicKey)}
+	 * 
+	 * @return returned array can't be null, but can be empty
 	 */
 	public byte[] rsaDecrypt(@NonNull byte[] rsaEncryptedData, @NonNull PrivateKey privateKey) throws GeneralSecurityException
 	{
@@ -311,6 +325,8 @@ public class CryptoUtil
 	 * The encrypted data format is:
 	 * [hibyte key length][low byte key length][rsa-encrypted-random-aes-key]
 	 * [hibyte iv length][low byte iv length][iv][aes-encryptedData(using random key from rsa section)]
+	 * 
+	 * @param dataToEncrypt can't be null, but can be empty
 	 */
 	public byte[] rsaWithAesEncrypt(@NonNull byte[] dataToEncrypt, @NonNull byte[] publicKeyBytes) throws GeneralSecurityException
 	{
@@ -325,6 +341,8 @@ public class CryptoUtil
 	 * The encrypted data format is:
 	 * [hibyte key length][low byte key length][rsa-encrypted-random-aes-key]
 	 * [hibyte iv length][low byte iv length][iv][aes-encryptedData(using random key from rsa section)]
+	 * 
+	 * @param dataToEncrypt can't be null, but can be empty
 	 */
 	public byte[] rsaWithAesEncrypt(@NonNull byte[] dataToEncrypt, @NonNull PublicKey publicKey) throws GeneralSecurityException
 	{
@@ -341,6 +359,8 @@ public class CryptoUtil
 	 * The encrypted data format is:
 	 * [hibyte key length][low byte key length][rsa-encrypted-random-aes-key]
 	 * [hibyte iv length][low byte iv length][iv][aes-encryptedData(using random key from rsa section)]
+	 * 
+	 * @param dataToEncrypt can't be null, but can be empty
 	 */
 	public byte[] rsaWithAesEncrypt(@NonNull byte[] dataToEncrypt, @NonNull PublicKey publicKey, @NonNull SecretKey aesKey) throws GeneralSecurityException
 	{
@@ -371,6 +391,8 @@ public class CryptoUtil
 	 * This is the method to be used for general-purpose asymmetric decryption.
 	 * <p>
 	 * See {@link #rsaWithAesEncrypt(byte[], PublicKey)} for format description.
+	 * 
+	 * @return returned array can't be null, but can be empty
 	 */
 	public byte[] rsaWithAesDecrypt(@NonNull byte[] dataToDecrypt, @NonNull byte[] privateKeyBytes) throws GeneralSecurityException
 	{
@@ -383,6 +405,8 @@ public class CryptoUtil
 	 * This is the method to be used for general-purpose asymmetric decryption.
 	 * <p>
 	 * See {@link #rsaWithAesEncrypt(byte[], PublicKey)} for format description.
+	 * 
+	 * @return returned array can't be null, but can be empty
 	 */
 	public byte[] rsaWithAesDecrypt(@NonNull byte[] dataToDecrypt, @NonNull PrivateKey privateKey) throws GeneralSecurityException
 	{

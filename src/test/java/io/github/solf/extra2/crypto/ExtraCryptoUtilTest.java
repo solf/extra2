@@ -41,9 +41,20 @@ public class ExtraCryptoUtilTest
 	@Test
 	public void test() throws GeneralSecurityException
 	{
-		final CryptoUtil cutil = new CryptoUtil();
-		
 		final byte[] srcMsg = "This is a test encryption message.\r\nIt has multiple lines!\n".getBytes();
+		
+		testEncryptionWithSpecificMessage(srcMsg);
+		testEncryptionWithSpecificMessage(new byte[0]); // verify that 0-sizes messages encrypt/decrypt properly
+	}
+
+
+	/**
+	 * Tests that encryption/decryption works properly with specific source message.
+	 */
+	private void testEncryptionWithSpecificMessage(final byte[] srcMsg)
+		throws GeneralSecurityException
+	{
+		final CryptoUtil cutil = new CryptoUtil();
 		
 		final KeyPair keyPair1 = cutil.generateRsaKeyPair();
 		final KeyPair keyPair2 = cutil.generateRsaKeyPair();
@@ -115,18 +126,21 @@ public class ExtraCryptoUtilTest
 		
 		{
 			// try pure RSA
-			final byte[] rsaMsg = "12345".getBytes();
-			
-			@SuppressWarnings("deprecation") byte[] enc1 = cutil.rsaEncrypt(rsaMsg, cutil.serializeRsaPublicKey(keyPair1.getPublic()));
-			@SuppressWarnings("deprecation") byte[] enc2 = cutil.rsaEncrypt(rsaMsg, cutil.serializeRsaPublicKey(keyPair1.getPublic()));
-			assertArraysNotEquals(enc1, rsaMsg);
-			assertArraysNotEquals(enc2, rsaMsg);
-			assertArraysNotEquals(enc1, enc2);
-			
-			byte[] dec1 = cutil.rsaDecrypt(enc1, cutil.serializeRsaPrivateKey(keyPair1.getPrivate()));
-			byte[] dec2 = cutil.rsaDecrypt(enc2, cutil.serializeRsaPrivateKey(keyPair1.getPrivate()));
-			assertArraysEquals(dec1, rsaMsg);
-			assertArraysEquals(dec2, rsaMsg);
+			for (String srcString : Arrays.asList("12345", "")) // test with empty array/message too
+			{
+				final byte[] rsaMsg = srcString.getBytes();
+				
+				@SuppressWarnings("deprecation") byte[] enc1 = cutil.rsaEncrypt(rsaMsg, cutil.serializeRsaPublicKey(keyPair1.getPublic()));
+				@SuppressWarnings("deprecation") byte[] enc2 = cutil.rsaEncrypt(rsaMsg, cutil.serializeRsaPublicKey(keyPair1.getPublic()));
+				assertArraysNotEquals(enc1, rsaMsg);
+				assertArraysNotEquals(enc2, rsaMsg);
+				assertArraysNotEquals(enc1, enc2);
+				
+				byte[] dec1 = cutil.rsaDecrypt(enc1, cutil.serializeRsaPrivateKey(keyPair1.getPrivate()));
+				byte[] dec2 = cutil.rsaDecrypt(enc2, cutil.serializeRsaPrivateKey(keyPair1.getPrivate()));
+				assertArraysEquals(dec1, rsaMsg);
+				assertArraysEquals(dec2, rsaMsg);
+			}
 		}
 	}
 	
