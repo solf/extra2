@@ -49,7 +49,7 @@ public class SonarUtil
 	 * However Sonar will still complain if original token is used somewhere, 
 	 * such as outputted to HTML or something.
 	 */
-	public <T> T untaint(T taintedValue)
+	public static <T> T untaint(T taintedValue)
 	{
 		return taintedValue;
 	}
