@@ -143,6 +143,27 @@ public class RHashMap<K, V> extends AbstractMap<K, V> implements SerializableRMa
 	{
 		return new RHashMap<K, V>(m); 
     }
+
+    /**
+     * Constructs a new {@link RHashMap} with the same mappings as the
+     * specified {@code ReadOnlyMap}.  The {@link RHashMap} is created with
+     * default load factor (0.75) and an initial capacity sufficient to
+     * hold the mappings in the specified {@code ReadOnlyMap}.
+     *
+     * @param   m the map whose mappings are to be placed in this map
+     * @throws  NullPointerException if the specified map is null
+     */
+	@Nonnull
+	public static <K, V> RHashMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
+	{
+		if (m instanceof Map)
+		{
+			@SuppressWarnings("unchecked") Map<K, V> map = (Map<K, V>)m;
+			return create(map);
+		}
+		
+		return create(m.toUnmodifiableJavaMap()); 
+    }
 	
 	
 	/**

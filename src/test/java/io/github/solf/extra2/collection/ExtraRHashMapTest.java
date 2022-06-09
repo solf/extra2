@@ -212,6 +212,9 @@ public class ExtraRHashMapTest
 		Integer four = 4; 
 		testRHashMapInternal(() -> new RHashMap<>(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
 		testRHashMapInternal(() -> RHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testRHashMapInternal(() -> RHashMap.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
 		
 		testRHashMapInternal(() -> new RHashMap<TKeyWithValue, Integer>(mapOf(key14_1, four, key15_2, 5)).clone(), mapOf(key14_1, four, key15_2, 5));
 		testRHashMapInternal(() -> RHashMap.<TKeyWithValue, Integer>create(mapOf(key14_1, four, key15_2, 5)).clone(), mapOf(key14_1, four, key15_2, 5));

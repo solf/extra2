@@ -99,7 +99,24 @@ public class EHashMap
 	@Nonnull
 	public static <K, V> RHashMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
 	{
-		return new RHashMap<K, V>(m); 
+		return RHashMap.create(m); 
+    }
+
+    /**
+     * Constructs a new {@link EMap} with the same mappings as the
+     * specified {@code ReadOnlyMap}.  The {@link EMap} is created with
+     * default load factor (0.75) and an initial capacity sufficient to
+     * hold the mappings in the specified {@code ReadOnlyMap}.
+     * <p>
+     * The actual implementation is {@link RHashMap}
+     *
+     * @param   m the map whose mappings are to be placed in this map
+     * @throws  NullPointerException if the specified map is null
+     */
+	@Nonnull
+	public static <K, V> RHashMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
+	{
+		return RHashMap.createFromReadOnly(m); 
     }
 	
 }

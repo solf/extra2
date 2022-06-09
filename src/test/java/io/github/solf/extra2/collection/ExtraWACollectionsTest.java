@@ -458,6 +458,15 @@ public class ExtraWACollectionsTest
 		/**
 		 * Factory create method.
 		 */
+		public <S extends SerializableBSet<E>, E> S createFromReadOnly(@Nonnull ReadOnlySet<? extends E> c)
+		{
+			return TestUtil.invokeInaccessibleMethod(factoryClass, "createFromReadOnly", null, 
+				ReadOnlySet.class, c);
+		}
+		
+		/**
+		 * Factory create method.
+		 */
 		public <S extends SerializableBSet<E>, E> S create(int initialCapacity, float loadFactor)
 		{
 			return TestUtil.invokeInaccessibleMethod(factoryClass, "create", null, 
@@ -999,8 +1008,11 @@ public class ExtraWACollectionsTest
 		assertFalse(set.has(null));
 		compareItems(set, key1_2, key2);
 		
+		for (int i = 0; i < 2; i++)
 		{
-			BSet<TKeyValue> tset = factory.create(Arrays.asList(key1));
+			BSet<TKeyValue> tset = (i == 0) ? 
+				factory.create(Arrays.asList(key1)) :
+				factory.createFromReadOnly(ReadOnlySet.of(Set.of(key1)));
 			
 			assertNotEquals(set, tset);
 			assertTrue(tset.add(key2));

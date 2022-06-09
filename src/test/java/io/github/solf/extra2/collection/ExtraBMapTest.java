@@ -221,11 +221,20 @@ public class ExtraBMapTest
 		final Integer four = 4; 
 		testBMapInternal(() -> new RHashMap<>(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
 		testBMapInternal(() -> BHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> BHashMap.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
 		testBMapInternal(() -> BHashMap2.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> BHashMap2.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
 		testBMapInternal(() -> EHashMap.create(mapOf(key14_1, four, key15_2, 5)),
 			ReadOnlyMap.toNullableUnmodifiableJavaMap(
 				ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5)))
 		);
+		testBMapInternal(() -> EHashMap.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
 		
 		testBMapInternal(() -> new RHashMap<TKeyWithValue, Integer>(mapOf(key14_1, four, key15_2, 5)).clone(), mapOf(key14_1, four, key15_2, 5));
 		

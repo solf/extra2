@@ -188,5 +188,28 @@ public class BHashMap2
 	{
 		return BMap.of(new HashMap<K, V>(m)); 
     }
+
+    /**
+     * Constructs a new {@link SerializableBMap} with the same mappings as the
+     * specified {@code ReadOnlyMap}.  The {@link SerializableBMap} is created with
+     * default load factor (0.75) and an initial capacity sufficient to
+     * hold the mappings in the specified {@code ReadOnlyMap}.
+     * <p>
+     * The actual implementation is {@link RHashMap}
+     *
+     * @param   m the map whose mappings are to be placed in this map
+     * @throws  NullPointerException if the specified map is null
+     */
+	@Nonnull
+	public static <K, V> SerializableBMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
+	{
+		if (m instanceof Map)
+		{
+			@SuppressWarnings("unchecked") Map<K, V> map = (Map<K, V>)m;
+			return create(map);
+		}
+		
+		return create(m.toUnmodifiableJavaMap()); 
+    }
 	
 }

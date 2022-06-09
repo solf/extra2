@@ -101,7 +101,21 @@ public class EHashSet
 	@Nonnull
 	public static <E> RHashSet<E> create(@Nonnull Collection<? extends E> c) 
 	{
-		return new RHashSet<E>(c); 
+		return RHashSet.create(c); 
     }
-	
+
+    /**
+     * Constructs a new set containing the elements in the specified
+     * {@link ReadOnlySet}.  The {@code HashMap} is created with default load factor
+     * (0.75) and an initial capacity sufficient to contain the elements in
+     * the specified {@link ReadOnlySet}.
+     *
+     * @param c the {@link ReadOnlySet} whose elements are to be placed into this set
+     * @throws NullPointerException if the specified {@link ReadOnlySet} is null
+     */
+	@Nonnull
+	public static <E> RHashSet<E> createFromReadOnly(@Nonnull ReadOnlySet<? extends E> c) 
+	{
+		return RHashSet.createFromReadOnly(c); 
+    }
 }
