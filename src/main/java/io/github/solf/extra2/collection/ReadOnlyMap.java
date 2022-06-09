@@ -159,4 +159,18 @@ public interface ReadOnlyMap<K, V> extends ForIterable<@Nonnull ReadOnlyEntry<K,
 	{
 		return WACollections.emptyReadOnlyMap();
 	}
+	
+	/**
+	 * For a given {@link ReadOnlyMap} returns the corresponding unmodifiable
+	 * Java map (as per {@link #toUnmodifiableJavaMap()}) or null if the
+	 * given {@link ReadOnlyMap} is null.
+	 */
+	@Nullable
+	public static <K, V> Map<K, V> toNullableUnmodifiableJavaMap(@Nullable ReadOnlyMap<K, V> srcMap)
+	{
+		if (srcMap == null)
+			return null;
+		
+		return srcMap.toUnmodifiableJavaMap();
+	}
 }

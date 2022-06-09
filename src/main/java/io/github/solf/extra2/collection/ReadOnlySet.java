@@ -18,6 +18,7 @@ package io.github.solf.extra2.collection;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import lombok.NonNull;
 
@@ -83,5 +84,19 @@ public interface ReadOnlySet<E> extends ForIterable<E>
 	public static <E> ReadOnlySet<E> emptyReadOnlySet()
 	{
 		return WACollections.emptyReadOnlySet();
+	}
+	
+	/**
+	 * For a given {@link ReadOnlySet} returns the corresponding unmodifiable
+	 * Java set (as per {@link #toUnmodifiableJavaSet()} or null if the
+	 * given {@link ReadOnlySet} is null.
+	 */
+	@Nullable
+	public static <E> Set<E> toNullableUnmodifiableJavaSet(@Nullable ReadOnlySet<E> srcSet)
+	{
+		if (srcSet == null)
+			return null;
+		
+		return srcSet.toUnmodifiableJavaSet();
 	}
 }

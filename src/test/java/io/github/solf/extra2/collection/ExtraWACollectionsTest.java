@@ -17,6 +17,7 @@ package io.github.solf.extra2.collection;
 
 import static io.github.solf.extra2.testutil.AssertExtra.assertFails;
 import static io.github.solf.extra2.util.NullUtil.nn;
+import static io.github.solf.extra2.util.NullUtil.nnChecked;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
@@ -774,6 +775,17 @@ public class ExtraWACollectionsTest
 		internalTestBSet(TypeUtil.coerce(ReadOnlySet.of(new HashSet<>(3))), new BSetFactory(BHashSet.class));
 		internalTestBSet(TypeUtil.coerce(ReadOnlySet.of(new HashSet<>(3, 0.6f))), new BSetFactory(BHashSet.class));
 		internalTestBSet(TypeUtil.coerce(ReadOnlySet.of(new HashSet<>(Collections.emptySet()))), new BSetFactory(BHashSet.class));
+		
+		assertNull(ReadOnlySet.toNullableUnmodifiableJavaSet(null));
+		{
+			Set<Integer> rs = nnChecked(ReadOnlySet.toNullableUnmodifiableJavaSet(
+				ReadOnlySet.of(Set.of(1, 2))
+			));
+			assertEquals(rs.size(), 2);
+			assertTrue(rs.contains(1));
+			assertTrue(rs.contains(2));
+			assertFails(() -> rs.add(3));
+		}
 	}
 	
 	/**
