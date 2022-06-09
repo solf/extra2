@@ -22,6 +22,7 @@ import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static io.github.solf.extra2.util.NullUtil.nn;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -224,6 +225,26 @@ public class ExtraBMapTest
 		testBMapInternal(() -> EHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
 		
 		testBMapInternal(() -> new RHashMap<TKeyWithValue, Integer>(mapOf(key14_1, four, key15_2, 5)).clone(), mapOf(key14_1, four, key15_2, 5));
+	}
+	
+	/**
+	 * Tests {@link ReadOnlyMap#emptyReadOnlyMap()}
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	@Test
+	public void testEmptyMap()
+	{
+		assertTrue(ReadOnlyMap.emptyReadOnlyMap().equals(Collections.emptyMap()));
+		assertTrue(Collections.emptyMap().equals(ReadOnlyMap.emptyReadOnlyMap()));
+		assertEquals(ReadOnlyMap.emptyReadOnlyMap().hashCode(), Collections.emptyMap().hashCode());
+		
+		assertTrue(ReadOnlyMap.emptyReadOnlyMap().equals(Map.of()));
+		assertTrue(Map.of().equals(ReadOnlyMap.emptyReadOnlyMap()));
+		assertEquals(ReadOnlyMap.emptyReadOnlyMap().hashCode(), Map.of().hashCode());
+		
+		assertFalse(ReadOnlyMap.emptyReadOnlyMap().equals(Map.of("1", "2")));
+		assertFalse(Map.of("1", "2").equals(ReadOnlyMap.emptyReadOnlyMap()));
+		assertNotEquals(ReadOnlyMap.emptyReadOnlyMap().hashCode(), Map.of("1", "2").hashCode());
 	}
 	
 	/**

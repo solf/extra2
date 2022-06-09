@@ -23,6 +23,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -38,6 +40,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -577,7 +580,8 @@ public class WACollections
 	 * Empty read-only set implementation.
 	 */
 	@NonNullByDefault({})
-	private static class EmptyReadOnlySet implements EReadOnlySet<Object>, Serializable
+	private static class EmptyReadOnlySet extends AbstractSet<Object> 
+		implements EReadOnlySet<Object>, Serializable
 	{
 		@SuppressWarnings("deprecation")
 		@Override
@@ -617,6 +621,18 @@ public class WACollections
 		{
 			return Collections.emptySet();
 		}
+
+		@Override
+		public @Nonnull Stream<Object> stream()
+		{
+			return EReadOnlySet.super.stream();
+		}
+		
+        @Override
+        public int hashCode() 
+        {
+            return 0;
+        }
 	}
 	
 	/**
@@ -637,9 +653,9 @@ public class WACollections
 	 * Empty read-only map implementation.
 	 */
 	@NonNullByDefault({})
-	private static class EmptyReadOnlyMap implements EReadOnlyMap<Object, Object>, Serializable
+	private static class EmptyReadOnlyMap extends AbstractMap<Object, Object> 
+		implements EReadOnlyMap<Object, Object>, Serializable
 	{
-
 		@Override
 		@Deprecated
 		public @Nonnull Iterator<@Nonnull ReadOnlyEntry<Object, Object>> iterator()
@@ -712,6 +728,20 @@ public class WACollections
 		{
 			return Collections.emptyMap();
 		}
+
+		@Override
+		public @Nonnull Set<@Nonnull Entry<Object, Object>> entrySet()
+		{
+			return Collections.emptyMap().entrySet();
+		}
+
+        @Override
+		public boolean equals(@Nullable Object o) {
+            return (o instanceof Map) && ((Map<?,?>)o).isEmpty();
+        }
+
+        @Override
+		public int hashCode()                      {return 0;}
 	}
 
 	/**

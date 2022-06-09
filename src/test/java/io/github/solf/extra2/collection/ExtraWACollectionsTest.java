@@ -777,6 +777,27 @@ public class ExtraWACollectionsTest
 	}
 	
 	/**
+	 * Tests {@link ReadOnlySet#emptyReadOnlySet()}
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	@Test
+	public void testEmptySet()
+	{
+		assertTrue(ReadOnlySet.emptyReadOnlySet().equals(Collections.emptySet()));
+		assertTrue(Collections.emptySet().equals(ReadOnlySet.emptyReadOnlySet()));
+		assertEquals(ReadOnlySet.emptyReadOnlySet().hashCode(), Collections.emptySet().hashCode());
+		
+		assertTrue(ReadOnlySet.emptyReadOnlySet().equals(Set.of()));
+		assertTrue(Set.of().equals(ReadOnlySet.emptyReadOnlySet()));
+		assertEquals(ReadOnlySet.emptyReadOnlySet().hashCode(), Set.of().hashCode());
+		
+		assertFalse(ReadOnlySet.emptyReadOnlySet().equals(Set.of("1", "2")));
+		assertFalse(Set.of("1", "2").equals(ReadOnlySet.emptyReadOnlySet()));
+		assertNotEquals(ReadOnlySet.emptyReadOnlySet().hashCode(), Set.of("1", "2").hashCode());
+	}
+	
+	
+	/**
 	 * Tests {@link RHashSet} & {@link ForIterable}
 	 */
 	@SuppressWarnings("deprecation")
