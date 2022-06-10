@@ -134,9 +134,9 @@ public class BHashMap
      * The actual implementation is {@link RHashMap}
      */
 	@Nonnull
-	public static <K, V> RHashMap<K, V> create()
+	public static <K, V> BMap<K, V> create()
 	{
-		return new RHashMap<K, V>();
+		return RHashMap.create();
 	}
 	
 
@@ -152,9 +152,9 @@ public class BHashMap
      *         or the load factor is nonpositive
      */
 	@Nonnull
-	public static <K, V> RHashMap<K, V> create(int initialCapacity, float loadFactor) 
+	public static <K, V> BMap<K, V> create(int initialCapacity, float loadFactor) 
 	{
-		return new RHashMap<K, V>(initialCapacity, loadFactor);
+		return RHashMap.create(initialCapacity, loadFactor);
     }
 
     /**
@@ -167,9 +167,9 @@ public class BHashMap
      * @throws IllegalArgumentException if the initial capacity is negative.
      */
 	@Nonnull
-	public static <K, V> RHashMap<K, V> create(int initialCapacity) 
+	public static <K, V> BMap<K, V> create(int initialCapacity) 
 	{
-		return new RHashMap<K, V>(initialCapacity);
+		return RHashMap.create(initialCapacity);
     }
 
     /**
@@ -184,7 +184,7 @@ public class BHashMap
      * @throws  NullPointerException if the specified map is null
      */
 	@Nonnull
-	public static <K, V> RHashMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
+	public static <K, V> BMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
 	{
 		return RHashMap.create(m); 
     }
@@ -201,7 +201,7 @@ public class BHashMap
      * @throws  NullPointerException if the specified map is null
      */
 	@Nonnull
-	public static <K, V> RHashMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
+	public static <K, V> BMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
 	{
 		return RHashMap.createFromReadOnly(m); 
     }

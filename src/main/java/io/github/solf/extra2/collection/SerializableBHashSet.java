@@ -81,16 +81,16 @@ import javax.annotation.Nonnull;
  * 
  * @author Sergey Olefir
  */
-public class BHashSet
+public class SerializableBHashSet
 {
     /**
      * Constructs a new, empty set; the backing {@code HashMap} instance has
      * default initial capacity (16) and load factor (0.75).
      */
 	@Nonnull
-	public static <E> BSet<E> create()
+	public static <E> SerializableBSet<E> create()
 	{
-		return SerializableBHashSet.create(); 
+		return SerializableBSet.of(new HashSet<E>());
 	}
 	
 
@@ -104,9 +104,9 @@ public class BHashSet
      *             than zero, or if the load factor is nonpositive
      */
 	@Nonnull
-	public static <E> BSet<E> create(int initialCapacity, float loadFactor) 
+	public static <E> SerializableBSet<E> create(int initialCapacity, float loadFactor) 
 	{
-		return SerializableBHashSet.create(initialCapacity, loadFactor); 
+		return SerializableBSet.of(new HashSet<E>(initialCapacity, loadFactor));
     }
 
     /**
@@ -118,9 +118,9 @@ public class BHashSet
      *             than zero
      */
 	@Nonnull
-	public static <E> BSet<E> create(int initialCapacity) 
+	public static <E> SerializableBSet<E> create(int initialCapacity) 
 	{
-		return SerializableBHashSet.create(initialCapacity); 
+		return SerializableBSet.of(new HashSet<E>(initialCapacity));
     }
 
     /**
@@ -133,9 +133,9 @@ public class BHashSet
      * @throws NullPointerException if the specified collection is null
      */
 	@Nonnull
-	public static <E> BSet<E> create(@Nonnull Collection<? extends E> c) 
+	public static <E> SerializableBSet<E> create(@Nonnull Collection<? extends E> c) 
 	{
-		return SerializableBHashSet.create(c); 
+		return SerializableBSet.of(new HashSet<E>(c)); 
     }
 
     /**
@@ -148,9 +148,15 @@ public class BHashSet
      * @throws NullPointerException if the specified {@link ReadOnlySet} is null
      */
 	@Nonnull
-	public static <E> BSet<E> createFromReadOnly(@Nonnull ReadOnlySet<? extends E> c) 
+	public static <E> SerializableBSet<E> createFromReadOnly(@Nonnull ReadOnlySet<? extends E> c) 
 	{
-		return SerializableBHashSet.createFromReadOnly(c); 
+		if (c instanceof Collection)
+		{
+			@SuppressWarnings("unchecked") Collection<E> collection = (Collection<E>)c;
+			return create(collection);
+		}
+		
+		return create(c.toUnmodifiableJavaSet()); 
     }
 	
 }

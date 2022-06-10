@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
  * 
  * @author Sergey Olefir
  */
-public class EHashMap
+public class SerializableEHashMap
 {
     /**
      * Constructs an empty {@link EMap} with the default initial capacity
@@ -47,7 +47,7 @@ public class EHashMap
      * The actual implementation is {@link RHashMap}
      */
 	@Nonnull
-	public static <K, V> EMap<K, V> create()
+	public static <K, V> SerializableEMap<K, V> create()
 	{
 		return RHashMap.create();
 	}
@@ -65,7 +65,7 @@ public class EHashMap
      *         or the load factor is nonpositive
      */
 	@Nonnull
-	public static <K, V> EMap<K, V> create(int initialCapacity, float loadFactor) 
+	public static <K, V> SerializableEMap<K, V> create(int initialCapacity, float loadFactor) 
 	{
 		return RHashMap.create(initialCapacity, loadFactor);
     }
@@ -80,7 +80,7 @@ public class EHashMap
      * @throws IllegalArgumentException if the initial capacity is negative.
      */
 	@Nonnull
-	public static <K, V> EMap<K, V> create(int initialCapacity) 
+	public static <K, V> SerializableEMap<K, V> create(int initialCapacity) 
 	{
 		return RHashMap.create(initialCapacity);
     }
@@ -97,7 +97,7 @@ public class EHashMap
      * @throws  NullPointerException if the specified map is null
      */
 	@Nonnull
-	public static <K, V> EMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
+	public static <K, V> SerializableEMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
 	{
 		return RHashMap.create(m); 
     }
@@ -114,7 +114,7 @@ public class EHashMap
      * @throws  NullPointerException if the specified map is null
      */
 	@Nonnull
-	public static <K, V> EMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
+	public static <K, V> SerializableEMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
 	{
 		return RHashMap.createFromReadOnly(m); 
     }

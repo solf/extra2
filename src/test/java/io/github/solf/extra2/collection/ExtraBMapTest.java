@@ -206,33 +206,74 @@ public class ExtraBMapTest
 		testBMapInternal(() -> new RHashMap<>(5), null);
 		testBMapInternal(() -> new RHashMap<>(7, 0.75f), null);
 
+		testBMapInternal(() -> RHashMap.create(), null);
+		testBMapInternal(() -> RHashMap.create(5), null);
+		testBMapInternal(() -> RHashMap.create(7, 0.75f), null);
+
 		testBMapInternal(() -> BHashMap.create(), null);
 		testBMapInternal(() -> BHashMap.create(5), null);
 		testBMapInternal(() -> BHashMap.create(7, 0.75f), null);
+
+		testBMapInternal(() -> SerializableBHashMap.create(), null);
+		testBMapInternal(() -> SerializableBHashMap.create(5), null);
+		testBMapInternal(() -> SerializableBHashMap.create(7, 0.75f), null);
 		
 		testBMapInternal(() -> BHashMap2.create(), null);
 		testBMapInternal(() -> BHashMap2.create(5), null);
 		testBMapInternal(() -> BHashMap2.create(7, 0.75f), null);
 		
+		testBMapInternal(() -> SerializableBHashMap2.create(), null);
+		testBMapInternal(() -> SerializableBHashMap2.create(5), null);
+		testBMapInternal(() -> SerializableBHashMap2.create(7, 0.75f), null);
+		
 		testBMapInternal(() -> EHashMap.create(), null);
 		testBMapInternal(() -> EHashMap.create(5), null);
 		testBMapInternal(() -> EHashMap.create(7, 0.75f), null);
 		
+		testBMapInternal(() -> SerializableEHashMap.create(), null);
+		testBMapInternal(() -> SerializableEHashMap.create(5), null);
+		testBMapInternal(() -> SerializableEHashMap.create(7, 0.75f), null);
+		
 		final Integer four = 4; 
 		testBMapInternal(() -> new RHashMap<>(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> RHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> RHashMap.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
+		
 		testBMapInternal(() -> BHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
 		testBMapInternal(() -> BHashMap.createFromReadOnly(
 			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
 			mapOf(key14_1, four, key15_2, 5));
+		
+		testBMapInternal(() -> SerializableBHashMap.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> SerializableBHashMap.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
+		
 		testBMapInternal(() -> BHashMap2.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
 		testBMapInternal(() -> BHashMap2.createFromReadOnly(
 			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
 			mapOf(key14_1, four, key15_2, 5));
+		
+		testBMapInternal(() -> SerializableBHashMap2.create(mapOf(key14_1, four, key15_2, 5)), mapOf(key14_1, four, key15_2, 5));
+		testBMapInternal(() -> SerializableBHashMap2.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
+		
 		testBMapInternal(() -> EHashMap.create(mapOf(key14_1, four, key15_2, 5)),
 			ReadOnlyMap.toNullableUnmodifiableJavaMap(
 				ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5)))
 		);
 		testBMapInternal(() -> EHashMap.createFromReadOnly(
+			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
+			mapOf(key14_1, four, key15_2, 5));
+		
+		testBMapInternal(() -> SerializableEHashMap.create(mapOf(key14_1, four, key15_2, 5)),
+			ReadOnlyMap.toNullableUnmodifiableJavaMap(
+				ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5)))
+		);
+		testBMapInternal(() -> SerializableEHashMap.createFromReadOnly(
 			ReadOnlyMap.of(mapOf(key14_1, four, key15_2, 5))), 
 			mapOf(key14_1, four, key15_2, 5));
 		
@@ -262,11 +303,22 @@ public class ExtraBMapTest
 	}
 	
 	/**
+	 * Not all interfaces are declaring 'serializable', so this casts them to
+	 * serializable.
+	 */
+	@NonNullByDefault({})
+	private void testBMapInternal(@Nonnull Supplier<@Nonnull BMap<TKeyWithValue, Integer>> mapFactory, 
+		@Nullable Map<TKeyWithValue, Integer> initialState)
+	{
+		testBMapInternal0(TypeUtil.coerce(mapFactory), initialState);
+	}
+
+	/**
 	 * Tests {@link BMap}
 	 */
 	@SuppressWarnings("deprecation")
 	@NonNullByDefault({})
-	private void testBMapInternal(@Nonnull Supplier<@Nonnull SerializableBMap<TKeyWithValue, Integer>> mapFactory, 
+	private void testBMapInternal0(@Nonnull Supplier<@Nonnull SerializableBMap<TKeyWithValue, Integer>> mapFactory, 
 		@Nullable Map<TKeyWithValue, Integer> initialState)
 	{
 		final TKeyWithValue key1_1 = new TKeyWithValue("1", 1);

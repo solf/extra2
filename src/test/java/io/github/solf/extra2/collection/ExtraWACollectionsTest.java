@@ -752,11 +752,21 @@ public class ExtraWACollectionsTest
 		internalTestBSet(BHashSet.create(3), new BSetFactory(BHashSet.class));
 		internalTestBSet(BHashSet.create(3, 0.6f), new BSetFactory(BHashSet.class));
 		internalTestBSet(BHashSet.create(Collections.emptySet()), new BSetFactory(BHashSet.class));
+
+		internalTestBSet(SerializableBHashSet.create(), new BSetFactory(SerializableBHashSet.class));
+		internalTestBSet(SerializableBHashSet.create(3), new BSetFactory(SerializableBHashSet.class));
+		internalTestBSet(SerializableBHashSet.create(3, 0.6f), new BSetFactory(SerializableBHashSet.class));
+		internalTestBSet(SerializableBHashSet.create(Collections.emptySet()), new BSetFactory(SerializableBHashSet.class));
 		
 		internalTestBSet(EHashSet.create(), new BSetFactory(EHashSet.class));
 		internalTestBSet(EHashSet.create(3), new BSetFactory(EHashSet.class));
 		internalTestBSet(EHashSet.create(3, 0.6f), new BSetFactory(EHashSet.class));
 		internalTestBSet(EHashSet.create(Collections.emptySet()), new BSetFactory(EHashSet.class));
+		
+		internalTestBSet(SerializableEHashSet.create(), new BSetFactory(SerializableEHashSet.class));
+		internalTestBSet(SerializableEHashSet.create(3), new BSetFactory(SerializableEHashSet.class));
+		internalTestBSet(SerializableEHashSet.create(3, 0.6f), new BSetFactory(SerializableEHashSet.class));
+		internalTestBSet(SerializableEHashSet.create(Collections.emptySet()), new BSetFactory(SerializableEHashSet.class));
 		
 		internalTestBSet(RHashSet.create(), new BSetFactory(RHashSet.class));
 		internalTestBSet(RHashSet.create(3), new BSetFactory(RHashSet.class));
@@ -816,13 +826,21 @@ public class ExtraWACollectionsTest
 		assertFalse(Set.of("1", "2").equals(ReadOnlySet.emptyReadOnlySet()));
 		assertNotEquals(ReadOnlySet.emptyReadOnlySet().hashCode(), Set.of("1", "2").hashCode());
 	}
-	
+
+	/**
+	 * Not all interfaces are declared as serializable, so this takes care of
+	 * casting.
+	 */
+	private <S extends BSet<@Nullable TKeyValue>> void internalTestBSet(S set, BSetFactory factory)
+	{
+		internalTestBSet0(TypeUtil.coerce(set), factory);
+	}
 	
 	/**
 	 * Tests {@link RHashSet} & {@link ForIterable}
 	 */
 	@SuppressWarnings("deprecation")
-	private <S extends SerializableBSet<@Nullable TKeyValue>> void internalTestBSet(S set, BSetFactory factory)
+	private <S extends SerializableBSet<@Nullable TKeyValue>> void internalTestBSet0(S set, BSetFactory factory)
 	{
 		TKeyValue nkey1 = new TKeyValue("nkey1", 1);
 		

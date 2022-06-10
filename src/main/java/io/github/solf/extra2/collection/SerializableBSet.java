@@ -43,6 +43,6 @@ public interface SerializableBSet<E> extends BSet<E>, Serializable
 	@Nonnull
 	public static <E> SerializableBSet<E> of(@Nonnull @NonNull Set<E> setToWrap)
 	{
-		return BSet.of(setToWrap); 
+		return new WrapperBSet<>(setToWrap); 
 	}
 }

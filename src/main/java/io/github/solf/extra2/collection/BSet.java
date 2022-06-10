@@ -94,9 +94,9 @@ public interface BSet<E> extends ReadOnlySet<E>, Set<E>
 	 * This has very little performance impact and can be used freely as needed.
 	 */
 	@Nonnull
-	public static <E> SerializableBSet<E> of(@Nonnull @NonNull Set<E> setToWrap)
+	public static <E> BSet<E> of(@Nonnull @NonNull Set<E> setToWrap)
 	{
-		return new WrapperBSet<>(setToWrap);
+		return SerializableBSet.of(setToWrap);
 	}
 	
 	/**

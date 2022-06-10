@@ -39,7 +39,7 @@ import javax.annotation.Nonnull;
  *
  * @author Sergey Olefir
  */
-public class EHashSet
+public class SerializableEHashSet
 {
     /**
      * Constructs a new, empty set; the backing {@code HashMap} instance has
@@ -48,7 +48,7 @@ public class EHashSet
      * The actual implementation is {@link RHashSet}
      */
 	@Nonnull
-	public static <E> ESet<E> create()
+	public static <E> SerializableESet<E> create()
 	{
 		return RHashSet.create();
 	}
@@ -66,7 +66,7 @@ public class EHashSet
      *             than zero, or if the load factor is nonpositive
      */
 	@Nonnull
-	public static <E> ESet<E> create(int initialCapacity, float loadFactor) 
+	public static <E> SerializableESet<E> create(int initialCapacity, float loadFactor) 
 	{
 		return RHashSet.create(initialCapacity, loadFactor);
     }
@@ -82,7 +82,7 @@ public class EHashSet
      *             than zero
      */
 	@Nonnull
-	public static <E> ESet<E> create(int initialCapacity) 
+	public static <E> SerializableESet<E> create(int initialCapacity) 
 	{
 		return RHashSet.create(initialCapacity);
     }
@@ -99,7 +99,7 @@ public class EHashSet
      * @throws NullPointerException if the specified collection is null
      */
 	@Nonnull
-	public static <E> ESet<E> create(@Nonnull Collection<? extends E> c) 
+	public static <E> SerializableESet<E> create(@Nonnull Collection<? extends E> c) 
 	{
 		return RHashSet.create(c); 
     }
@@ -114,7 +114,7 @@ public class EHashSet
      * @throws NullPointerException if the specified {@link ReadOnlySet} is null
      */
 	@Nonnull
-	public static <E> ESet<E> createFromReadOnly(@Nonnull ReadOnlySet<? extends E> c) 
+	public static <E> SerializableESet<E> createFromReadOnly(@Nonnull ReadOnlySet<? extends E> c) 
 	{
 		return RHashSet.createFromReadOnly(c); 
     }

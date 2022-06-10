@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
@@ -30,16 +31,15 @@ import javax.annotation.Nonnull;
  * and {@link #putIfNoKey(Object, Object)}/{@link #putIfNoValue(Object, Object)};
  * - plus some improved type-checking as in {@link #removeAndGet(Object)}
  * <p>
- * NOTE: The performance impact of using this (instead of standard {@link HashMap})
- *  is very similar to using {@link Collections#unmodifiableMap(Map)} --
+ * NOTE: this implementation has specific overhead compared to standard {@link HashMap} 
+ * -- for every mapping stored in the map an additional wrapper object is 
+ * created in order to provide the required functionality.
+ * <p>
+ * Another option is to use {@link BHashMap2} which has different performance
+ * trade-off:
+ * The performance impact of using {@link BHashMap2} is very similar to using {@link Collections#unmodifiableMap(Map)} --
  * specifically any entry iteration over the map results in a creation of 
  * intermediate wrapper object ({@link ReadOnlyEntry}) for each entry iterated.
- * <p>
- * Another option is to use {@link BHashMap} which has different performance
- * trade-off:
- * {@link BHashMap} implementation has specific overhead compared to standard {@link HashMap} 
- * -- for every mapping stored in the map an additional wrapper object is 
- * created in order to provide the required functionality. 
  * <p>
  * ---------------------------------------------------------------------
  * <p>
@@ -125,23 +125,23 @@ import javax.annotation.Nonnull;
  *
  * @author Sergey Olefir
  */
-public class BHashMap2
+public class SerializableBHashMap
 {
     /**
-     * Constructs an empty {@link BMap} with the default initial capacity
+     * Constructs an empty {@link SerializableBMap} with the default initial capacity
      * (16) and the default load factor (0.75).
      * <p>
      * The actual implementation is {@link RHashMap}
      */
 	@Nonnull
-	public static <K, V> BMap<K, V> create()
+	public static <K, V> SerializableBMap<K, V> create()
 	{
-		return SerializableBHashMap2.create();
+		return RHashMap.create();
 	}
 	
 
     /**
-     * Constructs an empty {@link BMap} with the specified initial
+     * Constructs an empty {@link SerializableBMap} with the specified initial
      * capacity and load factor.
      * <p>
      * The actual implementation is {@link RHashMap}
@@ -152,13 +152,13 @@ public class BHashMap2
      *         or the load factor is nonpositive
      */
 	@Nonnull
-	public static <K, V> BMap<K, V> create(int initialCapacity, float loadFactor) 
+	public static <K, V> SerializableBMap<K, V> create(int initialCapacity, float loadFactor) 
 	{
-		return SerializableBHashMap2.create(initialCapacity, loadFactor);
+		return RHashMap.create(initialCapacity, loadFactor);
     }
 
     /**
-     * Constructs an empty {@link BMap} with the specified initial
+     * Constructs an empty {@link SerializableBMap} with the specified initial
      * capacity and the default load factor (0.75).
      * <p>
      * The actual implementation is {@link RHashMap}
@@ -167,14 +167,14 @@ public class BHashMap2
      * @throws IllegalArgumentException if the initial capacity is negative.
      */
 	@Nonnull
-	public static <K, V> BMap<K, V> create(int initialCapacity) 
+	public static <K, V> SerializableBMap<K, V> create(int initialCapacity) 
 	{
-		return SerializableBHashMap2.create(initialCapacity);
+		return RHashMap.create(initialCapacity);
     }
 
     /**
-     * Constructs a new {@link BMap} with the same mappings as the
-     * specified {@code Map}.  The {@link BMap} is created with
+     * Constructs a new {@link SerializableBMap} with the same mappings as the
+     * specified {@code Map}.  The {@link SerializableBMap} is created with
      * default load factor (0.75) and an initial capacity sufficient to
      * hold the mappings in the specified {@code Map}.
      * <p>
@@ -184,14 +184,14 @@ public class BHashMap2
      * @throws  NullPointerException if the specified map is null
      */
 	@Nonnull
-	public static <K, V> BMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
+	public static <K, V> SerializableBMap<K, V> create(@Nonnull Map<? extends K, ? extends V> m) 
 	{
-		return SerializableBHashMap2.create(m); 
+		return RHashMap.create(m); 
     }
 
     /**
-     * Constructs a new {@link BMap} with the same mappings as the
-     * specified {@code ReadOnlyMap}.  The {@link BMap} is created with
+     * Constructs a new {@link SerializableBMap} with the same mappings as the
+     * specified {@code ReadOnlyMap}.  The {@link SerializableBMap} is created with
      * default load factor (0.75) and an initial capacity sufficient to
      * hold the mappings in the specified {@code ReadOnlyMap}.
      * <p>
@@ -201,9 +201,9 @@ public class BHashMap2
      * @throws  NullPointerException if the specified map is null
      */
 	@Nonnull
-	public static <K, V> BMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
+	public static <K, V> SerializableBMap<K, V> createFromReadOnly(@Nonnull ReadOnlyMap<? extends K, ? extends V> m) 
 	{
-		return SerializableBHashMap2.createFromReadOnly(m);
+		return RHashMap.createFromReadOnly(m); 
     }
 	
 }
