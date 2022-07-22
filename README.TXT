@@ -9,6 +9,9 @@ for an example of a RetryAndRateLimitService implementation;
 see https://github.com/solf/extra2/blob/main/src/main/example/io/github/solf/extra2/retry/example/ExampleAsyncHttpSubmitterServiceUsage.java
 for an example of using the service.
 
+There's additional information about this service in the io.github.solf.extra2.retry 
+section below.
+
 -------------------
 -------------------
 -------------------
