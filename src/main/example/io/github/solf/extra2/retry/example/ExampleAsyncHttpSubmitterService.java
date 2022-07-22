@@ -60,8 +60,6 @@ public class ExampleAsyncHttpSubmitterService extends RetryAndRateLimitService<S
 		Exception
 	{
 		URL url = new URL("http://example.org/submitRequest?input=" + input);
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
-		con.setRequestMethod("GET");
 		
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		conn.connect();

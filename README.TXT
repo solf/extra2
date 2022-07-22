@@ -1,3 +1,18 @@
+
+If you are here in order to evaluate my code, you can take a look at
+https://github.com/solf/extra2/blob/main/src/main/java/io/github/solf/extra2/retry/RetryAndRateLimitService.java
+for a specific example of a rather complex asynchronous code that is currently 
+used in production.
+
+See https://github.com/solf/extra2/blob/main/src/main/example/io/github/solf/extra2/retry/example/ExampleAsyncHttpSubmitterService.java
+for an example of a RetryAndRateLimitService implementation;
+see https://github.com/solf/extra2/blob/main/src/main/example/io/github/solf/extra2/retry/example/ExampleAsyncHttpSubmitterServiceUsage.java
+for an example of using the service.
+
+-------------------
+-------------------
+-------------------
+
 Collection of various Java support code to make Java programming more 'fun'.
 
 Project is intended for use with Maven:
@@ -27,12 +42,6 @@ here: https://github.com/solf/ext-eclipse-annotations
 Uses null-annotations available here: https://github.com/solf/nullanno
 (but those are an 'optional' dependency and thus not included in dependencies
 by default)
-
--------------------
-
-The potential 'star' of this library is collection extensions (Map/Set/HashMap/HashSet)
-in io.github.solf.extra2.collection -- these provide significant improvements
-over standard java sets and maps, such as explicitly-defined read-only interface.
 
 -------------------
 
