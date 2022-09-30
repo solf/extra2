@@ -18,82 +18,73 @@ package io.github.solf.extra2.collection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import lombok.experimental.Delegate;
-
 /**
- * Thin wrapper implementation that allows representing any java sets as {@link SerializableBSet}
- * (although whether it is actually serializable depends on underlying set
+ * Thin wrapper implementation that allows representing any java lists as {@link SerializableBList}
+ * (although whether it is actually serializable depends on underlying list
  * serializability).
  * <p>
- * All operations on the wrapper are pass-through to the underlying set instance.
+ * All operations on the wrapper are pass-through to the underlying list instance.
  * <p>
  * This has very little performance impact and can be used freely via e.g.
- * {@link BSet#of(Set)} or {@link ReadOnlySet#of(Set)}
+ * {@link BList#of(List)} or {@link ReadOnlyList#of(List)}
  *
  * @author Sergey Olefir
  */
-public class WrapperBSet<E> implements SerializableBSet<E>
+public class WrapperBList<E> extends DelegateList<E> implements SerializableBList<E>
 {
 	/** UID for serialization */
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * Underlying set.
-	 */
-	@Nonnull
-	@Delegate
-	private final Set<E> uset;
-	
-	/**
 	 * Constructor.
 	 */
-	public WrapperBSet(@Nonnull Set<E> srcSet)
+	public WrapperBList(@Nonnull List<E> srcList)
 	{
-		this.uset = srcSet;
+		super(srcList);
 	}
 
 	@Override
 	public @Nonnull Iterator<E> liveIterator()
 	{
-		return uset.iterator();
+		return ulist.iterator();
 	}
 
 	@Override
 	public boolean has(E o)
 	{
-		return uset.contains(o);
+		return ulist.contains(o);
 	}
 	
 	//aaa add tests for 'hasAll'
 	@Override
 	public boolean hasAll(Collection<E> c)
 	{
-		return uset.containsAll(c);
+		return ulist.containsAll(c);
 	}
 
 	@Override
 	public boolean removeElement(E o)
 	{
-		return uset.remove(o);
+		return ulist.remove(o);
 	}
 
 	/**
-	 * Cached unmodifiable set if was created previously.
+	 * Cached unmodifiable list if was created previously.
 	 */
-	transient private volatile Set<E> cachedUnmodifiableSet = null;
+	transient private volatile List<E> cachedUnmodifiableList = null;
 	@Override
-	public @Nonnull Set<E> toUnmodifiableJavaSet()
+	public @Nonnull List<E> toUnmodifiableJavaList()
 	{
-		Set<E> result = cachedUnmodifiableSet;
+		List<E> result = cachedUnmodifiableList;
 		if (result == null)
 		{
-			result = Collections.unmodifiableSet(uset);
-			cachedUnmodifiableSet = result;
+			result = Collections.unmodifiableList(ulist);
+			cachedUnmodifiableList = result;
 		}
 		
 		return result;
@@ -102,18 +93,25 @@ public class WrapperBSet<E> implements SerializableBSet<E>
 	@Override
 	public int hashCode()
 	{
-		return uset.hashCode();
+		return ulist.hashCode();
 	}
 
 	@Override
 	public boolean equals(@Nullable Object obj)
 	{
-		return uset.equals(obj);
+		return ulist.equals(obj);
 	}
 
 	@Override
 	public @Nonnull String toString()
 	{
-		return uset.toString();
+		return ulist.toString();
 	}
+	
+	@Override
+	public @Nonnull BList<E> subList(int fromIndex, int toIndex)
+	{
+		return new WrapperBList<>(super.subList(fromIndex, toIndex));
+	}
+	
 }

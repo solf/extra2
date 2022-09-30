@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.collection;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -124,7 +125,14 @@ public interface BSet<E> extends ReadOnlySet<E>, Set<E>
 	public boolean contains(Object o);
 	
     /**
-     * @deprecated use {@link #removeAndGet(Object)} for better type-checking
+     * @deprecated use {@link #hasAll(Collection)} for better type-checking
+     */
+	@Deprecated
+    @Override
+	boolean containsAll(Collection<?> c);
+	
+    /**
+     * @deprecated use {@link #removeElement(Object)} for better type-checking
      */
     @Override
     @Deprecated

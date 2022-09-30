@@ -27,7 +27,7 @@ import lombok.NonNull;
  *
  * @author Sergey Olefir
  */
-public interface ReadOnlySet<E> extends ForIterable<E>
+public interface ReadOnlySet<E> extends ReadOnlyCollection<E>
 {
 	/**
 	 * Represents any given Java set as {@link ReadOnlySet} via a thin
@@ -52,6 +52,7 @@ public interface ReadOnlySet<E> extends ForIterable<E>
      * @param o element whose presence in this set is to be tested
      * @return {@code true} if this set contains the specified element
      */
+	@Override
 	boolean has(E o);
 
     /**
@@ -59,6 +60,7 @@ public interface ReadOnlySet<E> extends ForIterable<E>
      *
      * @return {@code true} if this set contains no elements
      */
+	@Override
 	boolean isEmpty();
 
     /**
@@ -66,6 +68,7 @@ public interface ReadOnlySet<E> extends ForIterable<E>
      *
      * @return the number of elements in this set (its cardinality)
      */
+	@Override
 	int size();
 
 	/**

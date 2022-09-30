@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.AbstractList;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
@@ -31,6 +32,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -647,6 +649,98 @@ public class WACollections
 	public static <T> ReadOnlySet<T> emptyReadOnlySet()
 	{
 		return (ReadOnlySet<T>)EMPTY_READ_ONLY_SET;
+	}
+	
+	/**
+	 * Empty read-only set implementation.
+	 */
+	@NonNullByDefault({})
+	private static class EmptyReadOnlyList extends AbstractList<Object>
+		implements Serializable, BList<Object> // can't implement ReadOnlyList due to subList(..) return type conflict 
+	{
+		@SuppressWarnings("deprecation")
+		@Override
+		@Nonnull
+		public Iterator<Object> iterator()
+		{
+			return Collections.emptyIterator();
+		}
+
+		@Override
+		public boolean has(Object o)
+		{
+			return false;
+		}
+
+		@Override
+		public boolean isEmpty()
+		{
+			return true;
+		}
+
+		@Override
+		public int size()
+		{
+			return 0;
+		}
+
+		@Nonnull
+		@Override
+		public List<Object> toUnmodifiableJavaList()
+		{
+			return Collections.emptyList();
+		}
+
+		@Override
+		public @Nonnull Stream<Object> stream()
+		{
+			return BList.super.stream();
+		}
+		
+        @Override
+        public int hashCode() 
+        {
+            return 0;
+        }
+
+		@Override
+		public Object get(int index)
+		{
+            throw new IndexOutOfBoundsException("Index: "+index);
+		}
+
+		@Override
+		public @Nonnull Iterator<Object> liveIterator()
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean removeElement(Object o)
+		{
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public @Nonnull BList<Object> subList(int fromIndex, int toIndex)
+		{
+			return new WrapperBList<>(super.subList(fromIndex, toIndex));
+		}
+	}
+	
+	/**
+	 * Empty read-only set instance.
+	 */
+	private static final EmptyReadOnlyList EMPTY_READ_ONLY_LIST = new EmptyReadOnlyList();
+	
+	/**
+	 * Returns empty read-only set.
+	 */
+	//aaa test this
+	@SuppressWarnings("unchecked")
+	public static <T> ReadOnlyList<T> emptyReadOnlyList()
+	{
+		return (ReadOnlyList<T>)EMPTY_READ_ONLY_LIST;
 	}
 	
 	/**
