@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.collection;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -82,6 +83,12 @@ public interface ReadOnlyList<E> extends ReadOnlyCollection<E>
 	 */
 	@Nonnull List<E> toUnmodifiableJavaList();
 	
+	@Override
+	default @Nonnull Collection<E> toUnmodifiableJavaCollection()
+	{
+		return toUnmodifiableJavaList();
+	}
+
 	/**
 	 * Returns empty read-only list.
 	 */

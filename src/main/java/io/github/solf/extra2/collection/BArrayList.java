@@ -36,6 +36,7 @@ public class BArrayList<E> extends ArrayList<E> implements SerializableBList<E>
      * <p>
      * This exists (in addition to constructors) in order to provide interface similar to {@link BHashSet}
      */
+	@Nonnull
 	public static <E> BArrayList<E> create()
 	{
 		return new BArrayList<>();
@@ -51,6 +52,7 @@ public class BArrayList<E> extends ArrayList<E> implements SerializableBList<E>
      * @param c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
      */
+	@Nonnull
 	public static <E> BArrayList<E> create(Collection<? extends E> c)
 	{
 		return new BArrayList<>(c);
@@ -65,9 +67,30 @@ public class BArrayList<E> extends ArrayList<E> implements SerializableBList<E>
      * @throws IllegalArgumentException if the specified initial capacity
      *         is negative
      */
+	@Nonnull
 	public static <E> BArrayList<E> create(int initialCapacity)
 	{
 		return new BArrayList<>(initialCapacity);
+	}
+
+    /**
+     * Constructs a list containing the elements of the specified 
+     * {@link ReadOnlyCollection}, in the order they are returned by the collection's
+     * iterator.
+     *
+     * @param c the collection whose elements are to be placed into this list
+     * @throws NullPointerException if the specified collection is null
+     */
+	@Nonnull
+	public static <E> BArrayList<E> createFromReadOnly(ReadOnlyCollection<? extends E> c)
+	{
+		if (c instanceof Collection)
+		{
+			@SuppressWarnings("unchecked") Collection<E> collection = (Collection<E>)c;
+			return create(collection);
+		}
+		
+		return create(c.toUnmodifiableJavaCollection()); 
 	}
 	
     /**

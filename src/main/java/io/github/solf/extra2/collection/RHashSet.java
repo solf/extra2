@@ -136,15 +136,15 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
 
     /**
      * Constructs a new set containing the elements in the specified
-     * {@link ReadOnlySet}.  The {@code HashMap} is created with default load factor
+     * {@link ReadOnlyCollection}.  The {@code HashMap} is created with default load factor
      * (0.75) and an initial capacity sufficient to contain the elements in
-     * the specified {@link ReadOnlySet}.
+     * the specified {@link ReadOnlyCollection}.
      *
-     * @param c the {@link ReadOnlySet} whose elements are to be placed into this set
+     * @param c the {@link ReadOnlyCollection} whose elements are to be placed into this set
      * @throws NullPointerException if the specified {@link ReadOnlySet} is null
      */
 	@Nonnull
-	public static <E> RHashSet<E> createFromReadOnly(@Nonnull ReadOnlySet<? extends E> c) 
+	public static <E> RHashSet<E> createFromReadOnly(@Nonnull ReadOnlyCollection<? extends E> c) 
 	{
 		if (c instanceof Collection)
 		{
@@ -152,7 +152,7 @@ public class RHashSet<E> extends AbstractSet<E> implements Cloneable, Serializab
 			return create(collection);
 		}
 		
-		return create(c.toUnmodifiableJavaSet()); 
+		return create(c.toUnmodifiableJavaCollection()); 
     }
 	
 	/**

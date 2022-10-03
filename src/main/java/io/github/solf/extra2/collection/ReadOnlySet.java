@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.collection;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -80,6 +81,12 @@ public interface ReadOnlySet<E> extends ReadOnlyCollection<E>
 	 */
 	@Nonnull Set<E> toUnmodifiableJavaSet();
 	
+	@Override
+	default @Nonnull Collection<E> toUnmodifiableJavaCollection()
+	{
+		return toUnmodifiableJavaSet();
+	}
+
 	/**
 	 * Returns empty read-only set.
 	 */

@@ -17,6 +17,8 @@ package io.github.solf.extra2.collection;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
+
 /**
  * Read-only operations possible on a collection.
  *
@@ -71,4 +73,13 @@ public interface ReadOnlyCollection<E> extends ForIterable<E>
      * @return the number of elements in this collection
      */
 	int size();
+
+	/**
+	 * Returns an unmodifiable representation of this {@link ReadOnlyCollection} as
+	 * Java {@link Collection} (e.g. for use with methods that require {@link Collection} as 
+	 * input argument).
+	 * <p>
+	 * Implementations ought to take steps to make this as inexpensive as possible.
+	 */
+	@Nonnull Collection<E> toUnmodifiableJavaCollection();
 }
