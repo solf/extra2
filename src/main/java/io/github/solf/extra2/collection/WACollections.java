@@ -671,6 +671,18 @@ public class WACollections
 		{
 			return false;
 		}
+		
+		@Override
+		public int indexOfElement(Object o)
+		{
+			return -1;
+		}
+
+		@Override
+		public int lastIndexOfElement(Object o)
+		{
+			return -1;
+		}
 
 		@Override
 		public boolean isEmpty()
@@ -700,7 +712,7 @@ public class WACollections
         @Override
         public int hashCode() 
         {
-            return 0;
+            return 1; // for whatever reason empty lists in Java get hashCode = 1
         }
 
 		@Override
@@ -736,7 +748,6 @@ public class WACollections
 	/**
 	 * Returns empty read-only set.
 	 */
-	//aaa test this
 	@SuppressWarnings("unchecked")
 	public static <T> ReadOnlyList<T> emptyReadOnlyList()
 	{

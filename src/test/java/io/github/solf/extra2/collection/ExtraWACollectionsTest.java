@@ -37,6 +37,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -818,7 +819,6 @@ public class ExtraWACollectionsTest
 	 */
 	@SuppressWarnings("unlikely-arg-type")
 	@Test
-	//qqq duplicate for list
 	public void testEmptySet()
 	{
 		assertTrue(ReadOnlySet.emptyReadOnlySet().equals(Collections.emptySet()));
@@ -832,6 +832,26 @@ public class ExtraWACollectionsTest
 		assertFalse(ReadOnlySet.emptyReadOnlySet().equals(Set.of("1", "2")));
 		assertFalse(Set.of("1", "2").equals(ReadOnlySet.emptyReadOnlySet()));
 		assertNotEquals(ReadOnlySet.emptyReadOnlySet().hashCode(), Set.of("1", "2").hashCode());
+	}
+	
+	/**
+	 * Tests {@link ReadOnlyList#emptyReadOnlyList()}
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	@Test
+	public void testEmptyList()
+	{
+		assertTrue(ReadOnlyList.emptyReadOnlyList().equals(Collections.emptyList()));
+		assertTrue(Collections.emptyList().equals(ReadOnlyList.emptyReadOnlyList()));
+		assertEquals(ReadOnlyList.emptyReadOnlyList().hashCode(), Collections.emptyList().hashCode());
+		
+		assertTrue(ReadOnlyList.emptyReadOnlyList().equals(List.of()));
+		assertTrue(List.of().equals(ReadOnlyList.emptyReadOnlyList()));
+		assertEquals(ReadOnlyList.emptyReadOnlyList().hashCode(), List.of().hashCode());
+		
+		assertFalse(ReadOnlyList.emptyReadOnlyList().equals(List.of("1", "2")));
+		assertFalse(List.of("1", "2").equals(ReadOnlyList.emptyReadOnlyList()));
+		assertNotEquals(ReadOnlyList.emptyReadOnlyList().hashCode(), List.of("1", "2").hashCode());
 	}
 
 	/**
@@ -1162,6 +1182,17 @@ public class ExtraWACollectionsTest
 	@SuppressWarnings("deprecation")
 	private void compareItems(SerializableBSet<@Nullable TKeyValue> set, boolean useRemove, @Nullable TKeyValue... elements)
 	{
+		assertTrue(set.containsAll(Arrays.asList(elements)));
+		assertTrue(set.hasAll(Arrays.asList(elements)));
+		assertTrue(Arrays.asList(elements).containsAll(set));
+		
+		{
+			ArrayList<@Nullable TKeyValue> badList = new ArrayList<>(Arrays.asList(elements));
+			badList.add(new TKeyValue("a123456", 456789));
+			assertFalse(set.containsAll(badList));
+			assertFalse(set.hasAll(badList));
+		}
+		
 		if (set.size() == 1)
 		{
 			TKeyValue actual = set.only();
@@ -1305,9 +1336,6 @@ public class ExtraWACollectionsTest
 			, 1, 2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, -2, -1, -2);
 	}
 
-	//qqq check for 'set' word below
-
-	
 	/**
 	 * Factory class for creating instances of various subclasses of {@link BList}
 	 * via static *.create* methods.
@@ -1357,22 +1385,30 @@ public class ExtraWACollectionsTest
 	}
 	
 	/**
-	 * Verifies that given set contains exactly the elements (via fullyEquals())
+	 * Verifies that given list contains exactly the elements (via fullyEquals())
 	 */
-	private void compareItems(SerializableBList<@Nullable TKeyValue> set, @Nullable TKeyValue... elements)
+	private void compareItems(SerializableBList<@Nullable TKeyValue> list, @Nullable TKeyValue... elements)
 	{
-		compareItems(set, false, elements);
-		compareItems(set, true, elements);
+		compareItems(list, false, elements);
+		compareItems(list, true, elements);
 	}
 	
 	/**
-	 * Verifies that given set contains exactly the elements (via fullyEquals())
+	 * Verifies that given list contains exactly the elements (via fullyEquals())
 	 */
 	@SuppressWarnings("deprecation")
 	private void compareItems(SerializableBList<@Nullable TKeyValue> list, boolean useRemove, @Nullable TKeyValue... elements)
 	{
 		assertTrue(list.containsAll(Arrays.asList(elements)));
 		assertTrue(list.hasAll(Arrays.asList(elements)));
+		assertTrue(Arrays.asList(elements).containsAll(list));
+		
+		{
+			ArrayList<@Nullable TKeyValue> badList = new ArrayList<>(Arrays.asList(elements));
+			badList.add(new TKeyValue("a123456", 456789));
+			assertFalse(list.containsAll(badList));
+			assertFalse(list.hasAll(badList));
+		}
 		
 		if (list.size() == 1)
 		{
@@ -1392,6 +1428,18 @@ public class ExtraWACollectionsTest
 		}
 		else
 			assertFails(() -> list.any(), "IllegalStateException");
+		
+		{
+			Iterator<@Nullable TKeyValue> iter = list.liveIterator();
+			for (TKeyValue item : elements)
+			{
+				if (item == null)
+					assertNull(iter.next());
+				else
+					assertTrue(item.fullyEquals(iter.next()));
+			}
+			assertFalse(iter.hasNext());
+		}
 		
 		int count = 0;
 		for (@SuppressWarnings("unused") TKeyValue item : list)
@@ -1432,7 +1480,7 @@ public class ExtraWACollectionsTest
 		assertEquals(0, remaining.size());
 		
 		// Compare stuff using standard equals/hashCode
-//		System.out.println("" + set.getClass() + ": " + set);
+//		System.out.println("" + list.getClass() + ": " + list);
 		{
 			List<@Nullable TKeyValue> targetList = Arrays.asList(elements);
 			
@@ -1480,7 +1528,7 @@ public class ExtraWACollectionsTest
 	}
 	
 	/**
-	 * Tests {@link RHashSet} & {@link ForIterable}
+	 * Tests {@link BList}
 	 */
 	@SuppressWarnings("deprecation")
 	private <S extends SerializableBList<@Nullable TKeyValue>> void internalTestBList0(S list, BListFactory factory)
@@ -1515,143 +1563,143 @@ public class ExtraWACollectionsTest
 		compareItems(list, new ArrayList<@Nullable TKeyValue>(list.stream().map(e -> e).collect(Collectors.toList())).toArray(new @Nullable TKeyValue[0]));
 		
 		{
-			BList<TKeyValue> tset = factory.create(3);
+			BList<TKeyValue> tlist = factory.create(3);
 			
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1));
-			assertEquals(list, tset);
-			assertTrue(tset.add(key1.withValue(876)));
-			assertNotEquals(list, tset);
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1));
+			assertEquals(list, tlist);
+			assertTrue(tlist.add(key1.withValue(876)));
+			assertNotEquals(list, tlist);
 			
-			tset.clear();
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1.clone()));
-			assertEquals(list, tset);
+			tlist.clear();
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1.clone()));
+			assertEquals(list, tlist);
 			
-			tset.clear();
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1.clone().withValue(456)));
-			assertEquals(list, tset);
+			tlist.clear();
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1.clone().withValue(456)));
+			assertEquals(list, tlist);
 		}
 		
 		TKeyValue key1_2 = new TKeyValue("key1", 2);
 		
 		{
-			SerializableBList<@Nullable TKeyValue> tset = factory.create(5);
+			SerializableBList<@Nullable TKeyValue> tlist = factory.create(5);
 			
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1_2)); 
-			assertTrue(tset.add(key1_2)); 
-			assertTrue(tset.add(key1));
-			compareItems(tset, key1_2, key1_2, key1);
-			nnChecked(tset.remove(1)).fullyEquals(key1_2);
-			nnChecked(tset.remove(1)).fullyEquals(key1);
-			assertEquals(list, tset.toUnmodifiableJavaList());
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1_2)); 
+			assertTrue(tlist.add(key1_2)); 
+			assertTrue(tlist.add(key1));
+			compareItems(tlist, key1_2, key1_2, key1);
+			nnChecked(tlist.remove(1)).fullyEquals(key1_2);
+			nnChecked(tlist.remove(1)).fullyEquals(key1);
+			assertEquals(list, tlist.toUnmodifiableJavaList());
 			
-			assertTrue(tset.removeElement(key1));
-			compareItems(tset);
-			assertEquals(tset.size(), 0);
-			assertTrue(tset.isEmpty());
-			assertTrue(tset.add(key1_2)); 
-			assertTrue(tset.remove(key1));
-			compareItems(tset);
-			assertEquals(tset.size(), 0);
-			assertTrue(tset.isEmpty());
-			assertTrue(tset.add(key1_2)); 
-			assertTrue(tset.add(nkey1)); 
-			compareItems(tset, key1_2, nkey1);
-			assertEquals(tset.size(), 2);
-			assertFalse(tset.isEmpty());
-			assertTrue(tset.removeElement(nkey1));
-			compareItems(tset, key1_2);
-			assertEquals(tset.size(), 1);
-			assertFalse(tset.isEmpty());
-			assertTrue(tset.add(nkey1)); 
-			compareItems(tset, key1_2, nkey1);
-			assertEquals(tset.size(), 2);
-			assertFalse(tset.isEmpty());
-			assertTrue(tset.remove(nkey1));
-			compareItems(tset, key1_2);
-			assertEquals(tset.size(), 1);
-			assertFalse(tset.isEmpty());
+			assertTrue(tlist.removeElement(key1));
+			compareItems(tlist);
+			assertEquals(tlist.size(), 0);
+			assertTrue(tlist.isEmpty());
+			assertTrue(tlist.add(key1_2)); 
+			assertTrue(tlist.remove(key1));
+			compareItems(tlist);
+			assertEquals(tlist.size(), 0);
+			assertTrue(tlist.isEmpty());
+			assertTrue(tlist.add(key1_2)); 
+			assertTrue(tlist.add(nkey1)); 
+			compareItems(tlist, key1_2, nkey1);
+			assertEquals(tlist.size(), 2);
+			assertFalse(tlist.isEmpty());
+			assertTrue(tlist.removeElement(nkey1));
+			compareItems(tlist, key1_2);
+			assertEquals(tlist.size(), 1);
+			assertFalse(tlist.isEmpty());
+			assertTrue(tlist.add(nkey1)); 
+			compareItems(tlist, key1_2, nkey1);
+			assertEquals(tlist.size(), 2);
+			assertFalse(tlist.isEmpty());
+			assertTrue(tlist.remove(nkey1));
+			compareItems(tlist, key1_2);
+			assertEquals(tlist.size(), 1);
+			assertFalse(tlist.isEmpty());
 			
-			assertTrue(tset.add(null));
-			compareItems(tset, key1_2, null);
-			assertTrue(tset.add(null));
-			compareItems(tset, key1_2, null, null);
-			assertTrue(tset.remove(null));
-			compareItems(tset, key1_2, null);
-			assertTrue(tset.remove(null));
-			compareItems(tset, key1_2);
-			assertTrue(tset.add(null));
-			compareItems(tset, key1_2, null);
-			assertTrue(tset.remove(null));
-			assertFalse(tset.remove(null));
-			compareItems(tset, key1_2);
+			assertTrue(tlist.add(null));
+			compareItems(tlist, key1_2, null);
+			assertTrue(tlist.add(null));
+			compareItems(tlist, key1_2, null, null);
+			assertTrue(tlist.remove(null));
+			compareItems(tlist, key1_2, null);
+			assertTrue(tlist.remove(null));
+			compareItems(tlist, key1_2);
+			assertTrue(tlist.add(null));
+			compareItems(tlist, key1_2, null);
+			assertTrue(tlist.remove(null));
+			assertFalse(tlist.remove(null));
+			compareItems(tlist, key1_2);
 			
-			assertTrue(tset.add(null));
-			compareItems(tset, key1_2, null);
-			assertTrue(tset.add(null));
-			compareItems(tset, key1_2, null, null);
-			assertTrue(tset.removeElement(null));
-			compareItems(tset, key1_2, null);
-			assertTrue(tset.removeElement(null));
-			compareItems(tset, key1_2);
-			assertTrue(tset.add(null));
-			compareItems(tset, key1_2, null);
-			assertTrue(tset.removeElement(null));
-			assertFalse(tset.removeElement(null));
-			compareItems(tset, key1_2);
+			assertTrue(tlist.add(null));
+			compareItems(tlist, key1_2, null);
+			assertTrue(tlist.add(null));
+			compareItems(tlist, key1_2, null, null);
+			assertTrue(tlist.removeElement(null));
+			compareItems(tlist, key1_2, null);
+			assertTrue(tlist.removeElement(null));
+			compareItems(tlist, key1_2);
+			assertTrue(tlist.add(null));
+			compareItems(tlist, key1_2, null);
+			assertTrue(tlist.removeElement(null));
+			assertFalse(tlist.removeElement(null));
+			compareItems(tlist, key1_2);
 			
-			tset.clear();
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1_2.clone()));
-			assertEquals(list, tset.toUnmodifiableJavaList());
+			tlist.clear();
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1_2.clone()));
+			assertEquals(list, tlist.toUnmodifiableJavaList());
 			
 			{
-				SerializableBList<@Nullable TKeyValue> aset = cloneViaSerialization(tset);
+				SerializableBList<@Nullable TKeyValue> alist = cloneViaSerialization(tlist);
 				
-				assert aset != tset;
-				assertEquals(aset, tset.toUnmodifiableJavaList());
-				assertEquals(aset.hashCode(), tset.hashCode());
+				assert alist != tlist;
+				assertEquals(alist, tlist.toUnmodifiableJavaList());
+				assertEquals(alist.hashCode(), tlist.hashCode());
 				
-				tset.clear(); // test decoupling
+				tlist.clear(); // test decoupling
 				
-				assertNotEquals(aset, tset.toUnmodifiableJavaList());
-				assertNotEquals(aset.hashCode(), tset.hashCode());
+				assertNotEquals(alist, tlist.toUnmodifiableJavaList());
+				assertNotEquals(alist.hashCode(), tlist.hashCode());
 				
-				assertEquals(tset.size(), 0);
-				assertEquals(aset.size(), 1);
+				assertEquals(tlist.size(), 0);
+				assertEquals(alist.size(), 1);
 				
-				tset = aset;
+				tlist = alist;
 			}
 			
-			tset.clear();
-			assertNotEquals(list, tset.toUnmodifiableJavaList());
-			assertTrue(tset.add(key1_2.clone().withValue(456)));
-			assertEquals(list, tset.toUnmodifiableJavaList());
+			tlist.clear();
+			assertNotEquals(list, tlist.toUnmodifiableJavaList());
+			assertTrue(tlist.add(key1_2.clone().withValue(456)));
+			assertEquals(list, tlist.toUnmodifiableJavaList());
 		}
 		
 		assertTrue(key1.fullyEquals(getListElement(list, key1)));
 		assertTrue(list.removeElement(key1_2));
 		assertTrue(list.add(key1_2));
 		{
-			BList<TKeyValue> tset = factory.create();
-			assertNotEquals(list, tset.toUnmodifiableJavaList());
-			assertTrue(tset.add(key1));
-			assertEquals(list, tset.toUnmodifiableJavaList()); 
+			BList<TKeyValue> tlist = factory.create();
+			assertNotEquals(list, tlist.toUnmodifiableJavaList());
+			assertTrue(tlist.add(key1));
+			assertEquals(list, tlist.toUnmodifiableJavaList()); 
 			
-			tset.clear();
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1.clone()));
-			assertEquals(list, tset);
+			tlist.clear();
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1.clone()));
+			assertEquals(list, tlist);
 			
-			tset.clear();
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1.clone().withValue(456)));
-			assertTrue(tset.remove(key1.clone()));
-			assertTrue(tset.add(key1.clone().withValue(456)));
-			assertEquals(list, tset);
+			tlist.clear();
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1.clone().withValue(456)));
+			assertTrue(tlist.remove(key1.clone()));
+			assertTrue(tlist.add(key1.clone().withValue(456)));
+			assertEquals(list, tlist);
 		}
 		assertEquals(list.size(), 1);
 		assertFalse(list.has(nkey1));
@@ -1679,27 +1727,27 @@ public class ExtraWACollectionsTest
 		
 		for (int i = 0; i < 2; i++)
 		{
-			BList<TKeyValue> tset = (i == 0) ? 
+			BList<TKeyValue> tlist = (i == 0) ? 
 				factory.create(Arrays.asList(key1)) :
-				factory.createFromReadOnly(ReadOnlySet.of(Set.of(key1)));
+				factory.createFromReadOnly(ReadOnlyList.of(List.of(key1)));
 			
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key2));
-			assertEquals(list, tset);
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key2));
+			assertEquals(list, tlist);
 			
-			tset.clear();
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1_2));
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key2.clone()));
-			assertEquals(list, tset);
+			tlist.clear();
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1_2));
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key2.clone()));
+			assertEquals(list, tlist);
 			
-			tset.clear();
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key1));
-			assertNotEquals(list, tset);
-			assertTrue(tset.add(key2.clone().withValue(678)));
-			assertEquals(list, tset);
+			tlist.clear();
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key1));
+			assertNotEquals(list, tlist);
+			assertTrue(tlist.add(key2.clone().withValue(678)));
+			assertEquals(list, tlist);
 		}
 
 		assertTrue(list.has(key1_2));
@@ -1721,6 +1769,8 @@ public class ExtraWACollectionsTest
 		assertTrue(nn(getListElement(list, key2.clone())).fullyEquals(key2));
 		assertTrue(nn(getListElement(list, key2.clone().withValue(321))).fullyEquals(key2));
 		
+		// list contains: key1_2, key2
+		compareItems(list, key1_2, key2);
 		
 		// check with nulls too
 		assertTrue(list.add(null));
@@ -1732,6 +1782,7 @@ public class ExtraWACollectionsTest
 
 		assertTrue(list.add(null));
 		assertEquals(list.size(), 4);
+		compareItems(list, key1_2, key2, null, null);
 		assertNull(list.remove(3));
 		assertEquals(list.size(), 3);
 		assertFalse(list.has(nkey1));
@@ -1759,6 +1810,122 @@ public class ExtraWACollectionsTest
 		assertTrue(nn(getListElement(list, key2.clone())).fullyEquals(key2));
 		assertTrue(nn(getListElement(list, key2.clone().withValue(321))).fullyEquals(key2));
 		
+		// list contains: key1_2, key2, null
+		compareItems(list, key1_2, key2, null);
+		
+		///////////////////////////////////////////////////////////////////////
+		//   CHECK ACTUAL LIST OPERATIONS
+		///////////////////////////////////////////////////////////////////////
+		// Add more duplicate elements
+		assertTrue(list.add(key1_2));
+		list.add(3, key2); 
+		list.add(3, null);
+		compareItems(list, key1_2, key2, null, null, key2, key1_2);
+		list.add(0, nkey1);
+		compareItems(list, nkey1, key1_2, key2, null, null, key2, key1_2);
+		assertEquals(list.size(), 7);
+		list.add(7, nkey1);
+		compareItems(list, nkey1, key1_2, key2, null, null, key2, key1_2, nkey1);
+		assertEquals(list.size(), 8);
+		assertTrue(nkey1.fullyEquals(list.remove(7)));
+		compareItems(list, nkey1, key1_2, key2, null, null, key2, key1_2);
+		assertEquals(list.size(), 7);
+		assertTrue(nkey1.fullyEquals(list.remove(0)));
+		compareItems(list, key1_2, key2, null, null, key2, key1_2);
+		assertEquals(list.size(), 6);
+		
+		// addAll
+		assertTrue(list.addAll(Arrays.asList(nkey1, nkey1)));
+		compareItems(list, key1_2, key2, null, null, key2, key1_2, nkey1, nkey1);
+		assertEquals(list.size(), 8);
+		assertTrue(nkey1.fullyEquals(list.remove(6)));
+		assertTrue(nkey1.fullyEquals(list.remove(6)));
+		compareItems(list, key1_2, key2, null, null, key2, key1_2);
+		assertEquals(list.size(), 6);
+		
+		assertTrue(list.addAll(0, Arrays.asList(nkey1, nkey1)));
+		compareItems(list, nkey1, nkey1, key1_2, key2, null, null, key2, key1_2);
+		assertEquals(list.size(), 8);
+		assertTrue(nkey1.fullyEquals(list.remove(0)));
+		assertTrue(nkey1.fullyEquals(list.remove(0)));
+		compareItems(list, key1_2, key2, null, null, key2, key1_2);
+		assertEquals(list.size(), 6);
+		
+		// get by index
+		assertEquals(list.get(0), key1_2);
+		assertEquals(list.get(1), key2);
+		assertEquals(list.get(2), null);
+		assertEquals(list.get(3), null);
+		assertEquals(list.get(4), key2);
+		assertEquals(list.get(5), key1_2);
+		
+		// indexof
+		assertEquals(list.indexOf(nkey1), -1);
+		assertEquals(list.indexOf(key1_2), 0);
+		assertEquals(list.indexOf(key2), 1);
+		assertEquals(list.indexOf(null), 2);
+		assertEquals(list.lastIndexOf(nkey1), -1);
+		assertEquals(list.lastIndexOf(key1_2), 5);
+		assertEquals(list.lastIndexOf(key2), 4);
+		assertEquals(list.lastIndexOf(null), 3);
+		assertEquals(list.indexOfElement(nkey1), -1);
+		assertEquals(list.indexOfElement(key1_2), 0);
+		assertEquals(list.indexOfElement(key2), 1);
+		assertEquals(list.indexOfElement(null), 2);
+		assertEquals(list.lastIndexOfElement(nkey1), -1);
+		assertEquals(list.lastIndexOfElement(key1_2), 5);
+		assertEquals(list.lastIndexOfElement(key2), 4);
+		assertEquals(list.lastIndexOfElement(null), 3);
+		
+		// sublists
+		assertEquals(list.subList(0, 0).size(), 0);
+		assertFalse(list.subList(0, 0).has(key2));
+		assertEquals(list.subList(6, 6).size(), 0);
+		assertFalse(list.subList(6, 6).has(null));
+		{
+			SerializableBList<@Nullable TKeyValue> sublist = TypeUtil.coerce(list.subList(1, 5)); // cheat since we know the type
+			compareItems(sublist, key2, null, null, key2);
+			assertEquals(sublist.size(), 4);
+			
+			assertEquals(sublist.indexOf(nkey1), -1);
+			assertEquals(sublist.indexOf(key1_2), -1);
+			assertEquals(sublist.indexOf(key2), 0);
+			assertEquals(sublist.indexOf(null), 1);
+			assertEquals(sublist.lastIndexOf(nkey1), -1);
+			assertEquals(sublist.lastIndexOf(key1_2), -1);
+			assertEquals(sublist.lastIndexOf(key2), 3);
+			assertEquals(sublist.lastIndexOf(null), 2);
+			assertEquals(sublist.indexOfElement(nkey1), -1);
+			assertEquals(sublist.indexOfElement(key1_2), -1);
+			assertEquals(sublist.indexOfElement(key2), 0);
+			assertEquals(sublist.indexOfElement(null), 1);
+			assertEquals(sublist.lastIndexOfElement(nkey1), -1);
+			assertEquals(sublist.lastIndexOfElement(key1_2), -1);
+			assertEquals(sublist.lastIndexOfElement(key2), 3);
+			assertEquals(sublist.lastIndexOfElement(null), 2);
+			
+			sublist.add(nkey1);
+			compareItems(sublist, key2, null, null, key2, nkey1);
+			assertEquals(sublist.size(), 5);
+			compareItems(list, key1_2, key2, null, null, key2, nkey1, key1_2);
+			assertEquals(list.size(), 7);
+			
+			sublist.add(0, nkey1);
+			compareItems(sublist, nkey1, key2, null, null, key2, nkey1);
+			assertEquals(sublist.size(), 6);
+			compareItems(list, key1_2, nkey1, key2, null, null, key2, nkey1, key1_2);
+			assertEquals(list.size(), 8);
+			
+			sublist.remove(0);
+			assertEquals(sublist.size(), 5);
+			compareItems(list, key1_2, key2, null, null, key2, nkey1, key1_2);
+			assertEquals(list.size(), 7);
+			
+			sublist.remove(4);
+			assertEquals(sublist.size(), 4);
+			compareItems(list, key1_2, key2, null, null, key2, key1_2);
+			assertEquals(list.size(), 6);
+		}
 	}
 	
 	/**
@@ -1771,25 +1938,29 @@ public class ExtraWACollectionsTest
 		
 		internalTestBList(BArrayList.create(), new BListFactory(BArrayList.class));
 		internalTestBList(BArrayList.create(3), new BListFactory(BArrayList.class));
-		internalTestBList(BArrayList.create(Collections.emptySet()), new BListFactory(BArrayList.class));
+		internalTestBList(BArrayList.create(Collections.emptyList()), new BListFactory(BArrayList.class));
 		
 		internalTestBList(new BArrayList<>(), new BListFactory(BArrayList.class));
 		internalTestBList(new BArrayList<>(3), new BListFactory(BArrayList.class));
-		internalTestBList(new BArrayList<>(Collections.emptySet()), new BListFactory(BArrayList.class));
+		internalTestBList(new BArrayList<>(Collections.emptyList()), new BListFactory(BArrayList.class));
 		
 		
 		internalTestBList(BList.of(new ArrayList<>()), new BListFactory(BArrayList.class));
 		internalTestBList(BList.of(new ArrayList<>(3)), new BListFactory(BArrayList.class));
-		internalTestBList(BList.of(new ArrayList<>(Collections.emptySet())), new BListFactory(BArrayList.class));
+		internalTestBList(BList.of(new ArrayList<>(Collections.emptyList())), new BListFactory(BArrayList.class));
 		
 		internalTestBList(SerializableBList.of(new ArrayList<>()), new BListFactory(BArrayList.class));
 		internalTestBList(SerializableBList.of(new ArrayList<>(3)), new BListFactory(BArrayList.class));
-		internalTestBList(SerializableBList.of(new ArrayList<>(Collections.emptySet())), new BListFactory(BArrayList.class));
+		internalTestBList(SerializableBList.of(new ArrayList<>(Collections.emptyList())), new BListFactory(BArrayList.class));
+		
+		internalTestBList(BList.of(new LinkedList<>()), new BListFactory(BArrayList.class));
+		internalTestBList(BList.of(new LinkedList<>(Collections.emptyList())), new BListFactory(BArrayList.class));
+		
 		
 		// Cheat since we know the underlying impl
 		internalTestBList(TypeUtil.coerce(ReadOnlyList.of(new ArrayList<>())), new BListFactory(BArrayList.class));
 		internalTestBList(TypeUtil.coerce(ReadOnlyList.of(new ArrayList<>(3))), new BListFactory(BArrayList.class));
-		internalTestBList(TypeUtil.coerce(ReadOnlyList.of(new ArrayList<>(Collections.emptySet()))), new BListFactory(BArrayList.class));
+		internalTestBList(TypeUtil.coerce(ReadOnlyList.of(new ArrayList<>(Collections.emptyList()))), new BListFactory(BArrayList.class));
 		
 		assertNull(ReadOnlyList.toNullableUnmodifiableJavaList(null));
 		{

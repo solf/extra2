@@ -69,7 +69,6 @@ public class WrapperBSet<E> implements SerializableBSet<E>
 		return uset.contains(o);
 	}
 	
-	//aaa add tests for 'hasAll'
 	@Override
 	public boolean hasAll(Collection<E> c)
 	{

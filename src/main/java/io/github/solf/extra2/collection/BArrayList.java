@@ -132,6 +132,18 @@ public class BArrayList<E> extends ArrayList<E> implements SerializableBList<E>
 		return contains(o);
 	}
 
+	@Override
+	public int indexOfElement(E o)
+	{
+		return indexOf(o);
+	}
+
+	@Override
+	public int lastIndexOfElement(E o)
+	{
+		return lastIndexOf(o);
+	}
+
 	/**
 	 * Cached unmodifiable list if was created previously.
 	 */

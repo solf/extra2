@@ -60,7 +60,6 @@ public class WrapperBList<E> extends DelegateList<E> implements SerializableBLis
 		return ulist.contains(o);
 	}
 	
-	//aaa add tests for 'hasAll'
 	@Override
 	public boolean hasAll(Collection<E> c)
 	{
@@ -71,6 +70,18 @@ public class WrapperBList<E> extends DelegateList<E> implements SerializableBLis
 	public boolean removeElement(E o)
 	{
 		return ulist.remove(o);
+	}
+
+	@Override
+	public int indexOfElement(E o)
+	{
+		return indexOf(o);
+	}
+
+	@Override
+	public int lastIndexOfElement(E o)
+	{
+		return lastIndexOf(o);
 	}
 
 	/**

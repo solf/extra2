@@ -157,6 +157,20 @@ public interface BList<E> extends ReadOnlyList<E>, List<E>
     @Override
     @Deprecated
     public boolean remove(Object o);
+
+    /**
+     * @deprecated use {@link #indexOfElement(Object)} instead for better type-checking.
+     */
+    @Override
+    @Deprecated
+    int indexOf(Object o);
+
+    /**
+     * @deprecated use {@link #lastIndexOfElement(Object)} instead for better type-checking.
+     */
+    @Override
+    @Deprecated
+    int lastIndexOf(Object o);
     
     /**
      * Removes the first occurrence of the specified element from this list,

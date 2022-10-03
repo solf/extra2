@@ -123,6 +123,18 @@ public interface ReadOnlyList<E> extends ReadOnlyCollection<E>
     E get(int index);
 
     /**
+     * @deprecated use {@link #indexOfElement(Object)} instead for better type-checking.
+     */
+    @Deprecated
+    int indexOf(Object o);
+
+    /**
+     * @deprecated use {@link #lastIndexOfElement(Object)} instead for better type-checking.
+     */
+    @Deprecated
+    int lastIndexOf(Object o);
+
+    /**
      * Returns the index of the first occurrence of the specified element
      * in this list, or -1 if this list does not contain the element.
      * More formally, returns the lowest index {@code i} such that
@@ -139,7 +151,7 @@ public interface ReadOnlyList<E> extends ReadOnlyCollection<E>
      *         list does not permit null elements
      *         (<a href="Collection.html#optional-restrictions">optional</a>)
      */
-    int indexOf(Object o);
+    int indexOfElement(E o);
 
     /**
      * Returns the index of the last occurrence of the specified element
@@ -158,7 +170,7 @@ public interface ReadOnlyList<E> extends ReadOnlyCollection<E>
      *         list does not permit null elements
      *         (<a href="Collection.html#optional-restrictions">optional</a>)
      */
-    int lastIndexOf(Object o);
+    int lastIndexOfElement(E o);
     
     /**
      * Returns a view of the portion of this list between the specified
