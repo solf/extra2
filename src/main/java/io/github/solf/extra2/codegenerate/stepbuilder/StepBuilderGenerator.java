@@ -58,6 +58,7 @@ import com.github.javaparser.ast.nodeTypes.NodeWithTypeArguments;
 import com.github.javaparser.ast.nodeTypes.NodeWithTypeParameters;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.javadoc.Javadoc;
@@ -1047,9 +1048,11 @@ public class StepBuilderGenerator
     
 
     /**
-     * Generates Step Builder for a given class based for required fields present
-     * in the class (the corresponding all-fields constructor must also be present);
-     * this is mostly useful in combination with {@link RequiredArgsConstructor}
+     * Generates Step Builder for a given class based on required fields present 
+     * in the class -- those are non-nullable or primitive fields that don't have 
+     * a static initializer (the corresponding constructor with matching fields 
+     * must also be present);  this is mostly useful in combination with 
+     * {@link RequiredArgsConstructor}
      * <p>
      * Source files is read from source directory, generated file is written
      * into destination directory.
@@ -1067,10 +1070,18 @@ public class StepBuilderGenerator
     	{
     		ArrayList<Parameter> parameters = new ArrayList<>();
     		
+    		final boolean includeByDefault = clazz.getAnnotationByClass(NonNullByDefault.class).isPresent(); 
 			for (FieldDeclaration field : clazz.findAll(FieldDeclaration.class))
 			{
-				boolean include = false;
+				boolean include = includeByDefault;
+				boolean exclude = false;
 				
+				if (field.getModifiers().contains(Modifier.staticModifier()))
+					exclude = true;
+
+				if (field.getAnnotationByClass(Nullable.class).isPresent())
+					exclude = true;
+					
 				if (field.getModifiers().contains(Modifier.finalModifier()))
 					include = true;
 				
@@ -1080,14 +1091,21 @@ public class StepBuilderGenerator
 				if (field.getAnnotationByClass(Nonnull.class).isPresent())
 					include = true;
 				
-				if (include)
+				if (field.getElementType() instanceof PrimitiveType)
+					include = true;
+				
+				if ((!exclude) && include)
 				{
 					for (VariableDeclarator var : field.getVariables())
 					{
-						Parameter parameter = new Parameter(field.getElementType(), var.getName());
-						parameter.setAnnotations(field.getAnnotations());
-						
-						parameters.add(parameter);
+						// Skip fields that have initializer, they are not 'required'
+						if (var.getInitializer().isEmpty())
+						{
+							Parameter parameter = new Parameter(field.getElementType(), var.getName());
+							parameter.setAnnotations(field.getAnnotations());
+							
+							parameters.add(parameter);
+						}
 					}
 				}
 			}
@@ -1100,9 +1118,11 @@ public class StepBuilderGenerator
     }
 
     /**
-     * Generates Step Builder for a given class based for all fields present
-     * in the class (the corresponding all-fields constructor must also be present);
-     * this is mostly useful in combination with {@link RequiredArgsConstructor}
+     * Generates Step Builder for a given class based on required fields present 
+     * in the class -- those are non-nullable or primitive fields that don't have 
+     * a static initializer (the corresponding constructor with matching fields 
+     * must also be present);  this is mostly useful in combination with 
+     * {@link RequiredArgsConstructor}
      * <p>
      * Uses default builder class name: source name + 'Builder'
      * <p>
@@ -1114,6 +1134,68 @@ public class StepBuilderGenerator
     	throws IllegalStateException, IOException 
     {
     	return generateBuilderFileForRequiredFields(srcClass, null, null);
+    }
+    
+
+    /**
+     * Generates Step Builder for a given class based on all fields lacking
+     * static initializers;  this is mostly useful in combination with 
+     * something like {@link AllArgsConstructor}
+     * <p>
+     * Source files is read from source directory, generated file is written
+     * into destination directory.
+     * 
+     * @param builderClassName class name for the generated builder; if null, 
+     * 		default name is used (source name + 'Builder'); package is the same as source
+     * @param decollisionSuffix de-collision suffix (may be null); see {@link #generate(JavaParser, CompilationUnit, String, String, Collection)}
+     * 		for more details about suffixes
+     */
+    public CompilationUnit generateBuilderFileForNonInitializedFields(Class<?> srcClass, 
+    	@Nullable String builderClassName, @Nullable String decollisionSuffix)
+    	throws IllegalStateException, IOException 
+    {
+    	return generateBuilderFile(srcClass, builderClassName, clazz ->
+    	{
+    		ArrayList<Parameter> parameters = new ArrayList<>();
+    		
+			for (FieldDeclaration field : clazz.findAll(FieldDeclaration.class))
+			{
+				// Exclude static fields
+				if (!field.getModifiers().contains(Modifier.staticModifier()))
+				{
+					for (VariableDeclarator var : field.getVariables())
+					{
+						// Skip fields that have initializer, they are not 'required'
+						if (var.getInitializer().isEmpty())
+						{
+							Parameter parameter = new Parameter(field.getElementType(), var.getName());
+							parameter.setAnnotations(field.getAnnotations());
+							
+							parameters.add(parameter);
+						}
+					}
+				}
+			}
+			
+			ConstructorDeclaration constr = new ConstructorDeclaration();
+			constr.setParameters(new NodeList<Parameter>(parameters));
+			
+			return Arrays.asList(new Pair<>(constr, decollisionSuffix));
+    	});
+    }
+
+    /**
+     * Generates Step Builder for a given class based on all fields lacking
+     * static initializers;  this is mostly useful in combination with 
+     * something like {@link AllArgsConstructor}
+     * <p>
+     * Source files is read from source directory, generated file is written
+     * into destination directory.
+     */
+    public CompilationUnit generateBuilderFileForNonInitializedFields(Class<?> srcClass)
+    	throws IllegalStateException, IOException 
+    {
+    	return generateBuilderFileForNonInitializedFields(srcClass, null, null);
     }
     
 
