@@ -225,13 +225,13 @@ public class IdentityHashSet<E> implements Set<E>, Cloneable
 	}
 
 	@Override
-	public Object[] toArray()
+	public Object @Nonnull[] toArray()
 	{
 		return map.keySet().toArray();
 	}
 
 	@Override
-	public <T> T[] toArray(T[] dummy)
+	public <T> T @Nonnull[] toArray(T @Nonnull[] dummy)
 	{
 		return map.keySet().toArray(dummy);
 	}

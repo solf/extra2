@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -328,5 +329,52 @@ public class NullUtil
 	public static <T extends Enum<T>> @Nonnull T enumValueOf(Class<T> enumType, String name)
 	{
 		return Enum.valueOf(enumType, name);
+	}
+	
+	/**
+	 * If given object instance is not null, then evaluates the given expression
+	 * and returns the result; otherwise returns null.
+	 * <p>
+	 * Example code: return evalIfNotNull(order, nonNull -> nonNull.orderid);
+	 * 
+	 * @param nullableObj object instance which is potentially null
+	 * @param nonNull expression to evaluate if given object instance is NOT
+	 * 		null; the argument is the non-null instance passed in nullableObj
+	 * 
+	 * @return result of evaluation or null if the given object instance is null
+	 */
+	public static <I, R> @Nullable R evalIfNotNull(@Nullable I nullableObj, @Nonnull Function<@Nonnull I, R> nonNull)
+	{
+		if (nullableObj == null)
+			return null;
+		
+		return nonNull.apply(nullableObj);
+	}
+	
+	/**
+	 * If given object instance is not null, then evaluates the given expression
+	 * and returns the result; otherwise returns the evaluated value of the
+	 * ifNull expression.
+	 * <p>
+	 * Example code: evalIfNotNull(order, nonNull -> nonNull.orderid, ifNull -> 123L);
+	 * 
+	 * @param nullableObj object instance which is potentially null
+	 * @param nonNull expression to evaluate if given object instance is NOT
+	 * 		null; the argument is the non-null instance passed in nullableObj
+	 * @param ifNull expression to evaluate if given object instance IS
+	 * 		null; the argument is null (of type Void) and is only used for being 
+	 * 		able to write 'ifNull -> 123L' type of code
+	 * 
+	 * @return the result of evaluation of 'nonNull' expression if given object
+	 * 		instance is not null; otherwise the result of evaluation of 'ifNull'
+	 * 		expression
+	 */
+	public static <I, R> R evalIfNotNull(@Nullable I nullableObj, 
+		@Nonnull Function<@Nonnull I, R> nonNull, @Nonnull Function<@Nullable Void, R> ifNull)
+	{
+		if (nullableObj == null)
+			return ifNull.apply(fakeVoid());
+		
+		return nonNull.apply(nullableObj);
 	}
 }
