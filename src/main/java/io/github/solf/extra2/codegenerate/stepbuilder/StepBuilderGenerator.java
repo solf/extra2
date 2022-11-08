@@ -491,6 +491,7 @@ public class StepBuilderGenerator
 				else
 					typeArguments = TypeUtil.coerceForceNonnull((Object)typeParameters); // a hack
 			}
+			final NodeList<Type> typeArgumentsStrippedExtends = stripExtendsFromTypeArguments(typeArguments);
 			
 			NodeList<Parameter> srcParameters = srcConstr.getParameters();
 			if (srcParameters.size() == 0)
@@ -531,7 +532,7 @@ public class StepBuilderGenerator
 				StepBuilderContext context = contextBuilder.srcConstructor(srcConstr).srcParam(null).buildStepBuilderContext();
 				
 				finalReturnType = new ClassOrInterfaceType(null, srcClassName);
-				finalReturnType.setTypeArguments(typeArguments);
+				finalReturnType.setTypeArguments(typeArgumentsStrippedExtends);
 
 				ClassOrInterfaceDeclaration iface = new ClassOrInterfaceDeclaration(
 					NodeList.nodeList(Modifier.publicModifier()), true, builderInterfaceName);
@@ -550,7 +551,7 @@ public class StepBuilderGenerator
 				preprocessor.processInterfaceBuildMethod(context, iface, method);
 				
 				generatedBuilderClass.addMember(iface);
-				builderImplementedInterfaces.add(toClassOrInterfaceType(iface));
+				builderImplementedInterfaces.add(toClassOrInterfaceType(iface, true));
 				
 				firstInterface = iface;
 			}
@@ -574,7 +575,7 @@ public class StepBuilderGenerator
 					final String interfaceName = interfaceNamePrefix + "arg" + i;
 					
 					ClassOrInterfaceType returnType = new ClassOrInterfaceType(null, returnTypeName);
-					returnType.setTypeArguments(typeArguments);
+					returnType.setTypeArguments(typeArgumentsStrippedExtends);
 	
 					ClassOrInterfaceDeclaration iface = new ClassOrInterfaceDeclaration(
 						NodeList.nodeList(Modifier.publicModifier()), true, interfaceName);
@@ -599,7 +600,7 @@ public class StepBuilderGenerator
 					preprocessor.processInterfaceSetter(context, iface, method, method.getParameter(0));
 					
 					generatedBuilderClass.addMember(iface);
-					builderImplementedInterfaces.add(toClassOrInterfaceType(iface));
+					builderImplementedInterfaces.add(toClassOrInterfaceType(iface, true));
 					
 					secondInterface = firstInterface;
 					firstInterface = iface;
@@ -755,13 +756,13 @@ public class StepBuilderGenerator
 					MethodDeclaration methodDeclaration = new MethodDeclaration(
 						NodeList.nodeList(Modifier.publicModifier(), Modifier.staticModifier()), 
 						uniqueChainId, 
-						toClassOrInterfaceType(secondInterface), 
+						toClassOrInterfaceType(secondInterface, true),
 						NodeList.nodeList(firstParameter.clone())
 					); 
 					
 					setTypeParameters(methodDeclaration, typeArguments);
 					methodDeclaration.setBody(handleResult(javaParser.parseBlock(
-						"{ return new " + toClassOrInterfaceType(builderImpl) + "()." + argName + "(" + argName + "); }")));
+						"{ return new " + toClassOrInterfaceType(builderImpl, true) + "()." + argName + "(" + argName + "); }")));
 					
 					Javadoc fieldJavadoc = fieldToJavadocMap.get(argName);
 					
@@ -808,12 +809,13 @@ public class StepBuilderGenerator
 	 * (i.e. from class/interface definition with body etc. to class/interface
 	 * class reference including all type parameters). 
 	 */
-	private static ClassOrInterfaceType toClassOrInterfaceType(ClassOrInterfaceDeclaration src)
+	private static ClassOrInterfaceType toClassOrInterfaceType(ClassOrInterfaceDeclaration src, boolean stripExtendsFromTypeParameters)
 	{
 		src = src.clone(); // for safety
 		ClassOrInterfaceType result = new ClassOrInterfaceType(null, src.getNameAsString());
 		
-		setTypeArguments(result, src.getTypeParameters());
+		setTypeArguments(result, 
+			stripExtendsFromTypeParameters ? stripExtendsFromTypeArguments(src.getTypeParameters()) : src.getTypeParameters());
 		
 		return result;
 	}
@@ -881,6 +883,33 @@ public class StepBuilderGenerator
 		return new Pair<CompilationUnit, String>(srcCompilationUnit, javaPackagePath);
     }
     
+    /**
+     * For a given node list attempts to strip 'extends SomeClass' from the
+     * type arguments declaration, e.g. converts:
+     * <Dao, Parent extends DbEntity, Child extends DbEntity>
+     * into
+     * <Dao, Parent, Child>
+     * <p>
+     * For a null argument returns null.
+     */
+    @Nullable
+    private static <T extends Type> NodeList<T> stripExtendsFromTypeArguments(@Nullable NodeList<T> typeArguments)
+    {
+    	if (typeArguments == null)
+    		return null;
+    	
+		NodeList<T> result = new NodeList<>();
+		for (T node : typeArguments)
+		{
+			T cloned = TypeUtil.coerce(node.clone());
+			if (cloned instanceof TypeParameter)
+				((TypeParameter)cloned).setTypeBound(new NodeList<>());
+			
+			result.add(cloned);
+		}
+		
+		return result;
+    }
     
     /**
      * Generates Step Builder Java file for the specific class.
