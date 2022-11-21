@@ -45,7 +45,6 @@ import org.javatuples.Pair;
 import io.github.solf.extra2.concurrent.RunnableWithException;
 import io.github.solf.extra2.io.BAOSInputStream;
 import io.github.solf.extra2.util.TypeUtil;
-import junit.framework.AssertionFailedError;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -138,7 +137,7 @@ public class TestUtil
 				return TypeUtil.coerceUnknown(((AtomicReference<?>)result).get());
 			}
 			else
-				throw new AssertionFailedError("Unexpected object: " + result);
+				throw new AssertionError("Unexpected object: " + result);
 		}
 	}
 	
