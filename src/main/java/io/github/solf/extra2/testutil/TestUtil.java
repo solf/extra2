@@ -16,6 +16,7 @@
 package io.github.solf.extra2.testutil;
 
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
+import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedReader;
 import java.io.PipedWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -204,6 +206,10 @@ public class TestUtil
 	@SuppressWarnings("unchecked")
 	public static <T, V> V invokeInaccessibleMethod(Class<T> clazz, String methodName, @Nullable T instance, @Nullable Object ... args)
 	{
+		if (nullable(clazz) == null)
+			throw new IllegalStateException("Class argument must not be null!");
+		if (nullable(methodName) == null)
+			throw new IllegalStateException("methodName argument must not be null!");
 		if ((args.length % 2) != 0)
 			throw new IllegalStateException("Args must be even-length array of type + value pairs, got: " + Arrays.toString(args));
 
@@ -221,6 +227,51 @@ public class TestUtil
 		Method method = clazz.getDeclaredMethod(methodName, argTypes);
 		method.setAccessible(true);
 		return (V)method.invoke(instance, argValues);
+	}
+
+	/**
+	 * Invokes private (or otherwise inaccessible) constructor declared in a given 
+	 * class and returns the resulting instance.
+	 * <p>
+	 * Args is an array of pairs [type]:[instance], e.g.:
+	 * <p>
+	 * TestInaccessibleValue twoArg = TestUtil.invokeInaccessibleConstructor(TestInaccessibleValue.class, int.class, 3, int.class, 4);
+	 * <p>
+	 * For convenience, checked reflection exceptions do not actually require
+	 * checking (although they can be thrown by this method) -- via {@link SneakyThrows}
+	 * 
+	 * @param args pairs of Class + value, e.g.: [String.class, "asd"] -- those
+	 * 		are used to find method and invoke it with these arguments; zero
+	 * 		args means zero-arg constructor
+	 * 
+	 * @throws IllegalAccessException if reflection fails
+	 * @throws NoSuchFieldException if reflection fails
+	 * @throws InvocationTargetException if reflection fails
+	 * @throws IllegalArgumentException if e.g. Class<?> for argument type is null
+	 */
+	@SneakyThrows
+	@SuppressWarnings("unchecked")
+	public static <T, V> V invokeInaccessibleConstructor(Class<T> clazz, @Nullable Object ... args)
+	{
+		if (nullable(clazz) == null)
+			throw new IllegalStateException("Class argument must not be null!");
+		if ((args.length % 2) != 0)
+			throw new IllegalStateException("Args must be even-length array of type + value pairs, got: " + Arrays.toString(args));
+
+		Class<?>[] argTypes = new @Nonnull Class<?>[args.length / 2];
+		@Nullable Object[] argValues = new @Nullable Object[args.length / 2];
+		for (int i = 0; i < argTypes.length; i++)
+		{
+			Class<?> c = (Class<?>)args[i * 2];
+			if (c == null)
+				throw new IllegalArgumentException("Null Class<?> given for argument type at position: " + i);
+			argTypes[i] = c;
+			argValues[i] = args[i * 2 + 1];
+		}
+		
+		Constructor<@Nonnull T> constr = clazz.getDeclaredConstructor(argTypes);
+		constr.setAccessible(true);
+		return (V)constr.newInstance(argValues);
 	}
 	
 	/**

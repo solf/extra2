@@ -15,6 +15,8 @@
  */
 package io.github.solf.extra2.testutil;
 
+import static io.github.solf.extra2.testutil.AssertExtra.assertFailsWithSubstring;
+import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static io.github.solf.extra2.util.NullUtil.nnChecked;
 import static org.testng.Assert.assertEquals;
 
@@ -29,9 +31,7 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
-import io.github.solf.extra2.testutil.TestUtil;
 import io.github.solf.extra2.testutil.TestUtil.AsyncTestRunner;
-import lombok.Getter;
 
 /**
  * Tests for {@link TestUtil}
@@ -41,23 +41,6 @@ import lombok.Getter;
 @NonNullByDefault
 public class TestTestUtil
 {
-	/**
-	 * Test value class.
-	 */
-	private static class TestValue
-	{
-		@Getter
-		private int value;
-		
-		/**
-		 * Constructor.
-		 */
-		public TestValue(int value)
-		{
-			this.value = value;
-		}
-	}
-	
 	/**
 	 * Exception subclass that cannot be de-serialized -- to test exception cloning etc.
 	 */
@@ -122,6 +105,31 @@ public class TestTestUtil
 	}
 	
 	/**
+	 * Testing inaccessible constructors invocation.
+	 */
+	@Test
+	public void testConstructorInvocation()
+	{
+		TestInaccessibleValue noArg = TestUtil.invokeInaccessibleConstructor(TestInaccessibleValue.class);
+		assertEquals(noArg.getValue(), -1);
+		
+		TestInaccessibleValue twoArg = TestUtil.invokeInaccessibleConstructor(TestInaccessibleValue.class, 
+			int.class, 3, int.class, 4);
+		assertEquals(twoArg.getValue(), 7);
+		
+		assertFailsWithSubstring( () -> TestUtil.invokeInaccessibleConstructor(TestInaccessibleValue.class, 
+			Integer.class, 3, int.class, 4), 
+			"java.lang.NoSuchMethodException: io.github.solf.extra2.testutil.TestInaccessibleValue.<init>(java.lang.Integer, int)");
+		
+		assertFailsWithSubstring( () -> TestUtil.invokeInaccessibleConstructor(TestInaccessibleValue.class, 
+			Integer.class, 3, int.class), // test wrong arg count 
+			"Args must be even-length array of type + value pairs");
+		
+		assertFailsWithSubstring( () -> TestUtil.invokeInaccessibleConstructor(fakeNonNull()),
+			"Class argument must not be null");
+	}
+	
+	/**
 	 * Testing inaccessible method invocation.
 	 */
 	@Test
@@ -135,6 +143,12 @@ public class TestTestUtil
 
 		assertEquals(entry.getKey(), "key");
 		assertEquals(entry.getValue(), "value");
+		
+		assertFailsWithSubstring( () -> TestUtil.invokeInaccessibleMethod(fakeNonNull(), "method", null),
+			"Class argument must not be null");
+		
+		assertFailsWithSubstring( () -> TestUtil.invokeInaccessibleMethod(HashMap.class, fakeNonNull(), null),
+			"methodName argument must not be null");
 	}
 	
 	/**
@@ -164,11 +178,11 @@ public class TestTestUtil
 	@Test
 	public void testInaccessibleFieldAccess()
 	{
-		TestValue value = new TestValue(3);
+		TestInaccessibleValue value = new TestInaccessibleValue(3);
 		
-		assertEquals((int)TestUtil.getInaccessibleFieldValue(TestValue.class, "value", value), 3);
-		TestUtil.setInaccessibleFieldValue(TestValue.class, "value", value, 5);
-		assertEquals((int)TestUtil.getInaccessibleFieldValue(TestValue.class, "value", value), 5);
+		assertEquals((int)TestUtil.getInaccessibleFieldValue(TestInaccessibleValue.class, "value", value), 3);
+		TestUtil.setInaccessibleFieldValue(TestInaccessibleValue.class, "value", value, 5);
+		assertEquals((int)TestUtil.getInaccessibleFieldValue(TestInaccessibleValue.class, "value", value), 5);
 	}
 	
 	/** self-documenting */
