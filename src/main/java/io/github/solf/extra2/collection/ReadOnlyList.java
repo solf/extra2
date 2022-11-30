@@ -207,4 +207,28 @@ public interface ReadOnlyList<E> extends ReadOnlyCollection<E>
      *         fromIndex > toIndex})
      */
 	@Nonnull ReadOnlyList<E> subList(int fromIndex, int toIndex);
+	
+	/**
+	 * Returns first element of the list or null if the list is empty.
+	 */
+	@Nullable
+	default E first()
+	{
+		if (isEmpty())
+			return null;
+		
+		return get(0);
+	}
+	
+	/**
+	 * Returns last element of the list or null if the list is empty.
+	 */
+	@Nullable
+	default E last()
+	{
+		if (isEmpty())
+			return null;
+		
+		return get(size() - 1);
+	}
 }

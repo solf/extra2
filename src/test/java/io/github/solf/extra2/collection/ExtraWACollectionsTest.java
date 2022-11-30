@@ -852,6 +852,9 @@ public class ExtraWACollectionsTest
 		assertFalse(ReadOnlyList.emptyReadOnlyList().equals(List.of("1", "2")));
 		assertFalse(List.of("1", "2").equals(ReadOnlyList.emptyReadOnlyList()));
 		assertNotEquals(ReadOnlyList.emptyReadOnlyList().hashCode(), List.of("1", "2").hashCode());
+		
+		assertNull(ReadOnlyList.emptyReadOnlyList().first());
+		assertNull(ReadOnlyList.emptyReadOnlyList().last());
 	}
 
 	/**
@@ -1540,6 +1543,8 @@ public class ExtraWACollectionsTest
 		
 		assertEquals(list.size(), 0);
 		assertTrue(list.isEmpty());
+		assertNull(list.first());
+		assertNull(list.last());
 		assertFalse(list.has(key1));
 		assertFalse(list.has(nkey1));
 		assertFalse(list.has(null));
@@ -1549,6 +1554,8 @@ public class ExtraWACollectionsTest
 		assertTrue(list.add(key1));
 		assertEquals(list.size(), 1);
 		assertFalse(list.isEmpty());
+		assertEquals(list.first(), key1);
+		assertEquals(list.last(), key1);
 		assertFalse(list.has(nkey1));
 		assertFalse(list.has(null));
 		compareItems(list, key1);
@@ -1569,9 +1576,13 @@ public class ExtraWACollectionsTest
 			assertTrue(tlist.add(key1));
 			assertEquals(list, tlist);
 			assertTrue(tlist.add(key1.withValue(876)));
+			assertEquals(tlist.first(), key1);
+			assertEquals(tlist.last(), key1.withValue(876));
 			assertNotEquals(list, tlist);
 			
 			tlist.clear();
+			assertNull(tlist.first());
+			assertNull(tlist.last());
 			assertNotEquals(list, tlist);
 			assertTrue(tlist.add(key1.clone()));
 			assertEquals(list, tlist);
@@ -1591,6 +1602,8 @@ public class ExtraWACollectionsTest
 			assertTrue(tlist.add(key1_2)); 
 			assertTrue(tlist.add(key1_2)); 
 			assertTrue(tlist.add(key1));
+			assertEquals(tlist.first(), key1_2);
+			assertEquals(tlist.last(), key1);
 			compareItems(tlist, key1_2, key1_2, key1);
 			nnChecked(tlist.remove(1)).fullyEquals(key1_2);
 			nnChecked(tlist.remove(1)).fullyEquals(key1);
