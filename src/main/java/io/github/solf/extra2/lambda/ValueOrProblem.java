@@ -19,6 +19,8 @@ import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 
 import java.util.NoSuchElementException;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
@@ -36,9 +38,9 @@ import lombok.ToString;
  *
  * @author Sergey Olefir
  */
-//@NonNullByDefault must not restrict types to non-nullable ones
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(doNotUseGetters = true)
+@NonNullByDefault({}) // must not restrict types to non-nullable ones 
 public class ValueOrProblem<V, P>
 {
 	/**
