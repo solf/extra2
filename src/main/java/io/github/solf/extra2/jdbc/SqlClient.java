@@ -26,23 +26,40 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.sql.DataSource;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.javatuples.Pair;
 
 /**
  * Helpful functions for working with SQL via JDBC.
+ * <p>
+ * 2023-01-30 this ought to handle {@link SQLException} when auto-closing {@link ResultSet}, but not doing it right now.
  */
 @NonNullByDefault
 public class SqlClient implements AutoCloseable
 {
 	private final Connection connection;
+	
+	/**
+	 * Creates a {@link SqlClient} for the given data source.
+	 * <p>
+	 * Connection is obtained from the data source immediately and is released
+	 * when this {@link SqlClient} is closed.
+	 */
+	public SqlClient(DataSource dataSource) throws SQLException
+	{
+		this(dataSource.getConnection());
+	}
 	
 	/**
 	 * Create a {@link SqlClient} for the given connection.
@@ -132,24 +149,36 @@ public class SqlClient implements AutoCloseable
 		}
 	}
 
+	/**
+	 * Closes the underlying {@link Connection}
+	 * <p>
+	 * 
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void close()
 	{
 		try
 		{
 			connection.close();
-		} catch( Exception ignored )
+		} catch( SQLException e )
 		{
-			// ignored
+			handleConnectionCloseException(e);
 		}
 	}
 
+	/**
+	 * Commits the underlying {@link Connection}
+	 */
 	public void commit()
 		throws SQLException
 	{
 		connection.commit();
 	}
 
+	/**
+	 * Rolls back the underlying {@link Connection}
+	 */
 	public void rollback()
 	{
 		try
@@ -158,12 +187,77 @@ public class SqlClient implements AutoCloseable
 			{
 				connection.rollback();
 			}
-		} catch( Exception ignored )
+		} catch(SQLException e)
 		{
-			// ignored
+			handleRollbackException(e);
 		}
 	}
+	
+	/**
+	 * Handles exception during connection closing.
+	 * <p>
+	 * Does nothing in the base implementation.
+	 */
+	protected void handleConnectionCloseException(@SuppressWarnings("unused") SQLException exception)
+	{
+		// does nothing in the base implementation
+	}
+	
+	/**
+	 * Handles exception during connection closing.
+	 * <p>
+	 * Does nothing in the base implementation.
+	 */
+	protected void handlePreparedStatementCloseException(@SuppressWarnings("unused") SQLException exception)
+	{
+		// does nothing in the base implementation
+	}
+	
+	/**
+	 * Handles exception during rollback.
+	 * <p>
+	 * Does nothing in the base implementation.
+	 */
+	protected void handleRollbackException(@SuppressWarnings("unused") SQLException exception)
+	{
+		// does nothing in the base implementation
+	}
 
+    /**
+     * Sets the underlying connection's auto-commit mode to the given state.
+     * If a connection is in auto-commit mode, then all its SQL
+     * statements will be executed and committed as individual
+     * transactions.  Otherwise, its SQL statements are grouped into
+     * transactions that are terminated by a call to either
+     * the method <code>commit</code> or the method <code>rollback</code>.
+     * By default, new connections are in auto-commit
+     * mode.
+     * <P>
+     * The commit occurs when the statement completes. The time when the statement
+     * completes depends on the type of SQL Statement:
+     * <ul>
+     * <li>For DML statements, such as Insert, Update or Delete, and DDL statements,
+     * the statement is complete as soon as it has finished executing.
+     * <li>For Select statements, the statement is complete when the associated result
+     * set is closed.
+     * <li>For <code>CallableStatement</code> objects or for statements that return
+     * multiple results, the statement is complete
+     * when all of the associated result sets have been closed, and all update
+     * counts and output parameters have been retrieved.
+     *</ul>
+     * <P>
+     * <B>NOTE:</B>  If this method is called during a transaction and the
+     * auto-commit mode is changed, the transaction is committed.  If
+     * <code>setAutoCommit</code> is called and the auto-commit mode is
+     * not changed, the call is a no-op.
+     *
+     * @param autoCommit <code>true</code> to enable auto-commit mode;
+     *         <code>false</code> to disable it
+     * @exception SQLException if a database access error occurs,
+     *  setAutoCommit(true) is called while participating in a distributed transaction,
+     * or this method is called on a closed connection
+     * @see #getAutoCommit
+     */
 	public SqlClient setAutoCommit(boolean value)
 		throws SQLException
 	{
@@ -171,33 +265,87 @@ public class SqlClient implements AutoCloseable
 		return this;
 	}
 
-	public void updateSQL(final PreparedStatement ps)
+    /**
+     * Executes SQL statement
+     * which must be an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>, <code>UPDATE</code> or
+     * <code>DELETE</code>; or an SQL statement that returns nothing,
+     * such as a DDL statement.
+     *
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements
+     *         or (2) 0 for SQL statements that return nothing
+     */	
+	public int executeUpdate(final PreparedStatement ps)
 		throws SQLException
 	{
-		ps.execute();
+		int result = ps.executeUpdate();
 		ps.clearParameters();
+		
+		return result;
+	}
+	
+    /**
+     * Executes SQL statement
+     * which must be an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>, <code>UPDATE</code> or
+     * <code>DELETE</code>; or an SQL statement that returns nothing,
+     * such as a DDL statement.
+     * <p>
+     * The statement must have {@link Statement#RETURN_GENERATED_KEYS} specified
+     * during its creation.
+     *
+     * @param keysRS handler for the resulting generated keys {@link ResultSet}
+     * 		(should extract and process generated keys from the given {@link ResultSet}) 
+     * 
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements
+     *         or (2) 0 for SQL statements that return nothing
+     */	
+	public int executeUpdateProcessGeneratedKeys(final PreparedStatement ps, SQLConsumer<ResultSet> keysRS)
+		throws SQLException
+	{
+		int result = ps.executeUpdate();
+		
+		try (ResultSet krs = ps.getGeneratedKeys())
+		{
+			keysRS.accept(krs);
+		}
+		
+		ps.clearParameters();
+		
+		return result;
 	}
 
-	public void updateSQL(final String sql)
+    /**
+     * Executes SQL statement
+     * which must be an SQL Data Manipulation Language (DML) statement, such as <code>INSERT</code>, <code>UPDATE</code> or
+     * <code>DELETE</code>; or an SQL statement that returns nothing,
+     * such as a DDL statement.
+     *
+     * @return either (1) the row count for SQL Data Manipulation Language (DML) statements
+     *         or (2) 0 for SQL statements that return nothing
+     */	
+	public int executeUpdate(final String sql)
 		throws SQLException
 	{
-		withStatement(statement -> statement.execute(sql));
+		return withStatement(statement -> statement.executeUpdate(sql));
 	}
 
 	/**
 	 * Runs multiple update SQLs as a single batch.
+	 * 
+     * @return an array of update counts containing one element for each
+     * command in the batch.  The elements of the array are ordered according
+     * to the order in which commands were added to the batch.
 	 */
-	public void updateSQL(String[] sqls)
+	public int[] executeBatch(String[] sqls)
 		throws SQLException
 	{
-		withStatement(statement -> {
+		return withStatement(statement -> {
 			for( String sql : sqls )
 			{
 				statement.addBatch(sql);
 			}
-			statement.executeBatch();
+			int[] result = statement.executeBatch();
 			statement.clearBatch();
-			return null;
+			return result;
 		});
 	}
 
@@ -627,7 +775,7 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return true if there was one row, false if there were no rows
 	 */
-	public boolean forZeroOrOneRowNoReturn(String sql, SQLConsumer<ResultSet> f)
+	public boolean forZeroOrOneRowNoReturnValue(String sql, SQLConsumer<ResultSet> f)
 		throws SQLException
 	{
 		return forAtMostOneRow(false, sql, rs -> {f.accept(rs); return null;}).getValue0();
@@ -644,22 +792,65 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return true if there was one row, false if there were no rows
 	 */
-	public boolean forZeroOrOneRowNoReturn(PreparedStatement ps, SQLConsumer<ResultSet> f)
+	public boolean forZeroOrOneRowNoReturnValue(PreparedStatement ps, SQLConsumer<ResultSet> f)
 		throws SQLException
 	{
 		return forAtMostOneRow(false, ps, rs -> {f.accept(rs); return null;}).getValue0();
 	}
 
-	public PreparedStatement prepareStatement(String sql)
+	/**
+	 * Creates a prepared statement version that works with this {@link SqlClient}
+	 * instance.
+	 * <p>
+	 * This method returns {@link SCPreparedStatement} which takes care of
+	 * managing actual {@link PreparedStatement} lifecycle (i.e. it will close
+	 * it properly when done).
+	 * <p>
+	 * Returned {@link SCPreparedStatement} instance has methods similar to the
+	 * methods in this {@link SqlClient}, e.g. {@link SCPreparedStatement#forEachRow(SQLConsumer)}
+	 * 
+     * @param sql an SQL statement that may contain one or more '?' IN
+     * 		parameter placeholders
+     * @param ps lambda for setting {@link PreparedStatement} parameters once
+     * 		the {@link PreparedStatement} instance is actually created 
+	 */
+	public SCPreparedStatement prepareStatement(String sql, SQLConsumer<PreparedStatement> ps)
+	{
+		return new SCPreparedStatement(this, sql, null, ps);
+	}
+	
+	/**
+	 * @deprecated 'unsafe' version of {@link PreparedStatement} -- that is the
+	 * 		created statement is not automatically closed, so in most cases 
+	 * 		should use {@link #prepareStatement(String, SQLConsumer)} instead
+	 */
+	@Deprecated
+	public PreparedStatement unsafePrepareStatement(String sql)
 		throws SQLException
 	{
 		return connection.prepareStatement(sql);
 	}
+	
+	/**
+     * @param autoGeneratedKeys a flag indicating whether auto-generated keys
+     *        should be returned; one of
+     *        {@link Statement#RETURN_GENERATED_KEYS} or
+     *        {@link Statement#NO_GENERATED_KEYS}
+     *        
+	 * @deprecated 'unsafe' version of {@link PreparedStatement} -- that is the
+	 * 		created statement is not automatically closed, so in most cases 
+	 * 		should use {@link #prepareStatement(String, SQLConsumer)} instead
+	 */
+	@Deprecated
+	public PreparedStatement unsafePrepareStatement(String sql, int autoGeneratedKeys)
+		throws SQLException
+	{
+		return connection.prepareStatement(sql, autoGeneratedKeys);
+	}
 
 	/**
-	 * This is javadoc!!
-	 * @return
-	 * @throws SQLException
+	 * Attempts to retrieve the list of available tables using connection
+	 * metadata.
 	 */
 	public List<String> getTables()
 		throws SQLException
@@ -676,6 +867,10 @@ public class SqlClient implements AutoCloseable
 		return tables;
 	}
 
+	/**
+	 * Attempts to retrieve the list of columns in the given table by using
+	 * connection metadata.
+	 */
 	public List<ColumnMeta> getColumns(String tableName)
 		throws SQLException
 	{
@@ -693,6 +888,10 @@ public class SqlClient implements AutoCloseable
 		return columns;
 	}
 
+	/**
+	 * Executes some code with the new {@link Statement}; {@link Statement} is
+	 * automatically closed afterwards.
+	 */
 	private <R> R withStatement(SQLFunction<Statement, R> f)
 		throws SQLException
 	{
@@ -702,10 +901,19 @@ public class SqlClient implements AutoCloseable
 		}
 	}
 
+	/**
+	 * Metadata for table column.
+	 */
 	public static class ColumnMeta
 	{
-		private String name;
-		private int type;
+		/**
+		 * Column name.
+		 */
+		private final String name;
+		/**
+		 * Column type from {@link Types}
+		 */
+		private final int type;
 
 		ColumnMeta(String name, int type)
 		{
@@ -724,6 +932,9 @@ public class SqlClient implements AutoCloseable
 		}
 	}
 
+	/**
+	 * Version of {@link Function} that can throw {@link SQLException}
+	 */
 	@FunctionalInterface
 	public interface SQLFunction<T, R>
 	{
@@ -740,6 +951,9 @@ public class SqlClient implements AutoCloseable
 
 	}
 
+	/**
+	 * Version of {@link Consumer} that can throw {@link SQLException}
+	 */
 	@FunctionalInterface
 	public interface SQLConsumer<T>
 	{
