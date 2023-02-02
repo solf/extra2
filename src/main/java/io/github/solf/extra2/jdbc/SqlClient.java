@@ -365,12 +365,12 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @see #forEachRow(String, SQLConsumer)
 	 */
-	public <R> R executeQuery(String sql, SQLFunction<ResultSet, R> f)
+	public <R> R executeQuery(String sql, SQLFunction<ResultSet, R> rs)
 		throws SQLException
 	{
 		try
 		{
-			return withStatement(statement -> f.apply(statement.executeQuery(sql)));
+			return withStatement(statement -> rs.apply(statement.executeQuery(sql)));
 		} catch (SQLException e)
 		{
 			throw new SQLException("" + e.getMessage() + "; sql: " + sql, e);
@@ -393,14 +393,14 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @see #forEachRow(String, SQLConsumer)
 	 */
-	public <R> R executeQuery(PreparedStatement ps, SQLFunction<ResultSet, R> f)
+	public <R> R executeQuery(PreparedStatement ps, SQLFunction<ResultSet, R> rs)
 		throws SQLException
 	{
 		try
 		{
-			try (ResultSet rs = ps.executeQuery())
+			try (ResultSet _rs = ps.executeQuery())
 			{
-				return f.apply(rs);
+				return rs.apply(_rs);
 			}
 		} catch (SQLException e)
 		{
@@ -422,13 +422,13 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @see #forEachRow(String, SQLConsumer)
 	 */
-	public void executeQueryNoReturnValue(String sql, SQLConsumer<ResultSet> f)
+	public void executeQueryNoReturnValue(String sql, SQLConsumer<ResultSet> rs)
 		throws SQLException
 	{
 		try
 		{
 			withStatement(statement -> {
-				f.accept(statement.executeQuery(sql)); 
+				rs.accept(statement.executeQuery(sql)); 
 				return null;
 			});
 		} catch (SQLException e)
@@ -451,14 +451,14 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @see #forEachRow(String, SQLConsumer)
 	 */
-	public void executeQueryNoReturnValue(PreparedStatement ps, SQLConsumer<ResultSet> f)
+	public void executeQueryNoReturnValue(PreparedStatement ps, SQLConsumer<ResultSet> rs)
 		throws SQLException
 	{
 		try
 		{
-			try (ResultSet rs = ps.executeQuery())
+			try (ResultSet _rs = ps.executeQuery())
 			{
-				f.accept(rs);
+				rs.accept(_rs);
 			}
 		} catch (SQLException e)
 		{
@@ -489,15 +489,15 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return array of update values, see {@link PreparedStatement#executeBatch()}
 	 */
-	public int[] executeBatch(String sql, SQLConsumer<PreparedStatement> f)
+	public int[] executeBatch(String sql, SQLConsumer<PreparedStatement> ps)
 		throws SQLException
 	{
-		try (PreparedStatement ps = connection.prepareStatement(sql))
+		try (PreparedStatement _ps = connection.prepareStatement(sql))
 		{
-			f.accept(ps);
+			ps.accept(_ps);
 			
-			int[] result = ps.executeBatch();
-			ps.clearBatch();
+			int[] result = _ps.executeBatch();
+			_ps.clearBatch();
 			
 			return result;
 		}
@@ -514,16 +514,16 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return number of rows processed
 	 */
-	public int forEachRow(String sql, SQLConsumer<ResultSet> f)
+	public int forEachRow(String sql, SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
 		try
 		{
 			AtomicInteger rows = new AtomicInteger(0);
 			withStatement(statement -> {
-				for (ResultSet row : toIterable(statement.executeQuery(sql)))
+				for (ResultSet _row : toIterable(statement.executeQuery(sql)))
 				{
-					f.accept(row);
+					row.accept(_row);
 					rows.incrementAndGet();
 				}
 				return null;
@@ -545,7 +545,7 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return number of rows processed
 	 */
-	public int forEachRow(PreparedStatement ps, SQLConsumer<ResultSet> f)
+	public int forEachRow(PreparedStatement ps, SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
 		try
@@ -553,9 +553,9 @@ public class SqlClient implements AutoCloseable
 			int rows = 0;
 			try (ResultSet rs = ps.executeQuery())
 			{
-				for (ResultSet row : toIterable(rs))
+				for (ResultSet _row : toIterable(rs))
 				{
-					f.accept(row);
+					row.accept(_row);
 					rows++;
 				}
 			}
@@ -659,10 +659,10 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return resulting function value
 	 */
-	public <R> R forSingleRow(String sql, SQLFunction<ResultSet, R> f)
+	public <R> R forSingleRow(String sql, SQLFunction<ResultSet, R> row)
 		throws SQLException
 	{
-		return forAtMostOneRow(true, sql, f).getValue1();
+		return forAtMostOneRow(true, sql, row).getValue1();
 	}
 
 	/**
@@ -676,10 +676,10 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return resulting function value
 	 */
-	public <R> R forSingleRow(PreparedStatement ps, SQLFunction<ResultSet, R> f)
+	public <R> R forSingleRow(PreparedStatement ps, SQLFunction<ResultSet, R> row)
 		throws SQLException
 	{
-		return forAtMostOneRow(true, ps, f).getValue1();
+		return forAtMostOneRow(true, ps, row).getValue1();
 	}
 
 	/**
@@ -694,10 +694,10 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return resulting function value
 	 */
-	public void forSingleRowNoReturnValue(String sql, SQLConsumer<ResultSet> f)
+	public void forSingleRowNoReturnValue(String sql, SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
-		forSingleRow(sql, rs -> {f.accept(rs); return null;});
+		forSingleRow(sql, rs -> {row.accept(rs); return null;});
 	}
 
 	/**
@@ -712,10 +712,10 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return resulting function value
 	 */
-	public void forSingleRowNoReturnValue(PreparedStatement ps, SQLConsumer<ResultSet> f)
+	public void forSingleRowNoReturnValue(PreparedStatement ps, SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
-		forSingleRow(ps, rs -> {f.accept(rs); return null;});
+		forSingleRow(ps, rs -> {row.accept(rs); return null;});
 	}
 
 	/**
@@ -730,10 +730,10 @@ public class SqlClient implements AutoCloseable
 	 * @return resulting function value or null if there are no result rows
 	 */
 	@Nullable
-	public <R> R forZeroOrOneRow(String sql, SQLFunction<ResultSet, R> f)
+	public <R> R forZeroOrOneRow(String sql, SQLFunction<ResultSet, R> row)
 		throws SQLException
 	{
-		Pair<Boolean, R> result = forAtMostOneRow(false, sql, f);
+		Pair<Boolean, R> result = forAtMostOneRow(false, sql, row);
 		
 		if (!result.getValue0())
 			return null;
@@ -753,10 +753,10 @@ public class SqlClient implements AutoCloseable
 	 * @return resulting function value or null if there are no result rows
 	 */
 	@Nullable
-	public <R> R forZeroOrOneRow(PreparedStatement ps, SQLFunction<ResultSet, R> f)
+	public <R> R forZeroOrOneRow(PreparedStatement ps, SQLFunction<ResultSet, R> row)
 		throws SQLException
 	{
-		Pair<Boolean, R> result = forAtMostOneRow(false, ps, f);
+		Pair<Boolean, R> result = forAtMostOneRow(false, ps, row);
 		
 		if (!result.getValue0())
 			return null;
@@ -775,10 +775,10 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return true if there was one row, false if there were no rows
 	 */
-	public boolean forZeroOrOneRowNoReturnValue(String sql, SQLConsumer<ResultSet> f)
+	public boolean forZeroOrOneRowNoReturnValue(String sql, SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
-		return forAtMostOneRow(false, sql, rs -> {f.accept(rs); return null;}).getValue0();
+		return forAtMostOneRow(false, sql, rs -> {row.accept(rs); return null;}).getValue0();
 	}
 
 	/**
@@ -792,10 +792,10 @@ public class SqlClient implements AutoCloseable
 	 * 
 	 * @return true if there was one row, false if there were no rows
 	 */
-	public boolean forZeroOrOneRowNoReturnValue(PreparedStatement ps, SQLConsumer<ResultSet> f)
+	public boolean forZeroOrOneRowNoReturnValue(PreparedStatement ps, SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
-		return forAtMostOneRow(false, ps, rs -> {f.accept(rs); return null;}).getValue0();
+		return forAtMostOneRow(false, ps, rs -> {row.accept(rs); return null;}).getValue0();
 	}
 
 	/**

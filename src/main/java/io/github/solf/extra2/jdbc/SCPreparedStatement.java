@@ -116,10 +116,10 @@ public class SCPreparedStatement
 	 *
 	 * @see #forEachRow(SQLConsumer)
 	 */
-	public <R> R executeQuery(SQLFunction<ResultSet, R> f)
+	public <R> R executeQuery(SQLFunction<ResultSet, R> rs)
 		throws SQLException
 	{
-		return withStatement(ps -> sqlClient.executeQuery(ps, f));
+		return withStatement(ps -> sqlClient.executeQuery(ps, rs));
 	}
 
 	/**
@@ -136,10 +136,10 @@ public class SCPreparedStatement
 	 * 
 	 * @see #forEachRow(SQLConsumer)
 	 */
-	public void executeQueryNoReturnValue(SQLConsumer<ResultSet> f)
+	public void executeQueryNoReturnValue(SQLConsumer<ResultSet> rs)
 		throws SQLException
 	{
-		withStatementNoValue(ps -> sqlClient.executeQueryNoReturnValue(ps, f));
+		withStatementNoValue(ps -> sqlClient.executeQueryNoReturnValue(ps, rs));
 	}
 
 	/**
@@ -152,10 +152,10 @@ public class SCPreparedStatement
 	 * 
 	 * @return number of rows processed
 	 */
-	public int forEachRow(SQLConsumer<ResultSet> f)
+	public int forEachRow(SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
-		return withStatement(ps -> sqlClient.forEachRow(ps, f));
+		return withStatement(ps -> sqlClient.forEachRow(ps, row));
 	}
 
 	/**
@@ -169,10 +169,10 @@ public class SCPreparedStatement
 	 * 
 	 * @return resulting function value
 	 */
-	public <R> R forSingleRow(SQLFunction<ResultSet, R> f)
+	public <R> R forSingleRow(SQLFunction<ResultSet, R> row)
 		throws SQLException
 	{
-		return withStatement(ps -> sqlClient.forSingleRow(ps, f));
+		return withStatement(ps -> sqlClient.forSingleRow(ps, row));
 	}
 
 	/**
@@ -187,10 +187,10 @@ public class SCPreparedStatement
 	 * 
 	 * @return resulting function value
 	 */
-	public void forSingleRowNoReturnValue(SQLConsumer<ResultSet> f)
+	public void forSingleRowNoReturnValue(SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
-		withStatementNoValue(ps -> sqlClient.forSingleRowNoReturnValue(ps, f));
+		withStatementNoValue(ps -> sqlClient.forSingleRowNoReturnValue(ps, row));
 	}
 
 	/**
@@ -205,10 +205,10 @@ public class SCPreparedStatement
 	 * @return resulting function value or null if there are no result rows
 	 */
 	@Nullable
-	public <R> R forZeroOrOneRow(SQLFunction<ResultSet, R> f)
+	public <R> R forZeroOrOneRow(SQLFunction<ResultSet, R> row)
 		throws SQLException
 	{
-		return withStatement(ps -> sqlClient.forZeroOrOneRow(ps, f));
+		return withStatement(ps -> sqlClient.forZeroOrOneRow(ps, row));
 	}
 
 	/**
@@ -222,10 +222,10 @@ public class SCPreparedStatement
 	 * 
 	 * @return true if there was one row, false if there were no rows
 	 */
-	public boolean forZeroOrOneRowNoReturnValue(SQLConsumer<ResultSet> f)
+	public boolean forZeroOrOneRowNoReturnValue(SQLConsumer<ResultSet> row)
 		throws SQLException
 	{
-		return withStatement(ps -> sqlClient.forZeroOrOneRowNoReturnValue(ps, f));
+		return withStatement(ps -> sqlClient.forZeroOrOneRowNoReturnValue(ps, row));
 	}
 	
 	/**
