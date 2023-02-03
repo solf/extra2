@@ -17,14 +17,22 @@ package io.github.solf.extra2.jdbc;
 
 import static io.github.solf.extra2.util.NullUtil.fakeVoid;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.javatuples.Pair;
 
 import io.github.solf.extra2.jdbc.SqlClient.SQLConsumer;
 import io.github.solf.extra2.jdbc.SqlClient.SQLFunction;
@@ -63,6 +71,58 @@ public class SCPreparedStatement
 	 * Code block for setting up prepared statement parameters.
 	 */
 	private final SQLConsumer<PreparedStatement> setupParameters;
+	
+	/**
+	 * Proxy for {@link PreparedStatement} that tracks all the method invocations
+	 * in the provided trace list.
+	 * <p>
+	 * Used to track what arguments were passed to the {@link PreparedStatement}
+	 * to be outputted in case of an exception.
+	 */
+	private static class PreparedStatementProxy implements InvocationHandler
+	{
+		/**
+		 * {@link PreparedStatement} instance being proxied.
+		 */
+		private final PreparedStatement ps;
+		
+		/**
+		 * Trace list of all method invocations.
+		 */
+		private final List<Pair<Method, @Nullable Object @Nullable []>> trace;
+		
+		/**
+		 * Constructor (explicit to address nullability issues).
+		 */
+		public PreparedStatementProxy(PreparedStatement ps,
+			List<Pair<Method, @Nullable Object @Nullable []>> trace)
+		{
+			super();
+			this.ps = ps;
+			this.trace = trace;
+		}
+
+		@Override
+		@Nullable
+		public Object invoke(Object proxy, Method method,
+			@Nullable Object @Nullable [] args)
+			throws Throwable
+		{
+			trace.add(new Pair<>(method, args));
+			
+			try
+			{
+				return method.invoke(ps, args);
+			} catch (InvocationTargetException ite)
+			{
+				Throwable cause = ite.getCause();
+				if (cause != null)
+					throw cause;
+				
+				throw ite;
+			}
+		}
+	}
 	
     /**
      * Executes SQL statement
@@ -251,26 +311,45 @@ public class SCPreparedStatement
 	private <R> R withStatement(SQLFunction<PreparedStatement, R> ps, final boolean returnGeneratedKeys)
 		throws SQLException
 	{
-		@SuppressWarnings({"deprecation", "resource"}) PreparedStatement statement = 
-			returnGeneratedKeys == false ?
-				sqlClient.unsafePrepareStatement(statementSql)
-			  : sqlClient.unsafePrepareStatement(statementSql, Statement.RETURN_GENERATED_KEYS);
-				
+		final List<Pair<Method, @Nullable Object @Nullable []>> trace = new ArrayList<>();
 		try
 		{
-			// Setup prepared statement parameters
-			setupParameters.accept(statement);
-			
-			return ps.apply(statement);
-		} finally
-		{
+			@SuppressWarnings({"deprecation", "resource"}) PreparedStatement statement = 
+				returnGeneratedKeys == false ?
+					sqlClient.unsafePrepareStatement(statementSql)
+				  : sqlClient.unsafePrepareStatement(statementSql, Statement.RETURN_GENERATED_KEYS);
+					
 			try
 			{
-				statement.close();
-			} catch (SQLException e)
+				final Object statementProxy;
+				if (sqlClient.isTrackPreparedStatementParameters())
+				{
+					PreparedStatementProxy proxy = new PreparedStatementProxy(statement, trace);
+					statementProxy = Proxy.newProxyInstance(SCPreparedStatement.class.getClassLoader(), 
+						new Class<?>[] {PreparedStatement.class},
+						proxy);
+				}
+				else
+					statementProxy = statement; // no proxying in this case, use directly
+				
+				
+				// Setup prepared statement parameters
+				setupParameters.accept((PreparedStatement)statementProxy);
+				
+				return ps.apply(statement);
+			} finally
 			{
-				sqlClient.handlePreparedStatementCloseException(e);
+				try
+				{
+					statement.close();
+				} catch (SQLException e)
+				{
+					sqlClient.handlePreparedStatementCloseException(e);
+				}
 			}
+		} catch (SQLException e)
+		{
+			throw new SQLException("" + e.getMessage() + "; sql: [" + statementSql + "]; " + (sqlClient.isTrackPreparedStatementParameters() ? "args: " + buildArgsString(trace) : "args not tracked"), e);
 		}
 	}
 	
@@ -285,5 +364,28 @@ public class SCPreparedStatement
 		throws SQLException
 	{
 		withStatement(rps -> {ps.accept(rps); return fakeVoid();});
+	}
+	
+	/**
+	 * Builds user-friendly string of method invocations done (and their
+	 * arguments) based on the provided trace list.
+	 */
+	private static String buildArgsString(List<Pair<Method, @Nullable Object @Nullable []>> trace)
+	{
+		if (trace.size() == 0)
+			return "[]";
+		
+		StringBuilder sb = new StringBuilder(50);
+		for (Pair<Method, @Nullable Object @Nullable []> item : trace)
+		{
+			sb.append((sb.length() > 0) ? ", " : "[");
+			
+			sb.append(item.getValue0().getName());
+			sb.append(Arrays.toString(item.getValue1()));
+		}
+		
+		sb.append(']');
+		
+		return sb.toString();
 	}
 }

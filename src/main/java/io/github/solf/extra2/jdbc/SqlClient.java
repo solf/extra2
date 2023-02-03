@@ -40,6 +40,8 @@ import javax.sql.DataSource;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.javatuples.Pair;
 
+import lombok.Getter;
+
 /**
  * Helpful functions for working with SQL via JDBC.
  * <p>
@@ -51,22 +53,65 @@ public class SqlClient implements AutoCloseable
 	private final Connection connection;
 	
 	/**
+	 * If true, then {@link SCPreparedStatement} will track the values set into
+	 * {@link PreparedStatement} (by using dynamic proxies) in order to add these
+	 * values to the exception information if one occurs (should make figuring
+	 * out what went wrong with the SQL much easier).
+	 */
+	@Getter
+	private final boolean trackPreparedStatementParameters;
+	
+	/**
 	 * Creates a {@link SqlClient} for the given data source.
 	 * <p>
 	 * Connection is obtained from the data source immediately and is released
 	 * when this {@link SqlClient} is closed.
+	 * <p>
+	 * {@link #trackPreparedStatementParameters} is set to true
 	 */
 	public SqlClient(DataSource dataSource) throws SQLException
 	{
-		this(dataSource.getConnection());
+		this(dataSource, true);
+	}
+	
+	/**
+	 * Creates a {@link SqlClient} for the given data source.
+	 * <p>
+	 * Connection is obtained from the data source immediately and is released
+	 * when this {@link SqlClient} is closed.
+	 * 
+	 * @param trackPreparedStatementParameters if true, then {@link SCPreparedStatement} will track the values set into
+	 * {@link PreparedStatement} (by using dynamic proxies) in order to add these
+	 * values to the exception information if one occurs (should make figuring
+	 * out what went wrong with the SQL much easier).
+	 */
+	public SqlClient(DataSource dataSource, boolean trackPreparedStatementParameters) throws SQLException
+	{
+		this(dataSource.getConnection(), trackPreparedStatementParameters);
 	}
 	
 	/**
 	 * Create a {@link SqlClient} for the given connection.
+	 * <p>
+	 * {@link #trackPreparedStatementParameters} is set to true
 	 */
 	public SqlClient(Connection connection)
 	{
+		this(connection, true);
+	}
+	
+	/**
+	 * Create a {@link SqlClient} for the given connection.
+	 * 
+	 * @param trackPreparedStatementParameters if true, then {@link SCPreparedStatement} will track the values set into
+	 * {@link PreparedStatement} (by using dynamic proxies) in order to add these
+	 * values to the exception information if one occurs (should make figuring
+	 * out what went wrong with the SQL much easier).
+	 */
+	public SqlClient(Connection connection, boolean trackPreparedStatementParameters)
+	{
 		this.connection = connection;
+		this.trackPreparedStatementParameters = trackPreparedStatementParameters;
 	}
 	
 	/**
@@ -74,6 +119,8 @@ public class SqlClient implements AutoCloseable
 	 * arguments and sets auto-commit to false.
 	 * <p>
 	 * Login & password are not specified.
+	 * <p>
+	 * {@link #trackPreparedStatementParameters} is set to true
 	 */
 	public static SqlClient forMySQL(String host, String db)
 		throws IllegalStateException
@@ -84,6 +131,8 @@ public class SqlClient implements AutoCloseable
 	/**
 	 * Creates an {@link SqlClient} for an MySQL connection based on the 
 	 * arguments and sets auto-commit to false.
+	 * <p>
+	 * {@link #trackPreparedStatementParameters} is set to true
 	 * 
 	 * @param login may be null -- in which case it is not specified
 	 * @param password may be null -- in which case it is not specified
@@ -96,6 +145,8 @@ public class SqlClient implements AutoCloseable
 	
 	/**
 	 * Creates client for an MySQL connection.
+	 * <p>
+	 * {@link #trackPreparedStatementParameters} is set to true
 	 * 
 	 * @deprecated use {@link #forMySQL(String, String)} instead
 	 */
@@ -118,11 +169,15 @@ public class SqlClient implements AutoCloseable
 			e.printStackTrace();
 			throw new RuntimeException("Can't init connection", e);
 		}
+		
+		this.trackPreparedStatementParameters = true;
 	}
 	
 
 	/**
 	 * Creates client for an MySQL connection.
+	 * <p>
+	 * {@link #trackPreparedStatementParameters} is set to true
 	 * 
 	 * @deprecated use {@link #forMySQL(String, String, String, String)} instead
 	 */
@@ -147,6 +202,8 @@ public class SqlClient implements AutoCloseable
 			e.printStackTrace();
 			throw new RuntimeException("Can't init connection", e);
 		}
+		
+		this.trackPreparedStatementParameters = true;
 	}
 
 	/**
