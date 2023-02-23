@@ -23,6 +23,8 @@ import javax.annotation.Nonnull;
 
 import io.github.solf.extra2.objectgraph.ObjectGraphUtil;
 import io.github.solf.extra2.objectgraph2.OGTestObject2;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 'data' class for testing {@link ObjectGraphUtil}
@@ -57,6 +59,11 @@ import io.github.solf.extra2.objectgraph2.OGTestObject2;
 	protected List<OGTestObject> list = null;
 	
 	/*package*/ Collection<OGTestObject> collection = null;
+	
+	/*package*/ Collection<OGTestSkip> skipCollection = null;
+	
+	@Getter @Setter
+	private Map<OGTestSkip, OGTestSkip2> skipMap = null;
 	
 	private OGTestObject[] array = null;
 	

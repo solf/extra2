@@ -111,13 +111,15 @@ public class ObjectGraphUtil
 	/**
 	 * Possible handling modes.
 	 */
-	private static enum HandleMode
+	public static enum ObjectGraphVisiteeHandleMode
 	{
 		PRIMITIVE,
 		COMPOUND,
 		/** This includes maps, lists, and other collections (but not arrays) */
 		COLLECTION,
 		ARRAY,
+		/** This visitee is to be skipped */
+		SKIP,
 		;
 	}
 	
@@ -196,7 +198,7 @@ public class ObjectGraphUtil
 		
 		// Verify that root node is valid
 		{
-			HandleMode rootHandling = determineHandling(ctx.cfg, null, null, null, null, null, root);
+			ObjectGraphVisiteeHandleMode rootHandling = determineHandling(ctx.cfg, null, null, false, null, null, null, root);
 			switch(rootHandling)
 			{
 				case COMPOUND:
@@ -204,6 +206,7 @@ public class ObjectGraphUtil
 				case ARRAY:
 				case COLLECTION:
 				case PRIMITIVE:
+				case SKIP:
 					throw new IllegalStateException("root object must be a compound object and not a collection or an array, got: " + rootHandling);
 			}
 		}
@@ -272,11 +275,7 @@ public class ObjectGraphUtil
 			return;
 		}
 		
-		HandleMode handleMode;
-		if (isPrimitive)
-			handleMode = HandleMode.PRIMITIVE;
-		else
-			handleMode = determineHandling(ctx.cfg, parent, fieldContainer, fieldName, relationType, path, object);
+		final ObjectGraphVisiteeHandleMode handleMode = determineHandling(ctx.cfg, parent, fieldContainer, isPrimitive, fieldName, relationType, path, object);
 		
 		switch (handleMode)
 		{
@@ -300,6 +299,9 @@ public class ObjectGraphUtil
 			case ARRAY:
 			case COLLECTION:
 				handleCollection(ctx, parent, fieldContainer, field, fieldName, path, object);
+				break;
+			case SKIP:
+				// nothing
 				break;
 		}
 		
@@ -356,9 +358,10 @@ public class ObjectGraphUtil
 			{
 				for (Object key : map.keySet())
 				{
+					boolean skip = false;
 					if (key != null)
 					{
-						HandleMode keyType = determineHandling(ctx.cfg, parent, fieldContainer, fieldName, ObjectGraphRelationType.MAP_KEY, pathToCollection, key);
+						ObjectGraphVisiteeHandleMode keyType = determineHandling(ctx.cfg, parent, fieldContainer, false, fieldName, ObjectGraphRelationType.MAP_KEY, pathToCollection, key);
 						switch (keyType)
 						{
 							case ARRAY:
@@ -367,9 +370,13 @@ public class ObjectGraphUtil
 							case COMPOUND:
 							case PRIMITIVE:
 								break; // These are ok
+							case SKIP:
+								skip = true;
+								break;
 						}
-					}	
-					handleItem(ctx, parent, fieldContainer, field, fieldName, ObjectGraphRelationType.MAP_KEY, pathToCollection, key, false);
+					}
+					if (!skip)
+						handleItem(ctx, parent, fieldContainer, field, fieldName, ObjectGraphRelationType.MAP_KEY, pathToCollection, key, false);
 				}
 			}
 			
@@ -407,43 +414,78 @@ public class ObjectGraphUtil
 	 * Determines how given visitee should be handled.
 	 * Most arguments are for error reporting.
 	 * 
+	 * @param isKnownToBePrimitive true if the visitee is known to be primitive --
+	 * 		such as fields with Java primitive types or arrays of primitives
+	 * 
 	 * @throws ObjectGraphUnhandledTypeException if specific type is determined
 	 * 		to require throwing exception (which is then thrown).
 	 */
-	private static HandleMode determineHandling(ObjectGraphConfig cfg,
+	private static ObjectGraphVisiteeHandleMode determineHandling(ObjectGraphConfig cfg,
 		@Nullable Object parent, @Nullable Class<?> fieldContainer, 
+		boolean isKnownToBePrimitive,
 		@Nullable String fieldName, @Nullable ObjectGraphRelationType relationType, ObjectGraphCollectionStep @Nullable[] path, 
 		Object visitee)
 			throws ObjectGraphUnhandledTypeException
 	{
+		{
+			// Support for custom handlingResolver
+			ObjectGraphHandlingResolver customHandler = cfg.getCustomHandlingResolver();
+			if (customHandler != null)
+			{
+				ObjectGraphVisiteeHandleMode mode = customHandler.determineHandling(cfg, parent, fieldContainer, isKnownToBePrimitive, fieldName, relationType, path, visitee);
+				if (mode != null)
+					return mode;
+				
+				// otherwise default handling below
+			}
+		}
+		
+		if (isKnownToBePrimitive)
+			return ObjectGraphVisiteeHandleMode.PRIMITIVE;
+		
 		final Class<?> clazz = visitee.getClass(); 
 		
 		if (clazz.isArray())
-			return HandleMode.ARRAY;
+			return ObjectGraphVisiteeHandleMode.ARRAY;
 		
 		if (cfg.isHandleCollections())
 		{
 			if (visitee instanceof Map<?, ?>)
-				return HandleMode.COLLECTION;
+				return ObjectGraphVisiteeHandleMode.COLLECTION;
 			if (visitee instanceof Collection<?>)
-				return HandleMode.COLLECTION;
+				return ObjectGraphVisiteeHandleMode.COLLECTION;
 		}
 		
 		if (cfg.getPrimitiveTypes().contains(clazz))
-			return HandleMode.PRIMITIVE;
+			return ObjectGraphVisiteeHandleMode.PRIMITIVE;
 		
 		String className = clazz.getName();
 		
 		for (String prefix : cfg.getCompoundClassPrefixes())
 		{
 			if (className.startsWith(prefix))
-				return HandleMode.COMPOUND;
+				return ObjectGraphVisiteeHandleMode.COMPOUND;
 		}
 		
 		for (String prefix : cfg.getPrimitiveClassPrefixes())
 		{
 			if (className.startsWith(prefix))
-				return HandleMode.PRIMITIVE;
+				return ObjectGraphVisiteeHandleMode.PRIMITIVE;
+		}
+		
+		if (Boolean.FALSE)
+		{
+			// does nothing, exists as an 'alert' to fix the code above in case
+			// new values are added to HandleMode
+			switch(ObjectGraphVisiteeHandleMode.ARRAY)
+			{
+				case ARRAY:
+				case COLLECTION:
+				case COMPOUND:
+				case PRIMITIVE:
+				case SKIP:
+					break;
+			}
 		}
 		
 		if (cfg.getEnumHandleMode() != null)
@@ -472,10 +514,10 @@ public class ObjectGraphUtil
 	}
 	
 	/**
-	 * Converts {@link ObjectGraphHandleMode} to {@link HandleMode} or exception.
+	 * Converts {@link ObjectGraphHandleMode} to {@link ObjectGraphVisiteeHandleMode} or exception.
 	 * Most arguments are here in order to be able to construct exception.
 	 */
-	private static HandleMode convertHandleMode(ObjectGraphHandleMode handleMode,
+	private static ObjectGraphVisiteeHandleMode convertHandleMode(ObjectGraphHandleMode handleMode,
 		@Nullable Object parent, @Nullable Class<?> fieldContainer, 
 		@Nullable String fieldName, @Nullable ObjectGraphRelationType relationType, 
 		ObjectGraphCollectionStep @Nullable[] path, 
@@ -485,11 +527,26 @@ public class ObjectGraphUtil
 		switch(handleMode)
 		{
 			case COMPOUND:
-				return HandleMode.COMPOUND;
+				return ObjectGraphVisiteeHandleMode.COMPOUND;
 			case PRIMITIVE:
-				return HandleMode.PRIMITIVE;
+				return ObjectGraphVisiteeHandleMode.PRIMITIVE;
 			case EXCEPTION:
 				throw new ObjectGraphUnhandledTypeException(parent, fieldContainer, fieldName, relationType, path, visitee, visiteeClassClassification);
+		}
+		
+		if (Boolean.FALSE)
+		{
+			// does nothing, exists as an 'alert' to fix the code above in case
+			// new values are added to HandleMode
+			switch(ObjectGraphVisiteeHandleMode.ARRAY)
+			{
+				case ARRAY:
+				case COLLECTION:
+				case COMPOUND:
+				case PRIMITIVE:
+				case SKIP:
+					break;
+			}
 		}
 		
 		throw new IllegalStateException("Assertion failed!");
@@ -525,8 +582,17 @@ public class ObjectGraphUtil
 	public static boolean isPrimitiveType(ObjectGraphConfig cfg, Object object)
 		throws ObjectGraphUnhandledTypeException
 	{
-		if (determineHandling(cfg, null, null, null, null, null, object) == HandleMode.PRIMITIVE)
-			return true;
+		switch (determineHandling(cfg, null, null, false, null, null, null, object))
+		{
+			case PRIMITIVE:
+				return true;
+				
+			case ARRAY:
+			case COLLECTION:
+			case COMPOUND:
+			case SKIP:
+				break;
+		}
 		
 		return false;
 	}
@@ -564,7 +630,7 @@ public class ObjectGraphUtil
 		
 		// Verify that root node is valid
 		{
-			HandleMode rootHandling = determineHandling(argCfg, null, null, null, null, null, root);
+			ObjectGraphVisiteeHandleMode rootHandling = determineHandling(argCfg, null, null, false, null, null, null, root);
 			switch(rootHandling)
 			{
 				case COMPOUND:
@@ -572,6 +638,7 @@ public class ObjectGraphUtil
 				case COLLECTION:
 					break; // These are valid options.
 				case PRIMITIVE:
+				case SKIP:
 					throw new IllegalStateException("root object must be a compound object and not a collection or an array, got: " + rootHandling);
 			}
 		}

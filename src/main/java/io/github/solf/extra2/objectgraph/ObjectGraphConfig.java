@@ -28,6 +28,10 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
 /**
  * Configuration options for object graph walking.
  * 
@@ -202,6 +206,30 @@ public class ObjectGraphConfig implements Cloneable
 	 * Default: false. Whether to include (visit) primitive types (those that are considered primitive according to configuration).
 	 */
 	private boolean includePrimitiveTypes = false;
+	
+	/**
+	 * Default: true. Whether to include/navigate transient fields.
+	 */
+	private boolean includeTransientFields = true;
+	
+	/**
+	 * Default: false. Whether to visit map keys.
+	 */
+	private boolean includeMapKeys = false;
+	
+	/**
+	 * Default: null.
+	 * <p>
+	 * If specified, then this hook is invoked before calculating the default
+	 * handling of a visitee; if the hook returns non-null value, then this
+	 * type of handling is used for visitee; otherwise default handling is used.
+	 * <p>
+	 * This is useful to e.g. skip visiting certain classes.
+	 */
+	@Accessors(chain = true)
+	@Getter @Setter
+	@Nullable
+	private ObjectGraphHandlingResolver customHandlingResolver = null;
 
 	/**
 	 * Default: false. Whether to include (visit) primitive types (those that are considered primitive according to configuration).
@@ -221,16 +249,6 @@ public class ObjectGraphConfig implements Cloneable
 		includePrimitiveTypes = newIncludePrimitiveTypes;
 		return this;
 	}
-	
-	/**
-	 * Default: true. Whether to include/navigate transient fields.
-	 */
-	private boolean includeTransientFields = true;
-	
-	/**
-	 * Default: false. Whether to visit map keys.
-	 */
-	private boolean includeMapKeys = false;
 
 	/**
 	 * Default: false. Whether to visit map keys.

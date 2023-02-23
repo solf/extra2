@@ -17,6 +17,7 @@ package io.github.solf.extra2.objectgraph;
 
 import static io.github.solf.extra2.util.NullUtil.nn;
 import static io.github.solf.extra2.util.NullUtil.nullable;
+import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import io.github.solf.extra2.objectgraph.ObjectGraphHandleMode;
 import io.github.solf.extra2.objectgraph.ObjectGraphRelationType;
 import io.github.solf.extra2.objectgraph.ObjectGraphUnhandledTypeException;
 import io.github.solf.extra2.objectgraph.ObjectGraphUtil;
+import io.github.solf.extra2.objectgraph.ObjectGraphUtil.ObjectGraphVisiteeHandleMode;
 import io.github.solf.extra2.objectgraph2.OGTestObject2;
 
 /**
@@ -560,6 +562,156 @@ public class OGTest
 			assert expected.size() == 0 : expected;
 		}
 		
+		{
+			// Skip test for collection and field
+			root.skipCollection = new ArrayList<>();
+			final OGTestSkip skip = new OGTestSkip();
+			root.skipCollection.add(skip);
+			final OGTestSkip2 skip2 = new OGTestSkip2();
+			skip.skip2 = skip2;
+			
+			ArrayList<OGRelation> expectedRelations = new ArrayList<>(completeRelationList);
+			assertTrue( expectedRelations.remove(new OGRelation(root, OGTestObject.class, "skipCollection", ObjectGraphRelationType.FIELD, null, null)) );
+
+			expectedRelations.add( new OGRelation(root, OGTestObject.class, "skipCollection", ObjectGraphRelationType.COLLECTION_INSTANCE, null, root.skipCollection) );
+			
+			{
+				// test skipping OGTestSkip (in collection)
+				ObjectGraphConfig config = createAllInclusiveOptions().setCustomHandlingResolver(new ObjectGraphHandlingResolver()
+				{
+					@Override
+					public @Nullable ObjectGraphVisiteeHandleMode determineHandling(ObjectGraphConfig cfg,
+						@Nullable Object parent,
+						@Nullable Class<?> fieldContainer,
+						boolean isKnownToBePrimitive, @Nullable String fieldName,
+						@Nullable ObjectGraphRelationType relationType,
+						ObjectGraphCollectionStep @Nullable [] path, Object visitee)
+						throws ObjectGraphUnhandledTypeException
+					{
+						if (visitee instanceof OGTestSkip)
+							return ObjectGraphVisiteeHandleMode.SKIP;
+						
+						return null;
+					}
+				});
+				OGDataCollector collector = new OGDataCollector();
+				ObjectGraphUtil.visitGraphExcludingRoot(root, config, collector);
+				compareData(expectedRelations, collector.data);
+			}
+
+			expectedRelations.add( new OGRelation(root, OGTestObject.class, "skipCollection", ObjectGraphRelationType.ITEM_IN_COLLECTION, path(ObjectGraphCollectionType.LIST, 0), skip) );
+			
+			{
+				// test skipping OGTestSkip2 (as a field)
+				ObjectGraphConfig config = createAllInclusiveOptions().setCustomHandlingResolver(new ObjectGraphHandlingResolver()
+				{
+					@Override
+					public @Nullable ObjectGraphVisiteeHandleMode determineHandling(ObjectGraphConfig cfg,
+						@Nullable Object parent,
+						@Nullable Class<?> fieldContainer,
+						boolean isKnownToBePrimitive, @Nullable String fieldName,
+						@Nullable ObjectGraphRelationType relationType,
+						ObjectGraphCollectionStep @Nullable [] path, Object visitee)
+						throws ObjectGraphUnhandledTypeException
+					{
+						if (visitee instanceof OGTestSkip2)
+							return ObjectGraphVisiteeHandleMode.SKIP;
+						
+						return null;
+					}
+				});
+				OGDataCollector collector = new OGDataCollector();
+				ObjectGraphUtil.visitGraphExcludingRoot(root, config, collector);
+				compareData(expectedRelations, collector.data);
+			}
+			
+			expectedRelations.add( new OGRelation(skip, OGTestSkip.class, "skip2", ObjectGraphRelationType.FIELD, null, skip2) );
+			
+			{
+				// test no-skipping too
+				ObjectGraphConfig config = createAllInclusiveOptions();
+				OGDataCollector collector = new OGDataCollector();
+				ObjectGraphUtil.visitGraphExcludingRoot(root, config, collector);
+				compareData(expectedRelations, collector.data);
+			}
+			
+			// clean up
+			root.skipCollection = null;
+		}
+		
+		
+		{
+			// Skip test for map
+			final Map<OGTestSkip, OGTestSkip2> skipMap = new HashMap<>();
+			root.setSkipMap(skipMap);
+			final OGTestSkip key = new OGTestSkip();
+			final OGTestSkip2 value = new OGTestSkip2();
+			skipMap.put(key, value);
+			
+			
+			ArrayList<OGRelation> expectedRelations = new ArrayList<>(completeRelationList);
+			assertTrue( expectedRelations.remove(new OGRelation(root, OGTestObject.class, "skipMap", ObjectGraphRelationType.FIELD, null, null)) );
+
+			expectedRelations.add( new OGRelation(root, OGTestObject.class, "skipMap", ObjectGraphRelationType.COLLECTION_INSTANCE, null, skipMap) );
+			expectedRelations.add( new OGRelation(root, OGTestObject.class, "skipMap", ObjectGraphRelationType.ITEM_IN_COLLECTION, path(ObjectGraphCollectionType.MAP, key), value) );
+			
+			{
+				// test skipping OGTestSkip (in collection)
+				ObjectGraphConfig config = createAllInclusiveOptions().setCustomHandlingResolver(new ObjectGraphHandlingResolver()
+				{
+					@Override
+					public @Nullable ObjectGraphVisiteeHandleMode determineHandling(ObjectGraphConfig cfg,
+						@Nullable Object parent,
+						@Nullable Class<?> fieldContainer,
+						boolean isKnownToBePrimitive, @Nullable String fieldName,
+						@Nullable ObjectGraphRelationType relationType,
+						ObjectGraphCollectionStep @Nullable [] path, Object visitee)
+						throws ObjectGraphUnhandledTypeException
+					{
+						if (visitee instanceof OGTestSkip)
+							return ObjectGraphVisiteeHandleMode.SKIP;
+						
+						return null;
+					}
+				});
+				OGDataCollector collector = new OGDataCollector();
+				ObjectGraphUtil.visitGraphExcludingRoot(root, config, collector);
+				compareData(expectedRelations, collector.data);
+			}
+
+			expectedRelations.add( new OGRelation(key, OGTestSkip.class, "skip2", ObjectGraphRelationType.FIELD, null, null));
+			expectedRelations.add( new OGRelation(root, OGTestObject.class, "skipMap", ObjectGraphRelationType.MAP_KEY, null, key) );
+			
+			assertTrue( expectedRelations.remove( new OGRelation(root, OGTestObject.class, "skipMap", ObjectGraphRelationType.ITEM_IN_COLLECTION, path(ObjectGraphCollectionType.MAP, key), value) ) );
+			
+			{
+				// test skipping OGTestSkip2 (as a field)
+				ObjectGraphConfig config = createAllInclusiveOptions().setCustomHandlingResolver(new ObjectGraphHandlingResolver()
+				{
+					@Override
+					public @Nullable ObjectGraphVisiteeHandleMode determineHandling(ObjectGraphConfig cfg,
+						@Nullable Object parent,
+						@Nullable Class<?> fieldContainer,
+						boolean isKnownToBePrimitive, @Nullable String fieldName,
+						@Nullable ObjectGraphRelationType relationType,
+						ObjectGraphCollectionStep @Nullable [] path, Object visitee)
+						throws ObjectGraphUnhandledTypeException
+					{
+						if (visitee instanceof OGTestSkip2)
+							return ObjectGraphVisiteeHandleMode.SKIP;
+						
+						return null;
+					}
+				});
+				OGDataCollector collector = new OGDataCollector();
+				ObjectGraphUtil.visitGraphExcludingRoot(root, config, collector);
+				compareData(expectedRelations, collector.data);
+			}
+			
+			// clean up
+			root.setSkipMap(null);
+		}
+		
 		// WARNING!! DESTRUCTIVE TEST -- MUST BE LAST.
 		{
 			OGDataCollector collector = new OGDataCollectorWithNulling(); // Nulls every non-primitive field as it is processed.
@@ -630,6 +782,14 @@ public class OGTest
 			rels.add(new OGRelation(obj, OGTestObject.class, "collection", ObjectGraphRelationType.FIELD, null, null));
 		else
 			rels.add(new OGRelation(obj, OGTestObject.class, "collection", ObjectGraphRelationType.COLLECTION_INSTANCE, null, obj.collection));
+		if (obj.skipCollection == null)
+			rels.add(new OGRelation(obj, OGTestObject.class, "skipCollection", ObjectGraphRelationType.FIELD, null, null));
+		else
+			rels.add(new OGRelation(obj, OGTestObject.class, "skipCollection", ObjectGraphRelationType.COLLECTION_INSTANCE, null, obj.skipCollection));
+		if (obj.getSkipMap() == null)
+			rels.add(new OGRelation(obj, OGTestObject.class, "skipMap", ObjectGraphRelationType.FIELD, null, null));
+		else
+			rels.add(new OGRelation(obj, OGTestObject.class, "skipMap", ObjectGraphRelationType.COLLECTION_INSTANCE, null, obj.getSkipMap()));
 		if (obj.getArray() == null)
 			rels.add(new OGRelation(obj, OGTestObject.class, "array", ObjectGraphRelationType.FIELD, null, null));
 		else
