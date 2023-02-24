@@ -31,6 +31,8 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
+import lombok.Getter;
+
 /**
  * Class for editing files.
  * NOT thread safe.
@@ -88,6 +90,26 @@ public class FileEditor
 	 */
 	@Nullable
 	private String lineForSpooling = null;
+	
+	/**
+	 * Previous (to the current) line read from the file; does NOT reflect any
+	 * changes that may have been made via write methods!
+	 * <p>
+	 * Will be null if it wasn't read yet (less than 2 lines read).
+	 */
+	@Getter
+	@Nullable
+	private String previousReadLine = null;
+	
+	/**
+	 * Last ('current') line read from the file; does NOT reflect any
+	 * changes that may have been made via write methods!
+	 * <p>
+	 * Will be null if no lines were read yet or end of file has been reached.
+	 */
+	@Getter
+	@Nullable
+	private String lastReadLine = null;
 	
 	/**
 	 * Constructor (defaults to default encoding).
@@ -214,7 +236,11 @@ public class FileEditor
 		
 		try
 		{
+			if (lastReadLine != null)
+				previousReadLine = lastReadLine;
+			
 			lineForSpooling = reader.readLine(); // Remember in case we'll need to spool it.
+			lastReadLine = lineForSpooling;
 			return lineForSpooling;
 		} catch (IOException e)
 		{

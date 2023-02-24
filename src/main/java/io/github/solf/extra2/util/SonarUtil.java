@@ -15,12 +15,14 @@
  */
 package io.github.solf.extra2.util;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * Utility for helping with managing Sonar / SonarQube code scan issues.
  *
  * @author Sergey Olefir
  */
-//@NonNullByDefault // not-type-ized intentionally so types can be anything.
+@NonNullByDefault({}) // has annotation so Eclipse won't warn 'may not have designed with nulls'; but doesn't non-null anything to be able to use nullable types
 public class SonarUtil
 {
 	/**
