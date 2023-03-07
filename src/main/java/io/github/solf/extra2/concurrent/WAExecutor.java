@@ -86,7 +86,7 @@ public class WAExecutor
 	    	// going to be what we expected.
 			@SuppressWarnings("rawtypes")
 			List result = defaultExecutor.invokeAll(tasks);
-	    	return result;
+	    	return (List<WAFuture<T, V>>)result;
     	} catch (InterruptedException e)
     	{
     		throw new WAInterruptedException(e);
@@ -134,7 +134,7 @@ public class WAExecutor
 	    	// going to be what we expected.
 			@SuppressWarnings("rawtypes")
 			List result = defaultExecutor.invokeAll(tasks, timeout, unit);
-	    	return result;
+	    	return (List<WAFuture<T, V>>)result;
     	} catch (InterruptedException e)
     	{
     		throw new WAInterruptedException(e);
@@ -158,7 +158,7 @@ public class WAExecutor
 	    	// going to be what we expected.
 			@SuppressWarnings("rawtypes")
 			List result = executorService.invokeAll(tasks);
-	    	return result;
+	    	return (List<WAFuture<T, V>>)result;
     	} catch (InterruptedException e)
     	{
     		throw new WAInterruptedException(e);
@@ -182,7 +182,7 @@ public class WAExecutor
 	    	// going to be what we expected.
 			@SuppressWarnings("rawtypes")
 			List result = executorService.invokeAll(tasks, timeout, unit);
-	    	return result;
+	    	return (List<WAFuture<T, V>>)result;
     	} catch (InterruptedException e)
     	{
     		throw new WAInterruptedException(e);
