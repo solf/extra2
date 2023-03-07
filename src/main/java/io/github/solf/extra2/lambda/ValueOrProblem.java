@@ -19,6 +19,8 @@ import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 
 import java.util.NoSuchElementException;
 
+import javax.annotation.Nonnull;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import lombok.AccessLevel;
@@ -47,6 +49,7 @@ public class ValueOrProblem<V, P>
 	 * Creates {@link ValueOrProblem} instance containing specific value (and
 	 * no problem).
 	 */
+	@Nonnull
 	public static <V, P> ValueOrProblem<V, P> ofValue(V value)
 	{
 		return new ValueOrProblem<V, P>(true, value, fakeNonNull());
@@ -56,9 +59,25 @@ public class ValueOrProblem<V, P>
 	 * Create {@link ValueOrProblem} instance containing specific problem (and
 	 * no value).
 	 */
+	@Nonnull
 	public static <V, P> ValueOrProblem<V, P> ofProblem(P problem)
 	{
 		return new ValueOrProblem<V, P>(false, fakeNonNull(), problem);
+	}
+	
+	/**
+	 * Helper method: for {@link ValueOrProblem} instances that declare problem
+	 * as some {@link Throwable} subclass this method will obtain value from the
+	 * given instance if available ({@link ValueOrProblem#getValue()}) or else 
+	 * throw the corresponding exception from the problem ({@link ValueOrProblem#getProblem()}). 
+	 */
+	public static <V, @Nonnull E extends Throwable> V getValueOrThrowProblem(ValueOrProblem<V, E> valueOrProblem)
+		throws E
+	{
+		if (valueOrProblem.hasValue())
+			return valueOrProblem.getValue();
+		
+		throw valueOrProblem.getProblem();
 	}
 	
 	/**
