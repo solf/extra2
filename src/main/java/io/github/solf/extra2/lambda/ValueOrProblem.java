@@ -20,6 +20,7 @@ import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import java.util.NoSuchElementException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
@@ -118,6 +119,17 @@ public class ValueOrProblem<V, P>
 		
 		return value;
 	}
+	/**
+	 * Gets value from this instance if present; returns null if no value is present.
+	 */
+	@Nullable
+	public V getValueOrNull() throws NoSuchElementException
+	{
+		if (!hasValue)
+    		return null;
+		
+		return value;
+	}
 	
 	/**
 	 * Problem (if any) stored in this instance.
@@ -132,6 +144,17 @@ public class ValueOrProblem<V, P>
 	{
 		if (hasValue)
     		throw new NoSuchElementException("No problem present");
+		
+		return problem;
+	}
+	/**
+	 * Gets problem from this instance if present; returns null if no problem is present.
+	 */
+	@Nullable
+	public P getProblemOrNull() throws NoSuchElementException
+	{
+		if (hasValue)
+    		return null;
 		
 		return problem;
 	}

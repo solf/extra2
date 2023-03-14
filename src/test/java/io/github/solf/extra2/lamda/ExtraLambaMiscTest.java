@@ -20,6 +20,9 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.fail;
+
+import java.io.IOException;
 
 import javax.annotation.Nullable;
 
@@ -50,6 +53,8 @@ public class ExtraLambaMiscTest
 			assertEquals((int)testValue.getValue(), 123);
 			assertFailsWithSubstring(() -> testValue.getProblem(), "java.util.NoSuchElementException: No problem present");
 			testValue.toString(); // test @ToString doesn't fail
+			assertEquals(testValue.getValueOrNull(), (Object)123);
+			assertNull(testValue.getProblemOrNull());
 		}
 		
 		{
@@ -60,6 +65,8 @@ public class ExtraLambaMiscTest
 			assertFailsWithSubstring(() -> testValue.getValue(), "java.util.NoSuchElementException: No value present");
 			assertEquals(testValue.getProblem(), "problem");
 			testValue.toString(); // test @ToString doesn't fail
+			assertNull(testValue.getValueOrNull());
+			assertEquals(testValue.getProblemOrNull(), "problem");
 		}
 		
 		{
@@ -70,6 +77,8 @@ public class ExtraLambaMiscTest
 			assertNull(testValue.getValue());
 			assertFailsWithSubstring(() -> testValue.getProblem(), "java.util.NoSuchElementException: No problem present");
 			testValue.toString(); // test @ToString doesn't fail
+			assertNull(testValue.getValueOrNull());
+			assertNull(testValue.getProblemOrNull());
 		}
 		
 		{
@@ -80,6 +89,24 @@ public class ExtraLambaMiscTest
 			assertFailsWithSubstring(() -> testValue.getValue(), "java.util.NoSuchElementException: No value present");
 			assertNull(testValue.getProblem());
 			testValue.toString(); // test @ToString doesn't fail
+			assertNull(testValue.getValueOrNull());
+			assertNull(testValue.getProblemOrNull());
+		}
+		
+		{
+			ValueOrProblem<Integer, IOException> testValue = ValueOrProblem.ofValue(123);
+			try
+			{
+				assertEquals((int)ValueOrProblem.getValueOrThrowProblem(testValue), 123);
+			} catch (IOException e)
+			{
+				fail("" + e);
+			}
+		}
+		
+		{
+			ValueOrProblem<Integer, IOException> testValue = ValueOrProblem.ofProblem(new IOException("SOLF"));
+			assertFailsWithSubstring(() -> {ValueOrProblem.getValueOrThrowProblem(testValue);}, "java.io.IOException: SOLF");
 		}
 	}
 }
