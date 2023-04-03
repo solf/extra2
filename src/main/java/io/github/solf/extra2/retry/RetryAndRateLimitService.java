@@ -2379,6 +2379,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	/**
 	 * A wrapper/extension point over {@link #processRequest(Object, int)} that
 	 * allows implementations to access relevant {@link RRLEntry}
+	 * 
+	 * @param attemptNumber starts at 1
 	 */
 	protected Output spiProcessRequest(RRLEntry<Input, Output> entry, int attemptNumber) throws InterruptedException, Exception
 	{
@@ -2395,6 +2397,8 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 	 * If no exception is thrown, then the request is assumed to complete
 	 * successfully and the result is available in the future (null results
 	 * are supported).
+	 * 
+	 * @param attemptNumber starts at 1
 	 */
 	protected abstract Output processRequest(Input input, int attemptNumber) throws InterruptedException, Exception;
 	
