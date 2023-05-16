@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
+import io.github.solf.extra2.lambda.ObjectWrapper;
 import io.github.solf.extra2.lambda.ValueOrProblem;
 
 /**
@@ -41,9 +42,10 @@ public class ExtraLambaMiscTest
 {
 	/**
 	 * Tests {@link ValueOrProblem}
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void testValueOrProblem()
+	public void testValueOrProblem() throws InterruptedException
 	{
 		{
 			ValueOrProblem<Integer, String> testValue = ValueOrProblem.ofValue(123);
@@ -55,6 +57,117 @@ public class ExtraLambaMiscTest
 			testValue.toString(); // test @ToString doesn't fail
 			assertEquals(testValue.getValueOrNull(), (Object)123);
 			assertNull(testValue.getProblemOrNull());
+			
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifValue(v -> {
+					invocationTracker.set(true);
+					assertEquals(v, (Object)123);
+				});
+				assertTrue(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifValueInterruptibly(v -> {
+					invocationTracker.set(true);
+					assertEquals(v, (Object)123);
+				});
+				assertTrue(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifNoValue(() -> {
+					invocationTracker.set(true);
+					fail("should not be invoked");
+				});
+				assertFalse(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifNoValueInterruptibly(() -> {
+					invocationTracker.set(true);
+					fail("should not be invoked");
+				});
+				assertFalse(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifProblem(p -> {
+					invocationTracker.set(true);
+					fail("should not be invoked");
+				});
+				assertFalse(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifProblemInterruptibly(p -> {
+					invocationTracker.set(true);
+					fail("should not be invoked");
+				});
+				assertFalse(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertEquals(testValue.ifValue(v -> {
+						ifTracker.set(true);
+						return v + 1;
+					}).orElse(e -> {
+						elseTracker.set(true);
+						return -1;
+					}),
+				(Object)124);
+				assertTrue(ifTracker.get());
+				assertFalse(elseTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertFailsWithSubstring( () -> {
+					testValue.ifValue(v -> {
+						ifTracker.set(true);
+						if (System.currentTimeMillis() > 0) throw new RuntimeException("fail1");
+						return null;
+					}).orElse(e -> {
+						elseTracker.set(true);
+						throw new RuntimeException("fail2");
+					});},
+				"fail1");
+				assertTrue(ifTracker.get());
+				assertFalse(elseTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertFailsWithSubstring( () -> {
+					testValue.ifValueInterruptibly(v -> {
+						ifTracker.set(true);
+						if (System.currentTimeMillis() > 0) throw new InterruptedException("fail1");
+						return null;
+					}).orElse(e -> {
+						elseTracker.set(true);
+						throw new InterruptedException("fail2");
+					});},
+				"fail1");
+				assertTrue(ifTracker.get());
+				assertFalse(elseTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertFailsWithSubstring( () -> {
+					testValue.ifValueWithExceptionType(v -> {
+						ifTracker.set(true);
+						if (System.currentTimeMillis() > 0) throw new Exception("fail1");
+						return null;
+					}).orElse(e -> {
+						elseTracker.set(true);
+						throw new Exception("fail2");
+					});},
+				"fail1");
+				assertTrue(ifTracker.get());
+				assertFalse(elseTracker.get());
+			}
 		}
 		
 		{
@@ -67,6 +180,115 @@ public class ExtraLambaMiscTest
 			testValue.toString(); // test @ToString doesn't fail
 			assertNull(testValue.getValueOrNull());
 			assertEquals(testValue.getProblemOrNull(), "problem");
+			
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifValue(v -> {
+					invocationTracker.set(true);
+					fail("should not be invoked");
+				});
+				assertFalse(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifValueInterruptibly(v -> {
+					invocationTracker.set(true);
+					fail("should not be invoked");
+				});
+				assertFalse(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifNoValue(() -> {
+					invocationTracker.set(true);
+				});
+				assertTrue(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifNoValueInterruptibly(() -> {
+					invocationTracker.set(true);
+				});
+				assertTrue(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifProblem(p -> {
+					invocationTracker.set(true);
+					assertEquals(p, "problem");
+				});
+				assertTrue(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> invocationTracker = ObjectWrapper.of(false);
+				testValue.ifProblemInterruptibly(p -> {
+					invocationTracker.set(true);
+					assertEquals(p, "problem");
+				});
+				assertTrue(invocationTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertEquals(testValue.ifValue(v -> {
+						ifTracker.set(true);
+						return "" + (v + 1);
+					}).orElse(e -> {
+						elseTracker.set(true);
+						return "r:" + e;
+					}),
+				"r:problem");
+				assertFalse(ifTracker.get());
+				assertTrue(elseTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertFailsWithSubstring( () -> {
+					testValue.ifValue(v -> {
+						ifTracker.set(true);
+						if (System.currentTimeMillis() > 0) throw new RuntimeException("fail1");
+						return null;
+					}).orElse(e -> {
+						elseTracker.set(true);
+						throw new RuntimeException("fail2");
+					});},
+				"fail2");
+				assertFalse(ifTracker.get());
+				assertTrue(elseTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertFailsWithSubstring( () -> {
+					testValue.ifValueInterruptibly(v -> {
+						ifTracker.set(true);
+						if (System.currentTimeMillis() > 0) throw new InterruptedException("fail1");
+						return null;
+					}).orElse(e -> {
+						elseTracker.set(true);
+						throw new InterruptedException("fail2");
+					});},
+				"fail2");
+				assertFalse(ifTracker.get());
+				assertTrue(elseTracker.get());
+			}
+			{
+				ObjectWrapper<Boolean> ifTracker = ObjectWrapper.of(false);
+				ObjectWrapper<Boolean> elseTracker = ObjectWrapper.of(false);
+				assertFailsWithSubstring( () -> {
+					testValue.ifValueWithExceptionType(v -> {
+						ifTracker.set(true);
+						if (System.currentTimeMillis() > 0) throw new Exception("fail1");
+						return null;
+					}).orElse(e -> {
+						elseTracker.set(true);
+						throw new Exception("fail2");
+					});},
+				"fail2");
+				assertFalse(ifTracker.get());
+				assertTrue(elseTracker.get());
+			}
 		}
 		
 		{
