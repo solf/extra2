@@ -79,15 +79,15 @@ public class ElseFunction<T, R, E extends Exception>
 	 * 'if' part was true) or uses provided function and stored {@link #elseArgument}
 	 * to calculate the result (if the 'if' part was false).
 	 * 
-	 * @param e (stands for 'else', 'exception', 'error') -- function to be
+	 * @param ev (stands for 'else', 'exception', 'error' value) -- function to be
 	 * 		invoked to obtain the result in case 'if' part wasn't true
 	 * @return if-else chain return value
 	 */
-	public R orElse(FunctionWithExceptionType<T, R, @Nonnull E> e) throws E
+	public R orElse(FunctionWithExceptionType<T, R, @Nonnull E> ev) throws E
 	{
 		if (hasResult)
 			return result;
 		
-		return e.apply(elseArgument);
+		return ev.apply(elseArgument);
 	}
 }
