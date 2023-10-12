@@ -2689,27 +2689,34 @@ public abstract class RetryAndRateLimitService<@Nonnull Input, Output>
 		setControlState(shutdownInProgressState
 			.withSpooldownTargetTimestamp(spoolTimeLimit)); // use shorter limit to cover 'processing delays'
 		
-		spooldown(shutdownLimitTimestamp); // use full time limit waiting for spooldown
-		
-		mainQueueProcessingThread.exitAsap();
-		
-		for (RRLDelayQueueData dq : delayQueues)
-			dq.getProcessingThread().exitAsap();
-		
-		// Let's take count before shutting down executor as we have no idea
-		// if stuff in the executors will process correctly or not after its shutdown
-		int remainingCount = processingRequestsCount.get();
-		
+		int remainingCount;
+		try
 		{
-			ExecutorService res = requestsExecutorService;
-			if (res != null)
-				res.shutdownNow();
+			spooldown(shutdownLimitTimestamp); // use full time limit waiting for spooldown
+		} finally
+		{
+			// the above spooldown can throw InterruptedException;
+			// so use finally block to try to terminate all the threads regardless
+			mainQueueProcessingThread.exitAsap();
+			
+			for (RRLDelayQueueData dq : delayQueues)
+				dq.getProcessingThread().exitAsap();
+			
+			// Let's take count before shutting down executor as we have no idea
+			// if stuff in the executors will process correctly or not after its shutdown
+			remainingCount = processingRequestsCount.get();
+			
+			{
+				ExecutorService res = requestsExecutorService;
+				if (res != null)
+					res.shutdownNow();
+			}
+			
+			setControlState(RRLControlState.SHUTDOWN);
+			
+			if (remainingCount > 0)
+				guardedEventListenerInvocation(evListener -> evListener.errorShutdownSpooldownNotAchievedDataMayBeLost(remainingCount));
 		}
-		
-		setControlState(RRLControlState.SHUTDOWN);
-		
-		if (remainingCount > 0)
-			guardedEventListenerInvocation(evListener -> evListener.errorShutdownSpooldownNotAchievedDataMayBeLost(remainingCount));
 		
 		return remainingCount;
 	}
