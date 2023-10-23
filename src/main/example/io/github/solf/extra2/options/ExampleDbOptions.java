@@ -21,7 +21,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.config.Configuration;
 import io.github.solf.extra2.config.FlatConfiguration;
-import io.github.solf.extra2.options.BaseOptions;
 import lombok.Getter;
 
 /**

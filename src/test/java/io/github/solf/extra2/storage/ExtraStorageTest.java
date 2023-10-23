@@ -37,9 +37,6 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
-import io.github.solf.extra2.storage.ExistMode;
-import io.github.solf.extra2.storage.StorageItem;
-import io.github.solf.extra2.storage.StorageManager;
 import io.github.solf.extra2.storage.exception.IOStorageException;
 import io.github.solf.extra2.storage.exception.MismatchedExistModeException;
 import io.github.solf.extra2.storage.exception.MissingDataStorageException;

@@ -23,8 +23,6 @@ import java.util.ResourceBundle;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import io.github.solf.extra2.config.RBFlatConfiguration;
-
 /**
  * {@link PropertyResourceBundle} that returns property name as property value
  * for options that are not otherwise specified.

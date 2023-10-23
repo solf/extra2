@@ -19,8 +19,6 @@ import static io.github.solf.extra2.util.NullUtil.nn;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import io.github.solf.extra2.objectgraph.ObjectGraphUtil;
-
 /**
  * Enum for testing {@link ObjectGraphUtil} functionality
  *

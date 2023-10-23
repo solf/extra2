@@ -21,9 +21,6 @@ import javax.annotation.Nonnull;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import io.github.solf.extra2.objectgraph.ObjectGraphRelation;
-import io.github.solf.extra2.objectgraph.ObjectGraphVisitor;
-
 /**
  * Collects data about all visited relations.
  *

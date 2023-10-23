@@ -35,14 +35,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.collection.IdentityHashSet;
-import io.github.solf.extra2.objectgraph.ObjectGraphCollectionStep;
-import io.github.solf.extra2.objectgraph.ObjectGraphCollectionType;
-import io.github.solf.extra2.objectgraph.ObjectGraphCompoundNodeVisitor;
-import io.github.solf.extra2.objectgraph.ObjectGraphConfig;
-import io.github.solf.extra2.objectgraph.ObjectGraphHandleMode;
-import io.github.solf.extra2.objectgraph.ObjectGraphRelationType;
-import io.github.solf.extra2.objectgraph.ObjectGraphUnhandledTypeException;
-import io.github.solf.extra2.objectgraph.ObjectGraphUtil;
 import io.github.solf.extra2.objectgraph.ObjectGraphUtil.ObjectGraphVisiteeHandleMode;
 import io.github.solf.extra2.objectgraph2.OGTestObject2;
 

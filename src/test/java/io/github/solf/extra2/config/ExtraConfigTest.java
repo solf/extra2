@@ -36,11 +36,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.javatuples.Pair;
 import org.testng.annotations.Test;
 
-import io.github.solf.extra2.config.Configuration;
-import io.github.solf.extra2.config.FlatConfiguration;
-import io.github.solf.extra2.config.MergingFlatConfiguration;
-import io.github.solf.extra2.config.MergingSectionedConfiguration;
-import io.github.solf.extra2.config.SectionedConfiguration;
 import io.github.solf.extra2.options.BaseOptions;
 import io.github.solf.extra2.options.OptionConstraint;
 import io.github.solf.extra2.util.SplitUtil;

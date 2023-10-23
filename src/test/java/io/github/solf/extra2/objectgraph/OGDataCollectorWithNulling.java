@@ -17,8 +17,6 @@ package io.github.solf.extra2.objectgraph;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import io.github.solf.extra2.objectgraph.ObjectGraphRelation;
-
 /**
  * A version of {@link OGDataCollector} that also nulls any non-primitive field
  * (e.g. to test what happens when structure is being updated as it is being

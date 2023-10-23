@@ -24,8 +24,6 @@ import javax.annotation.Nullable;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
-import io.github.solf.extra2.concurrent.Latch;
-
 /**
  * Test(s) for {@link Latch}
  *

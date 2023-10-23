@@ -32,7 +32,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
 import io.github.solf.extra2.concurrent.Latch;
-import io.github.solf.extra2.pool.SimpleObjectPool;
 import io.github.solf.extra2.pool.SimpleObjectPool.PoolObjectWrapper;
 import io.github.solf.extra2.util.TypeUtil;
 

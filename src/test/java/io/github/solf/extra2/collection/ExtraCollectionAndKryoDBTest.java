@@ -34,13 +34,6 @@ import javax.annotation.Nullable;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.testng.annotations.Test;
 
-import io.github.solf.extra2.collection.HashMapExt;
-import io.github.solf.extra2.collection.HashSetExt;
-import io.github.solf.extra2.collection.ItemSampler;
-import io.github.solf.extra2.collection.MapExt;
-import io.github.solf.extra2.collection.SetExt;
-import io.github.solf.extra2.collection.TreeMapExt;
-import io.github.solf.extra2.collection.TreeSetExt;
 import io.github.solf.extra2.kryo.KryoDB;
 import io.github.solf.extra2.util.TypeUtil;
 

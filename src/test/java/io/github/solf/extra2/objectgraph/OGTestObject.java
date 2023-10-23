@@ -21,7 +21,6 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import io.github.solf.extra2.objectgraph.ObjectGraphUtil;
 import io.github.solf.extra2.objectgraph2.OGTestObject2;
 import lombok.Getter;
 import lombok.Setter;

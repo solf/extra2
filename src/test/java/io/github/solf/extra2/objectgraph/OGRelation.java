@@ -23,9 +23,6 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import io.github.solf.extra2.objectgraph.ObjectGraphCollectionStep;
-import io.github.solf.extra2.objectgraph.ObjectGraphRelationType;
-
 /**
  * Records information about single relation.
  * Has proper hash code / equals.
