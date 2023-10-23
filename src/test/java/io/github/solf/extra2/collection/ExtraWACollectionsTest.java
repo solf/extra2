@@ -163,7 +163,6 @@ public class ExtraWACollectionsTest
 			// Exception test
 			SupplierFromIterable<@Nullable Integer> supplier = new SupplierFromIterable<>(Arrays.asList(0, 1, null, 3));
 			
-			@NonNullByDefault({})
 			@SuppressWarnings("deprecation") Iterator<Integer> iter = WACollections.toIterable(supplier).iterator();
 			
 			assertEquals((int)iter.next(), 0);
@@ -489,7 +488,7 @@ public class ExtraWACollectionsTest
 	public void testRHashSet()
 	{
 		assertFails( () ->
-			{@SuppressWarnings("unused") RHashSet<Object> cloneConstructorTest = new RHashSet<>((HashMap<Object, Object>)null);},
+			{@SuppressWarnings("unused") RHashSet<Object> cloneConstructorTest = new RHashSet<>(nn((HashMap<Object, Object>)null));},
 			"map is marked non-null but is null");
 		
 		TKeyValue nkey1 = new TKeyValue("nkey1", 1);

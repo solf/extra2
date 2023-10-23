@@ -878,13 +878,13 @@ public class ExtraLambaUtilTest
 		
 		
 		assert valueEqualsAll(new SillyNumber(12345), 1, 2, 3, 4, 5);
-		assert !valueEqualsAll(new SillyNumber(12345), 1, 2, 3, null, 4, 5);
+		assert !valueEqualsAll(new SillyNumber(12345), (@Nullable Integer)1, 2, 3, null, 4, 5);
 		assert !valueEqualsAll(new SillyNumber(12345), 1, 2, 5, 6);
 		assert !valueEqualsAll(new SillyNumber(12345), new SillyNumber[] {});
 		
-		assert valueEqualsAllIn(new SillyNumber(12345), Arrays.asList(1, 2, 3, 4, 5));
-		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList(1, 2, 3, null, 4, 5));
-		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList(1, 2, 5, 6));
+		assert valueEqualsAllIn(new SillyNumber(12345), Arrays.asList((@Nullable Integer)1, 2, 3, 4, 5));
+		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList((@Nullable Integer)1, 2, 3, null, 4, 5));
+		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList((@Nullable Integer)1, 2, 5, 6));
 		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList(new SillyNumber[] {}));
 		
 		assert valueTrueForAll(o -> new SillyNumber(12345).sillyLength().equals(o), 5, 6);
