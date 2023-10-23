@@ -530,7 +530,6 @@ public class ExtraCollectionAndKryoDBTest
 	/**
 	 * Tests contents of {@link ItemSampler}
 	 */
-	@SuppressWarnings("cast")
 	@NonNullByDefault({})
 	private void testItemSamplerContents(@Nonnull ItemSampler<Integer> is, Integer @Nonnull... expectedItems)
 	{
@@ -543,7 +542,8 @@ public class ExtraCollectionAndKryoDBTest
 				assert expectedItems[i] == null : "Mismatched value at index [" + i + "] -- expected: " + expectedItems[i] + ", got: " + items.get(i);
 			else
 			{
-				assert (int)items.get(i) == expectedItems[i] : "Mismatched value at index [" + i + "] -- expected: " + expectedItems[i] + ", got: " + items.get(i) + "; samples=" + items;
+				int v = items.get(i);
+				assert v == expectedItems[i] : "Mismatched value at index [" + i + "] -- expected: " + expectedItems[i] + ", got: " + items.get(i) + "; samples=" + items;
 //				{}System.err.println("Mismatched value at index [" + i + "] -- expected: " + expectedItems[i] + ", got: " + items.get(i) + "; samples=" + items);
 			}
 		}
