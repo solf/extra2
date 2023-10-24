@@ -103,7 +103,7 @@ public class ExternalProcess
 			{
 				try
 				{
-					PartialLineReader reader = new PartialLineReader(process.getInputStream());
+					@SuppressWarnings("all") PartialLineReader reader = new PartialLineReader(process.getInputStream()); // suppress 'all' to be warning-compatible new/old Eclipse
 					String line;
 					while((line = reader.readLine()) != null)
 					{

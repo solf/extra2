@@ -882,9 +882,9 @@ public class ExtraLambaUtilTest
 		assert !valueEqualsAll(new SillyNumber(12345), 1, 2, 5, 6);
 		assert !valueEqualsAll(new SillyNumber(12345), new SillyNumber[] {});
 		
-		assert valueEqualsAllIn(new SillyNumber(12345), Arrays.asList((@Nullable Integer)1, 2, 3, 4, 5));
-		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList((@Nullable Integer)1, 2, 3, null, 4, 5));
-		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList((@Nullable Integer)1, 2, 5, 6));
+		assert valueEqualsAllIn(new SillyNumber(12345), asNullableList(1, 2, 3, 4, 5));
+		assert !valueEqualsAllIn(new SillyNumber(12345), asNullableList(1, 2, 3, null, 4, 5));
+		assert !valueEqualsAllIn(new SillyNumber(12345), asNullableList(1, 2, 5, 6));
 		assert !valueEqualsAllIn(new SillyNumber(12345), Arrays.asList(new SillyNumber[] {}));
 		
 		assert valueTrueForAll(o -> new SillyNumber(12345).sillyLength().equals(o), 5, 6);
@@ -896,5 +896,15 @@ public class ExtraLambaUtilTest
 		assert !valueTrueForAllIn(o -> new SillyNumber(12345).sillyLength().equals(o), Arrays.asList(5, null, 6));
 		assert valueTrueForAllIn(o -> new SillyNumber(12345).sillyLength().equals(o), Arrays.asList(5, 4));
 		assert valueTrueForAllIn(o -> new SillyNumber(12345).sillyLength().equals(o), Arrays.asList(new Integer[] {}));
+	}
+
+	/**
+	 * Converts list of arguments to an actual list with {@link Nullable} elements
+	 * (used to work around nullability warnings/casts when using {@link Arrays#asList(Object...)}
+	 * directly).
+	 */
+	private <@Nullable T> List<T> asNullableList(@SuppressWarnings("unchecked") T... a)
+	{
+        return Arrays.asList(a);
 	}
 }
