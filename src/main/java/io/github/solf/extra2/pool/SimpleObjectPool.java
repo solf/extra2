@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.pool;
 
+import static io.github.solf.extra2.util.NullUtil.isNull;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -164,7 +165,8 @@ public class SimpleObjectPool<T>
      * 		minIdle / maxIdle conditions in a separate thread; if maxIdle is
      * 		set to 0, this parameter must also be 0
      */
-    public SimpleObjectPool(String poolName, final int minIdle, final int maxIdle, final int validationIntervalSeconds,
+    @SuppressWarnings("resource")
+	public SimpleObjectPool(String poolName, final int minIdle, final int maxIdle, final int validationIntervalSeconds,
     	final Supplier<T> factory)
     	throws IllegalArgumentException
     {
@@ -189,8 +191,11 @@ public class SimpleObjectPool<T>
 		this.factory = factory;
 		
         // initialize pool
-        for (int i = 0; i < minIdle; i++) 
-            pool.add(createObject());
+        for (int i = 0; i < minIdle; i++)
+        {
+        	PoolObjectWrapper<T> o = createObject(); // extract to var to make warning-compatible with old Eclipse
+            pool.add(o);
+        }
 		
 
         // note: getClass().getSimpleName() returns empty string at least in some of the cases
@@ -277,7 +282,7 @@ public class SimpleObjectPool<T>
      */
     protected void returnObject(PoolObjectWrapper<T> object) throws NullPointerException 
     {
-        if (nullable(object) == null)
+        if (isNull(object))
             throw new NullPointerException("Argument may not be null.");
 
         this.pool.offer(object);

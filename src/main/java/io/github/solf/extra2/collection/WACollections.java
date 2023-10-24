@@ -437,6 +437,9 @@ public class WACollections
 	/**
 	 * Convenient way to treat {@link ResultSet} as {@link Iterable}.
 	 * <p>
+	 * Each iterated element is the same {@link ResultSet} but it is positioned 
+	 * to a new row, see {@link ResultSetIterator} 
+	 * <p>
 	 * Note that it only allows a single use.
 	 */
 	public static ForIterable<ResultSet> toIterable(ResultSet rs)

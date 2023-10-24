@@ -85,6 +85,7 @@ public class SqlClient implements AutoCloseable
 	 * values to the exception information if one occurs (should make figuring
 	 * out what went wrong with the SQL much easier).
 	 */
+	@SuppressWarnings("all") // suppress 'all' rather than 'resource' for warning-compatibility with older Eclipse
 	public SqlClient(DataSource dataSource, boolean trackPreparedStatementParameters) throws SQLException
 	{
 		this(dataSource.getConnection(), trackPreparedStatementParameters);
@@ -122,6 +123,7 @@ public class SqlClient implements AutoCloseable
 	 * <p>
 	 * {@link #trackPreparedStatementParameters} is set to true
 	 */
+	@SuppressWarnings("all") // suppress 'all' rather than 'resource' for warning-compatibility with older Eclipse
 	public static SqlClient forMySQL(String host, String db)
 		throws IllegalStateException
 	{
@@ -137,6 +139,7 @@ public class SqlClient implements AutoCloseable
 	 * @param login may be null -- in which case it is not specified
 	 * @param password may be null -- in which case it is not specified
 	 */
+	@SuppressWarnings("all") // suppress 'all' rather than 'resource' for warning-compatibility with older Eclipse
 	public static SqlClient forMySQL(String host, String db, @Nullable String login, @Nullable String password)
 		throws IllegalStateException
 	{
@@ -485,7 +488,10 @@ public class SqlClient implements AutoCloseable
 		try
 		{
 			withStatement(statement -> {
-				rs.accept(statement.executeQuery(sql)); 
+				try (ResultSet _rs = statement.executeQuery(sql))
+				{
+					rs.accept(_rs);
+				}
 				return null;
 			});
 		} catch (SQLException e)
@@ -578,10 +584,13 @@ public class SqlClient implements AutoCloseable
 		{
 			AtomicInteger rows = new AtomicInteger(0);
 			withStatement(statement -> {
-				for (ResultSet _row : toIterable(statement.executeQuery(sql)))
+				try (ResultSet _rs = statement.executeQuery(sql))
 				{
-					row.accept(_row);
-					rows.incrementAndGet();
+					for (ResultSet _row : toIterable(_rs))
+					{
+						row.accept(_row);
+						rows.incrementAndGet();
+					}
 				}
 				return null;
 			});

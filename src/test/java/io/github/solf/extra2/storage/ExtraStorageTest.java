@@ -21,6 +21,7 @@ import static io.github.solf.extra2.util.NullUtil.nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -536,7 +537,8 @@ public class ExtraStorageTest
 		assert item.findAvailableMetadata().isEmpty();
 		try
 		{
-			item.getInputStream();
+			@SuppressWarnings({"resource", "unused"}) InputStream inputStream = 
+				item.getInputStream();
 			assert false;
 		} catch (MissingDataStorageException e)
 		{
@@ -664,7 +666,8 @@ public class ExtraStorageTest
 		
 		try
 		{
-			item.getInputStream();
+			@SuppressWarnings({"resource", "unused"}) InputStream inputStream = 
+				item.getInputStream();
 			assert false;
 		} catch (MissingDataStorageException e)
 		{
@@ -725,7 +728,8 @@ public class ExtraStorageTest
 		assert !item.hasData();
 		try
 		{
-			item.getInputStream();
+			@SuppressWarnings({"resource", "unused"}) InputStream inputStream = 
+				item.getInputStream();
 			assert false;
 		} catch (MissingDataStorageException e)
 		{

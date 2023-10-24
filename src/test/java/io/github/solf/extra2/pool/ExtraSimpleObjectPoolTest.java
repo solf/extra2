@@ -502,14 +502,16 @@ public class ExtraSimpleObjectPoolTest
 			
 			// Borrow a resource so that maintenance needs to create another one.
 			failOnFactory.set(true);
-			pool.borrow();
 			
-			Thread.sleep(SLEEP_TIME);
-			assert queue.size() == 3 : queue; // Maintenance shouldn't have been able to create a new instance
-			failOnFactory.set(false); // Now allow creation
-			
-			Thread.sleep(SLEEP_TIME);
-			assert queue.size() == 4 : queue; // Now maintenance should've been able to create new instance
+			try(@Nonnull PoolObjectWrapper<String> w = pool.borrow())
+			{
+				Thread.sleep(SLEEP_TIME);
+				assert queue.size() == 3 : queue; // Maintenance shouldn't have been able to create a new instance
+				failOnFactory.set(false); // Now allow creation
+				
+				Thread.sleep(SLEEP_TIME);
+				assert queue.size() == 4 : queue; // Now maintenance should've been able to create new instance
+			}
 		}
 	}
 	

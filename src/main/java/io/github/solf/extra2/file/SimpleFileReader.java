@@ -148,9 +148,11 @@ public class SimpleFileReader implements Closeable
 	/**
 	 * Creates container for a given file.
 	 */
+	@SuppressWarnings("resource")
 	protected static Container createContainer(File file) throws IllegalStateException
 	{
-		return new Container(file, createReader(file));
+		BufferedReader reader = createReader(file); // extract to var to make warning-compatible with old Eclipse
+		return new Container(file, reader);
 	}
 	
 	/**
@@ -357,7 +359,7 @@ public class SimpleFileReader implements Closeable
 	{
 		String line = getLastReadLine();
 		if (line != null)
-			pushLast(line);
+			return pushLast(line);
 		
 		return this;
 	}

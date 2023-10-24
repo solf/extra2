@@ -416,7 +416,7 @@ public class EmailUtil
 							break;
 					}
 					if (match)
-						return nonNull(part.getInputStream());
+						return part.getInputStream();
 				}
 			}
 		} catch (Exception e)

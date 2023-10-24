@@ -18,8 +18,11 @@ package io.github.solf.extra2.util;
 import static io.github.solf.extra2.testutil.AssertExtra.assertFailsWithSubstring;
 import static io.github.solf.extra2.util.NullUtil.evalIfNotNull;
 import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
+import static io.github.solf.extra2.util.NullUtil.isNull;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 import java.util.function.Function;
 
@@ -60,5 +63,34 @@ public class ExtraNullUtilTest
 		
 		final Function<@Nullable Void, String> voidNullFunc = fakeNonNull();
 		assertFailsWithSubstring(() -> evalIfNotNull(null, nonNull -> nonNull.toString(), voidNullFunc), "java.lang.NullPointerException");
+	}
+	
+	/**
+	 * Some tests for generic {@link NullUtil} functionality.
+	 */
+	@Test
+	public void testNullUtil()
+	{
+		assertTrue(isNull(null));
+		assertFalse(isNull("asd"));
+		assertFalse(isNull(""));
+		assertFalse(isNull(new Object()));
+		
+		{
+			final @Nonnull String v = fakeNonNull();
+			assertTrue(isNull(v));
+		}
+		{
+			final @Nonnull String v = "asd";
+			assertFalse(isNull(v));
+		}
+		{
+			final @Nullable String v = null;
+			assertTrue(isNull(v));
+		}
+		{
+			final @Nullable String v = "asd";
+			assertFalse(isNull(v));
+		}
 	}
 }

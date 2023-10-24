@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.console;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,7 +31,7 @@ import java.io.Reader;
  *
  * @author Sergey Olefir
  */
-public class PartialLineReader
+public class PartialLineReader implements Closeable
 {
 	/**
 	 * Reader that is used to convert from bytes to characters.
@@ -61,6 +62,7 @@ public class PartialLineReader
 	/**
 	 * Closes underlying streams.
 	 */
+	@Override
 	public void close() throws IOException
 	{
 		reader.close();

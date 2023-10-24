@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.util;
 
+import java.io.Closeable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -376,5 +377,21 @@ public class NullUtil
 			return ifNull.apply(fakeVoid());
 		
 		return nonNull.apply(nullableObj);
+	}
+	
+	/**
+	 * Consider using ({@link #nullable(Object)} == null) instead for better
+	 * clarity; use this method if using {@link #nullable(Object)} is problematic,
+	 * such as for {@link Closeable} instances.
+	 * <p>
+	 * Tests whether a given object is null -- this is useful in situations 
+	 * where formally (via annotations) it shouldn't be, but we want to test
+	 * anyway (such as a method argument) AND converting it to nullable is
+	 * difficult (e.g. when instance is {@link Closeable} trying to use
+	 * {@link #nullable(Object)} on it is likely to cause resource warnings).
+	 */
+	public static boolean isNull(Object nullableObj)
+	{
+		return (nullableObj == null);
 	}
 }

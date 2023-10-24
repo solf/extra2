@@ -65,9 +65,11 @@ public class AutoCloseables implements AutoCloseable
 	 * unchecked {@link RuntimeException} instead; any unchecked exceptions are
 	 * thrown 'as is'.
 	 */
+	@SuppressWarnings("resource")
 	public static AutoCloseableUnchecked ofUnchecked(Collection<AutoCloseable> wrappedCloseables)
 	{
-		return AutoCloseableUnchecked.wrap(of(wrappedCloseables));
+		AutoCloseable ac = of(wrappedCloseables); // extract to var to make warning-compatible with old Eclipse
+		return AutoCloseableUnchecked.wrap(ac);
 	}
 	
 	/**
@@ -77,9 +79,11 @@ public class AutoCloseables implements AutoCloseable
 	 * unchecked {@link RuntimeException} instead; any unchecked exceptions are
 	 * thrown 'as is'.
 	 */
+	@SuppressWarnings("resource")
 	public static AutoCloseableUnchecked ofUnchecked(AutoCloseable... wrappedCloseables)
 	{
-		return AutoCloseableUnchecked.wrap(of(wrappedCloseables));
+		AutoCloseable ac = of(wrappedCloseables); // extract to var to make warning-compatible with old Eclipse
+		return AutoCloseableUnchecked.wrap(ac);
 	}
 	
 	/**

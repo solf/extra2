@@ -300,9 +300,7 @@ public class KryoDB<T>
 			File lockFile = new File(file.getParentFile(), ".lock");
 			try
 			{
-				@SuppressWarnings("resource")
-				FileOutputStream dbLockStream = new FileOutputStream(lockFile);
-				FileLock lock = dbLockStream.getChannel().tryLock();
+				FileLock lock = tryLockFile(lockFile);
 				if (lock == null)
 					throw new IllegalStateException("Unable to acquire lock on database lock file -- probably lock held by another process.");
 				else
@@ -318,6 +316,31 @@ public class KryoDB<T>
 		}
 		
 		kryo = createDefaultKryoInstance();
+	}
+
+	/**
+	 * Attempts to lock a given file.
+	 * <p>
+	 * One reason to extract this to a method is to make warnings suppression
+	 * work consistently across old/new Eclipse versions.
+	 * 
+	 * @param lockFile file to try locking
+	 * @return {@link FileLock} on a successful lock or null if locking has
+	 * 		failed (because of an overlapping lock)
+	 */
+	@SuppressWarnings("resource")
+	@Nullable
+	private FileLock tryLockFile(File lockFile) throws FileNotFoundException, IOException
+	{
+		FileOutputStream dbLockStream = new FileOutputStream(lockFile);
+		FileLock lock = dbLockStream.getChannel().tryLock();
+		
+		if (lock == null)
+		{
+			dbLockStream.close(); // close output stream in case of failure
+		}
+		
+		return lock;
 	}
 	
 	/**
