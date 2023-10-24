@@ -319,9 +319,9 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	 */
 	@SuppressWarnings("unused")
 	protected RBWWriteSplit spiWriteLockSplitForWriteRBW(@Nonnull K key, S cacheData,
-		NullableOptional<RBWWriteData<W, UInt>> previousFailedWriteData,
-		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, RBWWriteData<W, UInt>, UExt, UInt>.WBRBCacheEntry cacheEntry,
-		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, RBWWriteData<W, UInt>, UExt, UInt>.WBRBCachePayload payload)
+		NullableOptional<@Nonnull RBWWriteData<W, UInt>> previousFailedWriteData,
+		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCacheEntry cacheEntry,
+		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCachePayload payload)
 			throws InterruptedException
 	{
 		return splitForWriteRBW(key, cacheData);
@@ -515,9 +515,9 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	@SuppressWarnings("unused")
 	protected boolean isAllowWritesWithoutPriorResync(
 		@Nonnull K key, S cacheData,
-		NullableOptional<RBWWriteData<W, UInt>> previousFailedWriteData,
-		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, RBWWriteData<W, UInt>, UExt, UInt>.WBRBCacheEntry cacheEntry,
-		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, RBWWriteData<W, UInt>, UExt, UInt>.WBRBCachePayload payload)
+		NullableOptional<@Nonnull RBWWriteData<W, UInt>> previousFailedWriteData,
+		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCacheEntry cacheEntry,
+		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCachePayload payload)
 	{
 		return allowWritesWithoutPriorResync;
 	}
@@ -532,9 +532,9 @@ public abstract class WBRBReadBeforeWriteCache<@Nonnull K, V, S, R, W, UExt, UIn
 	protected List<UInt> spiWriteLockMakeCollectedUpdatesCopy(
 		List<UInt> collectedUpdates,
 		@Nonnull K key, S cacheData,
-		NullableOptional<RBWWriteData<W, UInt>> previousFailedWriteData,
-		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, RBWWriteData<W, UInt>, UExt, UInt>.WBRBCacheEntry cacheEntry,
-		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, RBWWriteData<W, UInt>, UExt, UInt>.WBRBCachePayload payload)
+		NullableOptional<@Nonnull RBWWriteData<W, UInt>> previousFailedWriteData,
+		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCacheEntry cacheEntry,
+		WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, @Nonnull RBWWriteData<W, UInt>, UExt, UInt>.WBRBCachePayload payload)
 			throws InterruptedException
 	{
 		return new ArrayList<>(collectedUpdates);

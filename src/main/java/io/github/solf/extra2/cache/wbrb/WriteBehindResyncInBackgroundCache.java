@@ -2221,13 +2221,13 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	/**
 	 * Used to track message stats via {@link WBRBCacheMessage#ordinal()}
 	 */
-	protected final AtomicReference<WBRBMessageTypeLoggingCounter>[] messageTypeCountersArray;
+	protected final AtomicReference<@Nonnull WBRBMessageTypeLoggingCounter>[] messageTypeCountersArray;
 	
 	/**
 	 * Used to track message stats via classificators in {@link #logNonStandardMessage(WBRBCacheMessageSeverity, String, Throwable, Object...)}
 	 */
-	protected final ConcurrentHashMap<String, AtomicReference<WBRBMessageTypeLoggingCounter>> messageClassificatorCountersMap = 
-		new ConcurrentHashMap<String, AtomicReference<WBRBMessageTypeLoggingCounter>>();
+	protected final ConcurrentHashMap<String, AtomicReference<@Nonnull WBRBMessageTypeLoggingCounter>> messageClassificatorCountersMap = 
+		new ConcurrentHashMap<String, AtomicReference<@Nonnull WBRBMessageTypeLoggingCounter>>();
 	
 	/**
 	 * Implementation of event logging that only logs messages so long as there
@@ -2260,7 +2260,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		}
 		else
 		{
-			final AtomicReference<WBRBMessageTypeLoggingCounter> reference;
+			final AtomicReference<@Nonnull WBRBMessageTypeLoggingCounter> reference;
 			if (!msg.isNonStandard())
 			{
 				reference = messageTypeCountersArray[msg.ordinal()];
@@ -3530,7 +3530,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 			K key = cacheEntry.getKey();
 			
 			BooleanObjectWrapper doStuff = BooleanObjectWrapper.of(true);
-			ObjectWrapper<NullableOptional<S>> result = ObjectWrapper.of(NullableOptional.empty());
+			ObjectWrapper<@Nonnull NullableOptional<S>> result = ObjectWrapper.of(NullableOptional.empty());
 			guardedInvocationNonNull(() -> spiWriteLockMakeMergeDecision(key, readResult, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeMergeDecision, key)
 				.ifPresentInterruptibly(decision -> {
 					boolean dataUsed = false;
@@ -3985,7 +3985,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 	 * NOTE: {@link InterruptedException} and {@link ThreadDeath} subclasses
 	 * are not logged and are re-thrown as those can be used to stop thread
 	 */
-	protected NullableOptional<Object> guardedInvocation(InterruptableRunnable runnable,
+	protected NullableOptional<@Nullable Object> guardedInvocation(InterruptableRunnable runnable,
 		WBRBCacheMessage exceptionMessage, Object... exceptionArgs)
 			throws InterruptedException
 	{
@@ -4606,7 +4606,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 						
 						// FIX-ME probably needs early bail out if item is already marked as REMOVE_FROM_CACHE because we don't want to try removing something that already WAS removed
 						// FIX-ME redo triplet into real class with null-checking via Lombok
-						NullableOptional<WBRBMainQueueProcessingDecision> result = guardedInvocationNonNull(
+						NullableOptional<@Nonnull WBRBMainQueueProcessingDecision> result = guardedInvocationNonNull(
 							() -> spiWriteLockMakeMainQueueProcessingDecision(key, cacheEntry, payload), WBRBCacheMessage.SPI_EXCEPTION_MakeMainQueueProcessingDecision, key);
 						
 						// Handle exception
@@ -5198,7 +5198,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 									// full cache cycle monitoring
 									int cycleCount = payload.getFullCacheCycleCountByReturnQueue().incrementAndGet();
 									boolean processed = false;
-									List<Integer> cycleThresholds = config.getMonitoringFullCacheCyclesThresholds();
+									List<@Nonnull Integer> cycleThresholds = config.getMonitoringFullCacheCyclesThresholds();
 									for (int i = 0; i < cycleThresholds.size(); i++)
 									{
 										if (cycleCount <= cycleThresholds.get(i))
@@ -5214,7 +5214,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 								
 								{
 									// time since last access monitoring
-									List<Long> untouchedThresholds = config.getMonitoringTimeSinceAccessThresholds();
+									List<@Nonnull Long> untouchedThresholds = config.getMonitoringTimeSinceAccessThresholds();
 									boolean processed = false;
 									for (int i = 0; i < untouchedThresholds.size(); i++)
 									{
@@ -6336,7 +6336,7 @@ public abstract class WriteBehindResyncInBackgroundCache<@Nonnull K, V, S, R, W,
 		Logger logger = debugEventLogger;
 		if (logger != null) // whether to log everything
 		{
-			Pair<String, @Nullable Object[]> output = debugUnknownLock_FormatEventForSlf4jLogging(event, key, cacheEntry, payload, exception, additionalArgs);
+			Pair<@Nonnull String, @Nullable Object @Nonnull[]> output = debugUnknownLock_FormatEventForSlf4jLogging(event, key, cacheEntry, payload, exception, additionalArgs);
 			logger.info(output.getValue0(), output.getValue1());
 		}
 	}
