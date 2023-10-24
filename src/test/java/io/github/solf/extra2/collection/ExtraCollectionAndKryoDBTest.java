@@ -497,7 +497,7 @@ public class ExtraCollectionAndKryoDBTest
 					is.add(i);
 			}
 			System.out.println(is.getSampleList());
-			testItemSamplerContents(is, new @Nullable Integer[] {null, 11, 19, 31, 39, 49, 61, 75, 83, 99});
+			testItemSamplerContentsNullable(is, new @Nullable Integer[] {null, 11, 19, 31, 39, 49, 61, 75, 83, 99});
 		}
 		
 		{
@@ -511,7 +511,7 @@ public class ExtraCollectionAndKryoDBTest
 					is.add(i);
 			}
 			System.out.println(is.getSampleList());
-			testItemSamplerContents(is, new @Nullable Integer[] {null, 75, 225, null, 403, 489, null, null, 873, 999});
+			testItemSamplerContentsNullable(is, new @Nullable Integer[] {null, 75, 225, null, 403, 489, null, null, 873, 999});
 		}
 	}
 	
@@ -526,12 +526,22 @@ public class ExtraCollectionAndKryoDBTest
 		
 		testItemSamplerContents(is, expectedItems);
 	}
+
+	/**
+	 * Tests contents of {@link ItemSampler}
+	 */
+	@SuppressWarnings("null")
+	@NonNullByDefault({})
+	private void testItemSamplerContents(@Nonnull ItemSampler<@Nonnull Integer> is, @Nonnull Integer @Nonnull... expectedItems)
+	{
+		testItemSamplerContentsNullable(is, expectedItems);
+	}
 	
 	/**
 	 * Tests contents of {@link ItemSampler}
 	 */
 	@NonNullByDefault({})
-	private void testItemSamplerContents(@Nonnull ItemSampler<Integer> is, Integer @Nonnull... expectedItems)
+	private void testItemSamplerContentsNullable(@Nonnull ItemSampler<@Nullable Integer> is, @Nullable Integer @Nonnull... expectedItems)
 	{
 		List<Integer> items = is.getSampleList();
 		assert expectedItems.length == items.size() : "Mismatched size: expected " + expectedItems.length + ", got " + items.size();
