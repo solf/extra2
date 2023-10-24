@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import io.github.solf.extra2.objectgraph2.OGTestObject2;
 import lombok.Getter;
@@ -27,12 +30,10 @@ import lombok.Setter;
 
 /**
  * 'data' class for testing {@link ObjectGraphUtil}
- *
- * ATTN: nullability annotations are removed on purpose, because they made test
- * pain to write
  * 
  * @author Sergey Olefir
  */
+@NonNullByDefault
 /*package*/ class OGTestObject extends OGTOParent
 {
 	/**
@@ -43,34 +44,45 @@ import lombok.Setter;
 	/**
 	 * Direct Reference to another compound object instance.
 	 */
+	@Nullable
 	public OGTestObject object = null;
 	
 	/**
 	 * Reference to other test object in different package.
 	 */
+	@Nullable
 	public OGTestObject2 object2 = null;
 	
 	@SuppressWarnings("hiding")
+	@Nullable
 	public transient String transientName = null; // For testing field hiding & transients
 	
+	@Nullable
 	public Map<String, OGTestObject> map = null;
 	
+	@Nullable
 	protected List<OGTestObject> list = null;
 	
-	/*package*/ Collection<OGTestObject> collection = null;
+	@Nullable
+	/*package*/ Collection<@Nullable OGTestObject> collection = null;
 	
+	@Nullable
 	/*package*/ Collection<OGTestSkip> skipCollection = null;
 	
 	@Getter @Setter
+	@Nullable
 	private Map<OGTestSkip, OGTestSkip2> skipMap = null;
 	
-	private OGTestObject[] array = null;
+	private @Nullable OGTestObject @Nullable[] array = null;
 	
-	public Map<String, List<Collection<Map<String, OGTestObject>>>> nestedMap = null;
+	@Nullable
+	public Map<String, List<Collection<Map<@Nullable String, @Nullable OGTestObject>>>> nestedMap = null;
 	
+	@Nullable
 	public OGTestEnum sampleEnum = null;
 	
-	public Map<OGTestObject, OGTestObject> complexKeyMap = null;
+	@Nullable
+	public Map<@Nullable OGTestObject, @Nullable OGTestObject> complexKeyMap = null;
 	
 	/**
 	 * Constructor.
@@ -83,7 +95,7 @@ import lombok.Setter;
 	/**
 	 * Gets array.
 	 */
-	public OGTestObject[] getArray()
+	public @Nullable OGTestObject @Nullable[] getArray()
 	{
 		return array;
 	}
@@ -91,7 +103,7 @@ import lombok.Setter;
 	/**
 	 * Sets array.
 	 */
-	public OGTestObject setArray(OGTestObject[] array)
+	public OGTestObject setArray(@Nullable OGTestObject @Nullable[] array)
 	{
 		this.array = array;
 		

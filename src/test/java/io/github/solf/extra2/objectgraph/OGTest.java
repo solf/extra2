@@ -15,6 +15,7 @@
  */
 package io.github.solf.extra2.objectgraph;
 
+import static io.github.solf.extra2.util.NullUtil.fakeNonNull;
 import static io.github.solf.extra2.util.NullUtil.nn;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 import static org.testng.Assert.assertTrue;
@@ -60,9 +61,12 @@ public class OGTest
 		OGTestObject i6 = new OGTestObject(6);
 		OGTestObject i7 = new OGTestObject(7);
 		
-		root.map = new HashMap<String, OGTestObject>();
-		root.map.put("1", i1);
-		root.map.put("2", i2);
+		{
+			HashMap<String, OGTestObject> map = new HashMap<String, OGTestObject>();
+			map.put("1", i1);
+			map.put("2", i2);
+			root.map = map;
+		}
 		root.sampleEnum = OGTestEnum.VAL1;
 		
 		registerDirectFields(tmp, root);
@@ -88,12 +92,14 @@ public class OGTest
 		tmp.add( new OGRelation(i2, OGTestObject.class, "list", ObjectGraphRelationType.ITEM_IN_COLLECTION, path(ObjectGraphCollectionType.LIST, 0), i3) );
 		tmp.add( new OGRelation(object2, OGTestObject2.class, "stringId", ObjectGraphRelationType.FIELD, null, object2.stringId) );
 		
-		i3.collection = new ArrayList<OGTestObject>(); // Use list to preserve order, later convert to collection.
-		i3.collection.add(i2);
-		i3.collection.add(i1);
-		i3.collection.add(root);
-		i3.collection.add(null);
-		i3.collection = Collections.unmodifiableCollection(i3.collection); // convert to collection
+		{
+			ArrayList<@Nullable OGTestObject> collection = new ArrayList<>(); // Use list to preserve order, later convert to collection.
+			collection.add(i2);
+			collection.add(i1);
+			collection.add(root);
+			collection.add(null);
+			i3.collection = Collections.unmodifiableCollection(collection); // convert to collection
+		}
 		i4.collection = i3.collection; // share a collection between two instances
 		
 		tmp.add( new OGRelation(i3, OGTestObject.class, "collection", ObjectGraphRelationType.ITEM_IN_COLLECTION, path(ObjectGraphCollectionType.COLLECTION, 0), i2) );
@@ -124,11 +130,14 @@ public class OGTest
 		i3.transientName = "child name";
 		((OGTOParent)i3).transientName = "parent name";
 		i3.sampleEnum = OGTestEnum.VAL2;
-		i3.complexKeyMap = new HashMap<OGTestObject, OGTestObject>();
-		i3.complexKeyMap.put(i5, i3);
-		i3.complexKeyMap.put(null, i6);
-		i3.complexKeyMap.put(i6, i6);
-		i3.complexKeyMap.put(i2, null);
+		{
+			HashMap<@Nullable OGTestObject, @Nullable OGTestObject> complexKeyMap = new HashMap<>();
+			complexKeyMap.put(i5, i3);
+			complexKeyMap.put(null, i6);
+			complexKeyMap.put(i6, i6);
+			complexKeyMap.put(i2, null);
+			i3.complexKeyMap = complexKeyMap;
+		}
 		
 		tmp.add( new OGRelation(i3, OGTestObject.class, "complexKeyMap", ObjectGraphRelationType.MAP_KEY, null, i5) );
 		tmp.add( new OGRelation(i3, OGTestObject.class, "complexKeyMap", ObjectGraphRelationType.MAP_KEY, null, null) );
@@ -145,11 +154,14 @@ public class OGTest
 		registerDirectFields(tmp, i6);
 		
 		
-		i1.nestedMap = new HashMap<String, List<Collection<Map<String,OGTestObject>>>>();
 		List<Collection<Map<@Nullable String,@Nullable OGTestObject>>> nestedList0 = new ArrayList<>();
-		List<Collection<Map<String,OGTestObject>>> nestedList1 = new ArrayList<Collection<Map<String,OGTestObject>>>();
-		i1.nestedMap.put("a", nestedList0);
-		i1.nestedMap.put("b", nestedList1);
+		List<Collection<Map<@Nullable String,@Nullable OGTestObject>>> nestedList1 = new ArrayList<>();
+		{
+			HashMap<String, List<Collection<Map<@Nullable String,@Nullable OGTestObject>>>> nestedMap = new HashMap<>();
+			nestedMap.put("a", nestedList0);
+			nestedMap.put("b", nestedList1);
+			i1.nestedMap = nestedMap;
+		}
 		Collection<Map<@Nullable String, @Nullable OGTestObject>> nestedCollection0 = new HashSet<>();
 		Collection<Map<@Nullable String, @Nullable OGTestObject>> nestedCollection1 = new ArrayDeque<>(); // Use dequeue to preserve ordering for test
 		Collection<Map<@Nullable String, @Nullable OGTestObject>> nestedCollection2 = new HashSet<>(); 
@@ -556,8 +568,8 @@ public class OGTest
 		
 		{
 			// Skip test for collection and field
-			root.skipCollection = new ArrayList<>();
 			final OGTestSkip skip = new OGTestSkip();
+			root.skipCollection = new ArrayList<>();
 			root.skipCollection.add(skip);
 			final OGTestSkip2 skip2 = new OGTestSkip2();
 			skip.skip2 = skip2;
@@ -701,7 +713,7 @@ public class OGTest
 			}
 			
 			// clean up
-			root.setSkipMap(null);
+			root.setSkipMap(fakeNonNull()); // fakeNonNull() for warning-compatibility with old Eclipse
 		}
 		
 		// WARNING!! DESTRUCTIVE TEST -- MUST BE LAST.
