@@ -304,7 +304,7 @@ public class ValueOrProblem<V, P>
      * 
      * @return {@link ElseFunction} that should be used to chain .orElse(..) call
      */
-    public <R> ElseFunction<P, R, RuntimeException> ifValue(
+    public <R> ElseFunction<P, R, @Nonnull RuntimeException> ifValue(
     	FunctionWithExceptionType<? super V, R, @Nonnull RuntimeException> v) 
     {
     	return ifValueWithExceptionType(v);
@@ -331,7 +331,7 @@ public class ValueOrProblem<V, P>
      * 
      * @return {@link ElseFunction} that should be used to chain .orElse(..) call
      */
-    public <R> ElseFunction<P, R, InterruptedException> ifValueInterruptibly(
+    public <R> ElseFunction<P, R, @Nonnull InterruptedException> ifValueInterruptibly(
     	FunctionWithExceptionType<? super V, R, @Nonnull InterruptedException> v)
     		throws InterruptedException
     {

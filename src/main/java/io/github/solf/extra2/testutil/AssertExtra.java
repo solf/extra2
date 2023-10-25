@@ -801,7 +801,7 @@ public class AssertExtra
 		@SuppressWarnings("unchecked") SupplierWithException<Boolean>[] suppliers = new @Nonnull SupplierWithException[paths.length];
 		for (int i = 0; i < paths.length; i++)
 		{
-			FunctionWithException<V, Boolean> path = paths[i];
+			FunctionWithException<V, @Nonnull Boolean> path = paths[i];
 			suppliers[i] = () -> path.apply(value);
 		}
 		
