@@ -30,8 +30,6 @@ import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -356,8 +354,6 @@ public class KryoDB<T>
 		kryo.setDefaultSerializer(CompatibleFieldSerializer.class);
 		
 		// Register specific serializer(s).
-		kryo.addDefaultSerializer(TreeMap.class, KryoTreeMapExtSerializer.class); // Fix de-serialization for MapExt
-		kryo.addDefaultSerializer(TreeSet.class, KryoTreeSetExtSerializer.class); // Fix de-serialization for SetExt
 		kryo.addDefaultSerializer(LocalDate.class, KryoLocalDateSerializer.class);
 //		kryo.addDefaultSerializer(com.gargoylesoftware.htmlunit.util.Cookie.class, KryoHtmlUnitCookieSerializer.class);
 //		kryo.addDefaultSerializer(org.openqa.selenium.Cookie.class, KryoSeleniumCookieSerializer.class);

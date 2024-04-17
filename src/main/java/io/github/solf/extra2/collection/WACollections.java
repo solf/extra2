@@ -15,12 +15,9 @@
  */
 package io.github.solf.extra2.collection;
 
-import static io.github.solf.extra2.util.NullUtil.nn;
 import static io.github.solf.extra2.util.NullUtil.nonNull;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.AbstractList;
@@ -29,16 +26,11 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -49,8 +41,6 @@ import javax.annotation.Nullable;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import io.github.solf.extra2.util.TypeUtil;
-
 /**
  * Helpful stuff for collections.
  * 
@@ -59,97 +49,6 @@ import io.github.solf.extra2.util.TypeUtil;
 @NonNullByDefault
 public class WACollections
 {
-	/**
-	 * Method for accessing HashMap's getEntry in 'old' JDKs.
-	 */
-	@Nullable
-	private static final Method hashMapGetEntryMethod;
-	
-	/**
-	 * Method for accessing HashMap's getNode in 'new' JDKs.
-	 */
-	@Nullable
-	private static final Method hashMapGetNodeMethod;
-	
-	/**
-	 * Method for accessing HashMap's hash in 'new' JDKs.
-	 */
-	@Nullable
-	private static final Method hashMapHashMethod;
-	
-	/**
-	 * Method for accessing TreeMap's getEntry method
-	 */
-	private static final Method treeMapGetEntryMethod;
-	
-	/**
-	 * Field for accessing {@link HashSet} backing map field.
-	 */
-	private static final Field hashSetMapField;
-	
-	/**
-	 * Field for accessing {@link TreeSet} backing map field.
-	 */
-	private static final Field treeSetMapField;
-	
-	static
-	{
-		Method tmpHashMapGetEntryMethod = null;
-		Method tmpHashMapGetNodeMethod = null;
-		Method tmpHashMapHashMethod = null;
-		try
-		{
-			Method method = HashMap.class.getDeclaredMethod("getEntry", Object.class);
-			method.setAccessible(true);
-			tmpHashMapGetEntryMethod = method;
-		} catch (Exception e)
-		{
-			// Try 'new' JDK format.
-			try
-			{
-				tmpHashMapGetEntryMethod = null;
-				{
-					Method method = HashMap.class.getDeclaredMethod("getNode", int.class, Object.class);
-					method.setAccessible(true);
-					tmpHashMapGetNodeMethod = method;
-				}
-				{
-					Method method = HashMap.class.getDeclaredMethod("hash", Object.class);
-					method.setAccessible(true);
-					tmpHashMapHashMethod = method;
-				}
-			} catch (Exception e1)
-			{
-				throw new IllegalStateException("Failed to obtain / make accessible HashMap.getNode or HashMap.hash method (after HashMap.getEntry already failed): " + e1, e1);
-			}
-		}
-		
-		hashMapGetEntryMethod = tmpHashMapGetEntryMethod;
-		hashMapGetNodeMethod = tmpHashMapGetNodeMethod;
-		hashMapHashMethod = tmpHashMapHashMethod;
-		
-		try
-		{
-			Method method;
-			Field field;
-			
-			method = TreeMap.class.getDeclaredMethod("getEntry", Object.class);
-			method.setAccessible(true);
-			treeMapGetEntryMethod = method;
-			
-			field = HashSet.class.getDeclaredField("map");
-			field.setAccessible(true);
-			hashSetMapField = field;
-			
-			field = TreeSet.class.getDeclaredField("m");
-			field.setAccessible(true);
-			treeSetMapField = field;
-		} catch (Exception e)
-		{
-			throw new IllegalStateException("Failed to obtain required accessor methods: " + e, e);
-		}
-	}
-	
 	
 	/**
 	 * Implementation of Iterable over Enumeration.
@@ -474,111 +373,6 @@ public class WACollections
 	public static <T, C extends Collection<T>> @Nonnull ForIterable<T> toIterableValuesFromMapWithCollectionElements(@Nonnull Map<?, C> map)
 	{
 		return ForIterableOfIterable.of(map.values());
-	}
-
-	/**
-	 * A way to get entry (so you can access the key) from the HashMap -- specifically
-	 * HashMap as it uses internal HashMap method.
-	 * 
-	 * USES REFLECTION!!!
-	 * 
-	 * @throws IllegalStateException if reflection fails for some reasons (shouldn't really happen)
-	 */
-	@Nullable
-	public static <K, V> Entry<K, V> getEntry(HashMap<K, V> map, K key) throws IllegalStateException
-	{
-		try
-		{
-			if (hashMapGetEntryMethod != null)
-			{
-				return TypeUtil.coerceNullable(hashMapGetEntryMethod.invoke(map, key));
-			}
-			else
-			{
-				int hash = TypeUtil.coerce(nn(nn(hashMapHashMethod).invoke(map, key)));
-				return TypeUtil.coerceNullable(nn(hashMapGetNodeMethod).invoke(map, hash, key));
-			}
-		} catch (Exception e)
-		{
-			throw new IllegalStateException("Failed to retrieve entry from HashMap: " + e, e);
-		}
-	}
-
-	/**
-	 * A way to get entry (so you can access the key) from the TreeMap -- specifically
-	 * TreeMap as it uses internal TreeMap method.
-	 * 
-	 * USES REFLECTION!!!
-	 * 
-	 * @throws IllegalStateException if reflection fails for some reasons (shouldn't really happen)
-	 */
-	@Nullable
-	public static <K, V> Entry<K, V> getEntry(TreeMap<K, V> map, K key) throws IllegalStateException
-	{
-		try
-		{
-			return TypeUtil.coerceNullable(treeMapGetEntryMethod.invoke(map, key));
-		} catch (Exception e)
-		{
-			throw new IllegalStateException("Failed to retrieve entry from TreeMap: " + e, e);
-		}
-	}
-	
-	/**
-	 * Gets set item from the set by 'itself'. Relevant in case stuff in Set has
-	 * interesting fields that are not part of equals/hashCode.
-	 * 
-	 * This works specifically with {@link HashSet}
-	 * 
-	 * USES REFLECTION!!!
-	 * 
-	 * @throws IllegalStateException if reflection fails for some reasons (shouldn't really happen)
-	 */
-	@Nullable
-	public static <E> E getSetItem(HashSet<E> set, E item) throws IllegalStateException
-	{
-		try
-		{
-			HashMap<E, Object> backingMap = TypeUtil.coerceForceNonnull(hashSetMapField.get(set));
-			Entry<E, @Nonnull Object> entry = getEntry(backingMap, item);
-			if (entry == null)
-				return null;
-			
-			return entry.getKey();
-		} catch (Exception e)
-		{
-			throw new IllegalStateException("Failed to invoke HashMap.getEntry method: " + e, e);
-		}
-	}
-	
-	/**
-	 * Gets set item from the set by 'itself'. Relevant in case stuff in Set has
-	 * interesting fields that are not part of equals/hashCode.
-	 * 
-	 * This works specifically with {@link TreeSet}
-	 * 
-	 * USES REFLECTION!!!
-	 * 
-	 * @throws IllegalStateException if reflection fails for some reasons (shouldn't really happen)
-	 */
-	@Nullable
-	public static <E> E getSetItem(TreeSet<E> set, E item) throws IllegalStateException
-	{
-		try
-		{
-			Object obj = nn(treeSetMapField.get(set));
-			if (!(obj instanceof TreeMap))
-				throw new IllegalStateException("TreeSet backing map isn't TreeMap -- can't retrieve set item: " + obj.getClass() + ": " + set);
-			@Nonnull TreeMap<E, Object> backingMap = TypeUtil.coerceForceNonnull(obj);
-			Entry<E, @Nonnull Object> entry = getEntry(backingMap, item);
-			if (entry == null)
-				return null;
-			
-			return entry.getKey();
-		} catch (Exception e)
-		{
-			throw new IllegalStateException("Failed to invoke TreeMap.getEntry method: " + e, e);
-		}
 	}
 	
 	/**
