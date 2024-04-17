@@ -97,9 +97,6 @@ pre-existing set and map instances (BMap/ReadOnlyMap; BSet/ReadOnlySet) and
 extended functionality that cannot be done in a simple wrapper 
 (EMap/EReadOnlyMap/RMap; ESet/RSet).
 
-Also older misc collections extensions, in particular ability to obtain value 
-from set and entry from map via reflection (HashMapExt, HashSetExt, WACollections).
-
 ItemSampler provides a way to 'sample' (aggregate fixed-size list) items over 
 an unknown-length source list -- it tries to space sample items more or less
 equidistantly.
