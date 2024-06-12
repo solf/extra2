@@ -171,6 +171,13 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<!-- Used by ExternalAppSoundAppender, but not packaged as dependency as projects may not use logback at all -->
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.5.6</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.32</version>
