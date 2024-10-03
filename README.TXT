@@ -373,6 +373,7 @@ actual cache implementation code does not need to worry about concurrency
 issues.
 
 See WBRBCache.png in this directory for an overview of the cache operation.
+(drawn using draw.io / app.diagrams.net, source stored in 'spam' google drive)
 
 The internal cache functionality is quite complex, however using the cache is
 not -- see ExampleSignalCache for an example of cache implementation (to write
