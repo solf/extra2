@@ -49,8 +49,12 @@ public class Configuration
 	/**
 	 * Creates configuration from properties file which must be located on the
 	 * classpath.
-	 * Generally follows {@link ResourceBundle#getBundle(String)}.
-	 * 
+	 * <p>
+	 * If you want to load from non-classpath location, consider using
+	 * {@link #fromPropertiesFile(File)}
+	 * <p>
+	 * This method generally follows {@link ResourceBundle#getBundle(String)}.
+	 * <p>
 	 * However unlike {@link ResourceBundle#getBundle(String)} this method will
 	 * accept full file name (including .properties suffix).
 	 */

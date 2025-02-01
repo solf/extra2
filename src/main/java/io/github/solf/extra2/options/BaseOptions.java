@@ -1240,12 +1240,31 @@ public class BaseOptions
 	/**
 	 * Gets directory as a {@link File} instance.
 	 * If this method returns without exception, then it is guaranteed that
-	 * returned File instance specifies an existing (possibly just created) directory.
+	 * returned File instance specifies an existing directory.
+	 * <p>
+	 * If directory doesn't exist, an attempt will be made to create it.
 	 * 
 	 * @throws MissingResourceException if option value not found.
-	 * @throws IllegalArgumentException if option value doesn't parse
+	 * @throws IllegalArgumentException if directory doesn't exist and cannot be
+	 * 		created; if target is non-directory
 	 */
 	public File getDirectory(String option) throws MissingResourceException, IllegalArgumentException
+	{
+		return getDirectory(option, true);
+	}
+	
+	/**
+	 * Gets directory as a {@link File} instance.
+	 * If this method returns without exception, then it is guaranteed that
+	 * returned File instance specifies an existing (possibly just created) directory.
+	 * 
+	 * @param createIfMissing whether an attempt is made to create the directory
+	 * 		if it doesn't already exist
+	 * @throws MissingResourceException if option value not found.
+	 * @throws IllegalArgumentException if directory doesn't exist and cannot be
+	 * 		created (or creating is not requested); if target is non-directory
+	 */
+	public File getDirectory(String option, boolean createIfMissing) throws MissingResourceException, IllegalArgumentException
 	{
 		String strVal = getString(option);
 		
@@ -1253,8 +1272,13 @@ public class BaseOptions
 		
 		if (!dir.exists())
 		{
-			if (!dir.mkdirs())
-				throw new IllegalArgumentException("Unable to create directory for property [" + option + "] value: " + dir);
+			if (createIfMissing)
+			{
+				if (!dir.mkdirs())
+					throw new IllegalArgumentException("Unable to create directory for property [" + option + "] value: " + dir);
+			}
+			else
+				throw new IllegalArgumentException("Directory doesn't exist -- property [" + option + "] value: " + dir);
 		}
 		
 		if (!dir.isDirectory())
