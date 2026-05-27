@@ -16,6 +16,7 @@
 package io.github.solf.extra2.console;
 
 import static io.github.solf.extra2.util.NullUtil.nn;
+import static io.github.solf.extra2.util.NullUtil.nnChecked;
 import static io.github.solf.extra2.util.NullUtil.nnc;
 import static io.github.solf.extra2.util.NullUtil.nullable;
 
@@ -46,7 +47,7 @@ public class Console
 	/**
 	 * Whether we are running on Windows.
 	 */
-	public static boolean isWindows = System.getProperty("os.name").contains("Windows");
+	public static boolean isWindows = nnChecked(System.getProperty("os.name")).contains("Windows");
 	
 	/**
 	 * Reader for console input (lazily initialized, so access only inside synchronized).
