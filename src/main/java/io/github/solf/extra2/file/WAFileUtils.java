@@ -83,7 +83,44 @@ public class WAFileUtils
 		String storageDir, int numberOfDays, @Nullable String additionalDirectory)
 		throws IllegalStateException
 	{
-		File fDirToBackup = new File(dirToBackup);
+		return directoryRollingBackup(today, new File(dirToBackup), new File(storageDir), numberOfDays, additionalDirectory);
+	}
+	
+	/**
+	 * Rolling backup (once per day) for a given directory.
+	 * The target directory contains backup (one per day, named in YYYY-MM-DD
+	 * format).
+	 * Optionally backup directory can also contain named directory that is used
+	 * to store latest backup (in addition to normal location) -- this is useful
+	 * for e.g. automatic off-site backups from that directory.
+	 * 
+	 * NOTE: will check if 'today' backup already exists, if it does -- then does
+	 * nothing (i.e. no more than one actual backup per day)
+	 * 
+	 * NOTE2: old backup deletion is date-based; if the method is not invoked at
+	 * least once per day, some old backups may never be deleted
+	 * 
+	 * @param today today's date (used for naming backup directory); it is provided
+	 * 		as it could differ from system date depending on usage
+	 * @param dirToBackup which directory to backup; exception if directory does
+	 * 		not exist
+	 * @param storageDir where to backup (this directory will contain YYYY-MM-DD
+	 * 		dirs and optional 'yesterday' dir)
+	 * @param numberOfDays for how many days to keep backups
+	 * @param additionalDirectory if not null, latest backup will also be copied
+	 * 		to that directory (in addition to normal location)
+	 * 
+	 * @return true if backup was performed, false if not (if backup was already
+	 * 		done today)
+	 * 
+	 * @throws IllegalStateException if something is wrong, e.g. missing dir to
+	 * 		backup
+	 */
+	public static boolean directoryRollingBackup(LocalDate today, File dirToBackup,
+		File storageDir, int numberOfDays, @Nullable String additionalDirectory)
+		throws IllegalStateException
+	{
+		File fDirToBackup = dirToBackup;
 		if (!fDirToBackup.exists())
 			throw new IllegalArgumentException("Missing source directory for rolling backup: " + dirToBackup);
 		if (!fDirToBackup.isDirectory())
@@ -92,7 +129,7 @@ public class WAFileUtils
 		// Backup directory.
 		{
 			String backupName = today.toString();
-			File bakDir = new File(storageDir + File.separatorChar + backupName);
+			File bakDir = new File(storageDir, backupName);
 			
 			// Only if backup doesn't exist yet.
 			if( bakDir.exists() )
@@ -111,7 +148,7 @@ public class WAFileUtils
 			// Also create 'named' backup directory if requested.
 			if (additionalDirectory != null)
 			{
-				File fAdditionalDirectory = new File(storageDir + File.separatorChar + additionalDirectory);
+				File fAdditionalDirectory = new File(storageDir, additionalDirectory);
 				if( fAdditionalDirectory.exists() )
 				{
 					try
@@ -137,7 +174,7 @@ public class WAFileUtils
 		// Delete old backup.
 		{
 			String monthAgo = today.minusDays(numberOfDays).toString();
-			File oldBakDir = new File(storageDir + File.separatorChar + monthAgo);
+			File oldBakDir = new File(storageDir, monthAgo);
 			// Delete old backup directory if exists.
 			if (oldBakDir.exists() && oldBakDir.isDirectory())
 			{
